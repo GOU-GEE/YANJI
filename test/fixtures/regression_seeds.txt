@@ -1,0 +1,2 @@
+# Seeds that exposed a production convergence bug. Keep permanently after fixes.
+# One decimal seed per line; optional trailing comment. No fabricated failures.

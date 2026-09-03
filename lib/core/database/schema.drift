@@ -1,0 +1,203 @@
+CREATE TABLE oplog (
+  op_id TEXT NOT NULL PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  origin_device_id TEXT NOT NULL,
+  origin_seq INTEGER NOT NULL CHECK (origin_seq > 0),
+  wire_version INTEGER NOT NULL CHECK (wire_version > 0),
+  hlc_wall_ms INTEGER NOT NULL CHECK (hlc_wall_ms >= 0),
+  hlc_counter INTEGER NOT NULL CHECK (hlc_counter >= 0),
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  "action" TEXT NOT NULL,
+  payload_schema_version INTEGER NOT NULL CHECK (payload_schema_version > 0),
+  envelope_bytes BLOB NOT NULL,
+  signature BLOB NOT NULL CHECK (length(signature) = 64),
+  received_from_device_id TEXT,
+  received_at_ms INTEGER,
+  apply_state TEXT NOT NULL DEFAULT 'pending_entity_create' CHECK (apply_state IN (
+    'applied', 'pending_entity_create', 'pending_dependency', 'pending_authorization',
+    'pending_schema', 'unauthorized_revoked', 'invalid_domain')),
+  retry_count INTEGER NOT NULL DEFAULT 0,
+  local_error TEXT,
+  UNIQUE (workspace_id, origin_device_id, origin_seq)
+);
+CREATE INDEX idx_oplog_origin ON oplog (workspace_id, origin_device_id, origin_seq);
+CREATE INDEX idx_oplog_entity ON oplog (workspace_id, entity_type, entity_id);
+CREATE TRIGGER oplog_immutable
+BEFORE UPDATE OF op_id, workspace_id, origin_device_id, origin_seq, wire_version,
+  hlc_wall_ms, hlc_counter, entity_type, entity_id, "action", payload_schema_version,
+  envelope_bytes, signature ON oplog
+BEGIN
+  SELECT RAISE(ABORT, 'Operation content is immutable');
+END;
+CREATE TRIGGER oplog_no_delete BEFORE DELETE ON oplog
+BEGIN
+  SELECT RAISE(ABORT, 'V1 retains all operations');
+END;
+CREATE TRIGGER oplog_no_replace BEFORE INSERT ON oplog
+WHEN EXISTS (SELECT 1 FROM oplog WHERE op_id = NEW.op_id OR
+  (workspace_id = NEW.workspace_id AND origin_device_id = NEW.origin_device_id AND origin_seq = NEW.origin_seq))
+BEGIN
+  SELECT RAISE(ABORT, 'Operation identity already exists');
+END;
+
+CREATE TABLE workspace_clock_state (
+  workspace_id TEXT NOT NULL,
+  device_id TEXT NOT NULL,
+  next_origin_seq INTEGER NOT NULL DEFAULT 1 CHECK (next_origin_seq > 0),
+  last_hlc_wall_ms INTEGER NOT NULL DEFAULT 0 CHECK (last_hlc_wall_ms >= 0),
+  last_hlc_counter INTEGER NOT NULL DEFAULT 0 CHECK (last_hlc_counter >= 0),
+  PRIMARY KEY (workspace_id, device_id)
+);
+CREATE TABLE observed_origins (
+  workspace_id TEXT NOT NULL,
+  device_id TEXT NOT NULL,
+  origin_device_id TEXT NOT NULL,
+  max_observed_seq INTEGER NOT NULL CHECK (max_observed_seq >= 0),
+  PRIMARY KEY (workspace_id, device_id, origin_device_id)
+);
+CREATE TABLE sync_quarantine (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  reason TEXT NOT NULL,
+  received_at_ms INTEGER NOT NULL
+);
+
+
+CREATE TABLE workspaces (
+ id TEXT NOT NULL PRIMARY KEY,
+ name TEXT NOT NULL,
+ stats_timezone TEXT NOT NULL,
+ created_at_ms INTEGER NOT NULL CHECK (created_at_ms >= 0),
+ created_by_device_id TEXT NOT NULL
+);
+CREATE TABLE trusted_devices (
+ workspace_id TEXT NOT NULL,
+ device_id TEXT NOT NULL,
+ identity_public_key BLOB NOT NULL CHECK (length(identity_public_key)=32),
+ trust_state TEXT NOT NULL CHECK (trust_state IN ('active','pending','revoked')),
+ max_allowed_origin_seq INTEGER CHECK (max_allowed_origin_seq >= 0),
+ PRIMARY KEY (workspace_id,device_id)
+);
+CREATE TABLE exam_profiles (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL UNIQUE REFERENCES workspaces(id),
+ exam_name TEXT,
+ exam_date TEXT,
+ target_school TEXT,
+ target_major TEXT,
+ target_total_score_x100 INTEGER CHECK (target_total_score_x100 >= 0)
+);
+CREATE TABLE subjects (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+ name TEXT NOT NULL,
+ category TEXT,
+ target_score_x100 INTEGER CHECK (target_score_x100 >= 0),
+ max_score_x100 INTEGER CHECK (max_score_x100 >= 0),
+ sort_order INTEGER NOT NULL DEFAULT 0,
+ archived INTEGER NOT NULL DEFAULT 0 CHECK (archived IN (0,1)),
+ UNIQUE (workspace_id,id)
+);
+CREATE TABLE tasks (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+ title TEXT NOT NULL,
+ subject_id TEXT,
+ knowledge_node_id TEXT,
+ scheduled_date TEXT,
+ due_at_ms INTEGER CHECK (due_at_ms >= 0),
+ estimated_seconds INTEGER CHECK (estimated_seconds >= 0),
+ priority INTEGER NOT NULL DEFAULT 0,
+ sort_order INTEGER NOT NULL DEFAULT 0,
+ status TEXT NOT NULL CHECK (status IN ('todo','doing','completed','cancelled')),
+ completed_at_ms INTEGER CHECK (completed_at_ms >= 0),
+ note TEXT,
+ UNIQUE (workspace_id,id),
+ FOREIGN KEY (workspace_id,subject_id) REFERENCES subjects(workspace_id,id)
+);
+CREATE TABLE daily_reviews (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+ review_date TEXT NOT NULL,
+ content TEXT NOT NULL,
+ UNIQUE (workspace_id,review_date)
+);
+CREATE TABLE study_sessions (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL REFERENCES workspaces(id),
+ subject_id TEXT NOT NULL,
+ task_id TEXT,
+ knowledge_node_id TEXT,
+ owner_device_id TEXT NOT NULL,
+ status TEXT NOT NULL CHECK (status IN ('active','paused','completed')),
+ started_at_ms INTEGER NOT NULL CHECK (started_at_ms >= 0),
+ ended_at_ms INTEGER,
+ mode TEXT NOT NULL CHECK (mode IN ('stopwatch','pomodoro')),
+ note TEXT,
+ CHECK ((status='completed' AND ended_at_ms IS NOT NULL AND ended_at_ms >= started_at_ms) OR (status<>'completed' AND ended_at_ms IS NULL)),
+ UNIQUE (workspace_id,id),
+ FOREIGN KEY (workspace_id,subject_id) REFERENCES subjects(workspace_id,id),
+ FOREIGN KEY (workspace_id,task_id) REFERENCES tasks(workspace_id,id),
+ FOREIGN KEY (workspace_id,owner_device_id) REFERENCES trusted_devices(workspace_id,device_id)
+);
+CREATE TABLE study_session_segments (
+ id TEXT NOT NULL PRIMARY KEY,
+ workspace_id TEXT NOT NULL,
+ session_id TEXT NOT NULL,
+ started_at_ms INTEGER NOT NULL CHECK (started_at_ms >= 0),
+ ended_at_ms INTEGER CHECK (ended_at_ms >= started_at_ms),
+ FOREIGN KEY (workspace_id,session_id) REFERENCES study_sessions(workspace_id,id)
+);
+CREATE UNIQUE INDEX one_open_segment ON study_session_segments(workspace_id,session_id) WHERE ended_at_ms IS NULL;
+CREATE VIEW session_durations AS
+ SELECT workspace_id,session_id,SUM(COALESCE(ended_at_ms-started_at_ms,0)) AS duration_ms
+ FROM study_session_segments GROUP BY workspace_id,session_id;
+CREATE TABLE entity_field_clock (
+ workspace_id TEXT NOT NULL,
+ entity_type TEXT NOT NULL,
+ entity_id TEXT NOT NULL,
+ field_name TEXT NOT NULL,
+ winner_op_id TEXT NOT NULL REFERENCES oplog(op_id),
+ hlc_wall_ms INTEGER NOT NULL,
+ hlc_counter INTEGER NOT NULL,
+ origin_device_id TEXT NOT NULL,
+ origin_seq INTEGER NOT NULL,
+ value_bytes BLOB NOT NULL,
+ PRIMARY KEY (workspace_id,entity_type,entity_id,field_name)
+);
+CREATE TABLE tombstones (
+ workspace_id TEXT NOT NULL,
+ entity_type TEXT NOT NULL CHECK (entity_type<>'daily_review'),
+ entity_id TEXT NOT NULL,
+ delete_op_id TEXT NOT NULL REFERENCES oplog(op_id),
+ hlc_wall_ms INTEGER NOT NULL,
+ hlc_counter INTEGER NOT NULL,
+ origin_device_id TEXT NOT NULL,
+ origin_seq INTEGER NOT NULL,
+ PRIMARY KEY (workspace_id,entity_type,entity_id)
+);
+CREATE TABLE text_field_versions (
+ workspace_id TEXT NOT NULL,
+ entity_type TEXT NOT NULL,
+ entity_id TEXT NOT NULL,
+ field_name TEXT NOT NULL,
+ op_id TEXT NOT NULL REFERENCES oplog(op_id),
+ origin_device_id TEXT NOT NULL,
+ origin_seq INTEGER NOT NULL,
+ value TEXT NOT NULL,
+ is_active INTEGER NOT NULL CHECK (is_active=1),
+ PRIMARY KEY (workspace_id,entity_type,entity_id,field_name,op_id)
+);
+CREATE TABLE materialization_state (
+ workspace_id TEXT NOT NULL,
+ entity_type TEXT NOT NULL,
+ entity_id TEXT NOT NULL,
+ state TEXT NOT NULL CHECK (state IN ('pending_create','pending_dependency','materialized','deleted')),
+ PRIMARY KEY (workspace_id,entity_type,entity_id)
+);
+CREATE TABLE origin_progress (
+ workspace_id TEXT NOT NULL,
+ origin_device_id TEXT NOT NULL,
+ max_contiguous_seq INTEGER NOT NULL CHECK (max_contiguous_seq >= 0),
+ PRIMARY KEY (workspace_id,origin_device_id)
+);

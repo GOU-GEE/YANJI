@@ -1,0 +1,2059 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "oplog",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "op_id",
+            "getter_name": "opId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_seq",
+            "getter_name": "originSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (origin_seq > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "wire_version",
+            "getter_name": "wireVersion",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (wire_version > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hlc_wall_ms",
+            "getter_name": "hlcWallMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (hlc_wall_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hlc_counter",
+            "getter_name": "hlcCounter",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (hlc_counter >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_type",
+            "getter_name": "entityType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_id",
+            "getter_name": "entityId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "action",
+            "getter_name": "action",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "payload_schema_version",
+            "getter_name": "payloadSchemaVersion",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (payload_schema_version > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "envelope_bytes",
+            "getter_name": "envelopeBytes",
+            "moor_type": "blob",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "signature",
+            "getter_name": "signature",
+            "moor_type": "blob",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(signature) = 64)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "received_from_device_id",
+            "getter_name": "receivedFromDeviceId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "received_at_ms",
+            "getter_name": "receivedAtMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "apply_state",
+            "getter_name": "applyState",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 'pending_entity_create' CHECK (apply_state IN ('applied', 'pending_entity_create', 'pending_dependency', 'pending_authorization', 'pending_schema', 'unauthorized_revoked', 'invalid_domain'))",
+            "default_dart": "const CustomExpression('\\'pending_entity_create\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "retry_count",
+            "getter_name": "retryCount",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "local_error",
+            "getter_name": "localError",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "UNIQUE(workspace_id, origin_device_id, origin_seq)"
+        ],
+        "unique_keys": [
+          [
+            "workspace_id",
+            "origin_device_id",
+            "origin_seq"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "references": [
+        0
+      ],
+      "type": "index",
+      "data": {
+        "on": 0,
+        "name": "idx_oplog_origin",
+        "sql": "CREATE INDEX idx_oplog_origin ON oplog (workspace_id, origin_device_id, origin_seq);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 2,
+      "references": [
+        0
+      ],
+      "type": "index",
+      "data": {
+        "on": 0,
+        "name": "idx_oplog_entity",
+        "sql": "CREATE INDEX idx_oplog_entity ON oplog (workspace_id, entity_type, entity_id);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 3,
+      "references": [
+        0
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 0,
+        "references_in_body": [
+          0
+        ],
+        "name": "oplog_immutable",
+        "sql": "CREATE TRIGGER oplog_immutable\nBEFORE UPDATE OF op_id, workspace_id, origin_device_id, origin_seq, wire_version,\n  hlc_wall_ms, hlc_counter, entity_type, entity_id, \"action\", payload_schema_version,\n  envelope_bytes, signature ON oplog\nBEGIN\n  SELECT RAISE(ABORT, 'Operation content is immutable');\nEND;"
+      }
+    },
+    {
+      "id": 4,
+      "references": [
+        0
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 0,
+        "references_in_body": [
+          0
+        ],
+        "name": "oplog_no_delete",
+        "sql": "CREATE TRIGGER oplog_no_delete BEFORE DELETE ON oplog\nBEGIN\n  SELECT RAISE(ABORT, 'V1 retains all operations');\nEND;"
+      }
+    },
+    {
+      "id": 5,
+      "references": [
+        0
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 0,
+        "references_in_body": [
+          0
+        ],
+        "name": "oplog_no_replace",
+        "sql": "CREATE TRIGGER oplog_no_replace BEFORE INSERT ON oplog\nWHEN EXISTS (SELECT 1 FROM oplog WHERE op_id = NEW.op_id OR\n  (workspace_id = NEW.workspace_id AND origin_device_id = NEW.origin_device_id AND origin_seq = NEW.origin_seq))\nBEGIN\n  SELECT RAISE(ABORT, 'Operation identity already exists');\nEND;"
+      }
+    },
+    {
+      "id": 6,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "workspace_clock_state",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "next_origin_seq",
+            "getter_name": "nextOriginSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 1 CHECK (next_origin_seq > 0)",
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_hlc_wall_ms",
+            "getter_name": "lastHlcWallMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0 CHECK (last_hlc_wall_ms >= 0)",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_hlc_counter",
+            "getter_name": "lastHlcCounter",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0 CHECK (last_hlc_counter >= 0)",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, device_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "device_id"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "observed_origins",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "max_observed_seq",
+            "getter_name": "maxObservedSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (max_observed_seq >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, device_id, origin_device_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "device_id",
+          "origin_device_id"
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "sync_quarantine",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY AUTOINCREMENT",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "reason",
+            "getter_name": "reason",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "received_at_ms",
+            "getter_name": "receivedAtMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 9,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "workspaces",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "stats_timezone",
+            "getter_name": "statsTimezone",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at_ms",
+            "getter_name": "createdAtMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (created_at_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_by_device_id",
+            "getter_name": "createdByDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 10,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "trusted_devices",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "identity_public_key",
+            "getter_name": "identityPublicKey",
+            "moor_type": "blob",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(identity_public_key) = 32)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "trust_state",
+            "getter_name": "trustState",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (trust_state IN ('active', 'pending', 'revoked'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "max_allowed_origin_seq",
+            "getter_name": "maxAllowedOriginSeq",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (max_allowed_origin_seq >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, device_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "device_id"
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "references": [
+        9
+      ],
+      "type": "table",
+      "data": {
+        "name": "exam_profiles",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL UNIQUE REFERENCES workspaces(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique",
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "workspaces",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "exam_name",
+            "getter_name": "examName",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "exam_date",
+            "getter_name": "examDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_school",
+            "getter_name": "targetSchool",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_major",
+            "getter_name": "targetMajor",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_total_score_x100",
+            "getter_name": "targetTotalScoreX100",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (target_total_score_x100 >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 12,
+      "references": [
+        9
+      ],
+      "type": "table",
+      "data": {
+        "name": "subjects",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES workspaces(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "workspaces",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "category",
+            "getter_name": "category",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "target_score_x100",
+            "getter_name": "targetScoreX100",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (target_score_x100 >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "max_score_x100",
+            "getter_name": "maxScoreX100",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (max_score_x100 >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sort_order",
+            "getter_name": "sortOrder",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "archived",
+            "getter_name": "archived",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0 CHECK (archived IN (0, 1))",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "UNIQUE(workspace_id, id)"
+        ],
+        "unique_keys": [
+          [
+            "workspace_id",
+            "id"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "references": [
+        9,
+        12
+      ],
+      "type": "table",
+      "data": {
+        "name": "tasks",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES workspaces(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "workspaces",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "subject_id",
+            "getter_name": "subjectId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "knowledge_node_id",
+            "getter_name": "knowledgeNodeId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "scheduled_date",
+            "getter_name": "scheduledDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "due_at_ms",
+            "getter_name": "dueAtMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (due_at_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "estimated_seconds",
+            "getter_name": "estimatedSeconds",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (estimated_seconds >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "priority",
+            "getter_name": "priority",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sort_order",
+            "getter_name": "sortOrder",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (status IN ('todo', 'doing', 'completed', 'cancelled'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "completed_at_ms",
+            "getter_name": "completedAtMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (completed_at_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "UNIQUE(workspace_id, id)",
+          "FOREIGN KEY(workspace_id, subject_id)REFERENCES subjects(workspace_id, id)"
+        ],
+        "unique_keys": [
+          [
+            "workspace_id",
+            "id"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 14,
+      "references": [
+        9
+      ],
+      "type": "table",
+      "data": {
+        "name": "daily_reviews",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES workspaces(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "workspaces",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "review_date",
+            "getter_name": "reviewDate",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "content",
+            "getter_name": "content",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "UNIQUE(workspace_id, review_date)"
+        ],
+        "unique_keys": [
+          [
+            "workspace_id",
+            "review_date"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 15,
+      "references": [
+        9,
+        12,
+        13,
+        10
+      ],
+      "type": "table",
+      "data": {
+        "name": "study_sessions",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES workspaces(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "workspaces",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "subject_id",
+            "getter_name": "subjectId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "task_id",
+            "getter_name": "taskId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "knowledge_node_id",
+            "getter_name": "knowledgeNodeId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "owner_device_id",
+            "getter_name": "ownerDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (status IN ('active', 'paused', 'completed'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "started_at_ms",
+            "getter_name": "startedAtMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (started_at_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ended_at_ms",
+            "getter_name": "endedAtMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "mode",
+            "getter_name": "mode",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (mode IN ('stopwatch', 'pomodoro'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "CHECK((status = 'completed' AND ended_at_ms IS NOT NULL AND ended_at_ms >= started_at_ms)OR(status <> 'completed' AND ended_at_ms IS NULL))",
+          "UNIQUE(workspace_id, id)",
+          "FOREIGN KEY(workspace_id, subject_id)REFERENCES subjects(workspace_id, id)",
+          "FOREIGN KEY(workspace_id, task_id)REFERENCES tasks(workspace_id, id)",
+          "FOREIGN KEY(workspace_id, owner_device_id)REFERENCES trusted_devices(workspace_id, device_id)"
+        ],
+        "unique_keys": [
+          [
+            "workspace_id",
+            "id"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "references": [
+        15
+      ],
+      "type": "table",
+      "data": {
+        "name": "study_session_segments",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "session_id",
+            "getter_name": "sessionId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "started_at_ms",
+            "getter_name": "startedAtMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (started_at_ms >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ended_at_ms",
+            "getter_name": "endedAtMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "CHECK (ended_at_ms >= started_at_ms)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "FOREIGN KEY(workspace_id, session_id)REFERENCES study_sessions(workspace_id, id)"
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "references": [
+        16
+      ],
+      "type": "index",
+      "data": {
+        "on": 16,
+        "name": "one_open_segment",
+        "sql": "CREATE UNIQUE INDEX one_open_segment ON study_session_segments(workspace_id,session_id) WHERE ended_at_ms IS NULL;",
+        "unique": true,
+        "columns": []
+      }
+    },
+    {
+      "id": 18,
+      "references": [
+        16
+      ],
+      "type": "view",
+      "data": {
+        "name": "session_durations",
+        "sql": "CREATE VIEW session_durations AS SELECT workspace_id, session_id, SUM(COALESCE(ended_at_ms - started_at_ms, 0)) AS duration_ms FROM study_session_segments GROUP BY workspace_id, session_id",
+        "dart_info_name": "SessionDurations",
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "session_id",
+            "getter_name": "sessionId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "duration_ms",
+            "getter_name": "durationMs",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ]
+      }
+    },
+    {
+      "id": 19,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "entity_field_clock",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_type",
+            "getter_name": "entityType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_id",
+            "getter_name": "entityId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "field_name",
+            "getter_name": "fieldName",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "winner_op_id",
+            "getter_name": "winnerOpId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES oplog(op_id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "oplog",
+                    "column": "op_id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "hlc_wall_ms",
+            "getter_name": "hlcWallMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hlc_counter",
+            "getter_name": "hlcCounter",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_seq",
+            "getter_name": "originSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "value_bytes",
+            "getter_name": "valueBytes",
+            "moor_type": "blob",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, entity_type, entity_id, field_name)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "entity_type",
+          "entity_id",
+          "field_name"
+        ]
+      }
+    },
+    {
+      "id": 20,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "tombstones",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_type",
+            "getter_name": "entityType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (entity_type <> 'daily_review')",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_id",
+            "getter_name": "entityId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "delete_op_id",
+            "getter_name": "deleteOpId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES oplog(op_id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "oplog",
+                    "column": "op_id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "hlc_wall_ms",
+            "getter_name": "hlcWallMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hlc_counter",
+            "getter_name": "hlcCounter",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_seq",
+            "getter_name": "originSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, entity_type, entity_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "entity_type",
+          "entity_id"
+        ]
+      }
+    },
+    {
+      "id": 21,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "text_field_versions",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_type",
+            "getter_name": "entityType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_id",
+            "getter_name": "entityId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "field_name",
+            "getter_name": "fieldName",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "op_id",
+            "getter_name": "opId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES oplog(op_id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "oplog",
+                    "column": "op_id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_seq",
+            "getter_name": "originSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "value",
+            "getter_name": "value",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_active",
+            "getter_name": "isActive",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (is_active = 1)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, entity_type, entity_id, field_name, op_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "entity_type",
+          "entity_id",
+          "field_name",
+          "op_id"
+        ]
+      }
+    },
+    {
+      "id": 22,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "materialization_state",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_type",
+            "getter_name": "entityType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "entity_id",
+            "getter_name": "entityId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "state",
+            "getter_name": "state",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (state IN ('pending_create', 'pending_dependency', 'materialized', 'deleted'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, entity_type, entity_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "entity_type",
+          "entity_id"
+        ]
+      }
+    },
+    {
+      "id": 23,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "origin_progress",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "workspace_id",
+            "getter_name": "workspaceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "origin_device_id",
+            "getter_name": "originDeviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "max_contiguous_seq",
+            "getter_name": "maxContiguousSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (max_contiguous_seq >= 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [
+          "PRIMARY KEY(workspace_id, origin_device_id)"
+        ],
+        "explicit_pk": [
+          "workspace_id",
+          "origin_device_id"
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "oplog",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"oplog\" (\"op_id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL, \"origin_device_id\" TEXT NOT NULL, \"origin_seq\" INTEGER NOT NULL CHECK (origin_seq > 0), \"wire_version\" INTEGER NOT NULL CHECK (wire_version > 0), \"hlc_wall_ms\" INTEGER NOT NULL CHECK (hlc_wall_ms >= 0), \"hlc_counter\" INTEGER NOT NULL CHECK (hlc_counter >= 0), \"entity_type\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"action\" TEXT NOT NULL, \"payload_schema_version\" INTEGER NOT NULL CHECK (payload_schema_version > 0), \"envelope_bytes\" BLOB NOT NULL, \"signature\" BLOB NOT NULL CHECK (length(signature) = 64), \"received_from_device_id\" TEXT, \"received_at_ms\" INTEGER, \"apply_state\" TEXT NOT NULL DEFAULT 'pending_entity_create' CHECK (apply_state IN ('applied', 'pending_entity_create', 'pending_dependency', 'pending_authorization', 'pending_schema', 'unauthorized_revoked', 'invalid_domain')), \"retry_count\" INTEGER NOT NULL DEFAULT 0, \"local_error\" TEXT, UNIQUE(workspace_id, origin_device_id, origin_seq));"
+        }
+      ]
+    },
+    {
+      "name": "idx_oplog_origin",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX idx_oplog_origin ON oplog (workspace_id, origin_device_id, origin_seq)"
+        }
+      ]
+    },
+    {
+      "name": "idx_oplog_entity",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX idx_oplog_entity ON oplog (workspace_id, entity_type, entity_id)"
+        }
+      ]
+    },
+    {
+      "name": "oplog_immutable",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER oplog_immutable BEFORE UPDATE OF op_id, workspace_id, origin_device_id, origin_seq, wire_version, hlc_wall_ms, hlc_counter, entity_type, entity_id, \"action\", payload_schema_version, envelope_bytes, signature ON oplog BEGIN SELECT RAISE (ABORT, 'Operation content is immutable');END"
+        }
+      ]
+    },
+    {
+      "name": "oplog_no_delete",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER oplog_no_delete BEFORE DELETE ON oplog BEGIN SELECT RAISE (ABORT, 'V1 retains all operations');END"
+        }
+      ]
+    },
+    {
+      "name": "oplog_no_replace",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER oplog_no_replace BEFORE INSERT ON oplog WHEN EXISTS (SELECT 1 FROM oplog WHERE op_id = NEW.op_id OR(workspace_id = NEW.workspace_id AND origin_device_id = NEW.origin_device_id AND origin_seq = NEW.origin_seq)) BEGIN SELECT RAISE (ABORT, 'Operation identity already exists');END"
+        }
+      ]
+    },
+    {
+      "name": "workspace_clock_state",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"workspace_clock_state\" (\"workspace_id\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"next_origin_seq\" INTEGER NOT NULL DEFAULT 1 CHECK (next_origin_seq > 0), \"last_hlc_wall_ms\" INTEGER NOT NULL DEFAULT 0 CHECK (last_hlc_wall_ms >= 0), \"last_hlc_counter\" INTEGER NOT NULL DEFAULT 0 CHECK (last_hlc_counter >= 0), PRIMARY KEY(workspace_id, device_id));"
+        }
+      ]
+    },
+    {
+      "name": "observed_origins",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"observed_origins\" (\"workspace_id\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"origin_device_id\" TEXT NOT NULL, \"max_observed_seq\" INTEGER NOT NULL CHECK (max_observed_seq >= 0), PRIMARY KEY(workspace_id, device_id, origin_device_id));"
+        }
+      ]
+    },
+    {
+      "name": "sync_quarantine",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"sync_quarantine\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"reason\" TEXT NOT NULL, \"received_at_ms\" INTEGER NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "workspaces",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"workspaces\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"name\" TEXT NOT NULL, \"stats_timezone\" TEXT NOT NULL, \"created_at_ms\" INTEGER NOT NULL CHECK (created_at_ms >= 0), \"created_by_device_id\" TEXT NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "trusted_devices",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"trusted_devices\" (\"workspace_id\" TEXT NOT NULL, \"device_id\" TEXT NOT NULL, \"identity_public_key\" BLOB NOT NULL CHECK (length(identity_public_key) = 32), \"trust_state\" TEXT NOT NULL CHECK (trust_state IN ('active', 'pending', 'revoked')), \"max_allowed_origin_seq\" INTEGER CHECK (max_allowed_origin_seq >= 0), PRIMARY KEY(workspace_id, device_id));"
+        }
+      ]
+    },
+    {
+      "name": "exam_profiles",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"exam_profiles\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL UNIQUE REFERENCES workspaces(id), \"exam_name\" TEXT, \"exam_date\" TEXT, \"target_school\" TEXT, \"target_major\" TEXT, \"target_total_score_x100\" INTEGER CHECK (target_total_score_x100 >= 0));"
+        }
+      ]
+    },
+    {
+      "name": "subjects",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"subjects\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL REFERENCES workspaces(id), \"name\" TEXT NOT NULL, \"category\" TEXT, \"target_score_x100\" INTEGER CHECK (target_score_x100 >= 0), \"max_score_x100\" INTEGER CHECK (max_score_x100 >= 0), \"sort_order\" INTEGER NOT NULL DEFAULT 0, \"archived\" INTEGER NOT NULL DEFAULT 0 CHECK (archived IN (0, 1)), UNIQUE(workspace_id, id));"
+        }
+      ]
+    },
+    {
+      "name": "tasks",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"tasks\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL REFERENCES workspaces(id), \"title\" TEXT NOT NULL, \"subject_id\" TEXT, \"knowledge_node_id\" TEXT, \"scheduled_date\" TEXT, \"due_at_ms\" INTEGER CHECK (due_at_ms >= 0), \"estimated_seconds\" INTEGER CHECK (estimated_seconds >= 0), \"priority\" INTEGER NOT NULL DEFAULT 0, \"sort_order\" INTEGER NOT NULL DEFAULT 0, \"status\" TEXT NOT NULL CHECK (status IN ('todo', 'doing', 'completed', 'cancelled')), \"completed_at_ms\" INTEGER CHECK (completed_at_ms >= 0), \"note\" TEXT, UNIQUE(workspace_id, id), FOREIGN KEY(workspace_id, subject_id)REFERENCES subjects(workspace_id, id));"
+        }
+      ]
+    },
+    {
+      "name": "daily_reviews",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"daily_reviews\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL REFERENCES workspaces(id), \"review_date\" TEXT NOT NULL, \"content\" TEXT NOT NULL, UNIQUE(workspace_id, review_date));"
+        }
+      ]
+    },
+    {
+      "name": "study_sessions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"study_sessions\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL REFERENCES workspaces(id), \"subject_id\" TEXT NOT NULL, \"task_id\" TEXT, \"knowledge_node_id\" TEXT, \"owner_device_id\" TEXT NOT NULL, \"status\" TEXT NOT NULL CHECK (status IN ('active', 'paused', 'completed')), \"started_at_ms\" INTEGER NOT NULL CHECK (started_at_ms >= 0), \"ended_at_ms\" INTEGER, \"mode\" TEXT NOT NULL CHECK (mode IN ('stopwatch', 'pomodoro')), \"note\" TEXT, CHECK((status = 'completed' AND ended_at_ms IS NOT NULL AND ended_at_ms >= started_at_ms)OR(status <> 'completed' AND ended_at_ms IS NULL)), UNIQUE(workspace_id, id), FOREIGN KEY(workspace_id, subject_id)REFERENCES subjects(workspace_id, id), FOREIGN KEY(workspace_id, task_id)REFERENCES tasks(workspace_id, id), FOREIGN KEY(workspace_id, owner_device_id)REFERENCES trusted_devices(workspace_id, device_id));"
+        }
+      ]
+    },
+    {
+      "name": "study_session_segments",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"study_session_segments\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"workspace_id\" TEXT NOT NULL, \"session_id\" TEXT NOT NULL, \"started_at_ms\" INTEGER NOT NULL CHECK (started_at_ms >= 0), \"ended_at_ms\" INTEGER CHECK (ended_at_ms >= started_at_ms), FOREIGN KEY(workspace_id, session_id)REFERENCES study_sessions(workspace_id, id));"
+        }
+      ]
+    },
+    {
+      "name": "one_open_segment",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE UNIQUE INDEX one_open_segment ON study_session_segments (workspace_id, session_id) WHERE ended_at_ms IS NULL"
+        }
+      ]
+    },
+    {
+      "name": "session_durations",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW session_durations AS SELECT workspace_id, session_id, SUM(COALESCE(ended_at_ms - started_at_ms, 0)) AS duration_ms FROM study_session_segments GROUP BY workspace_id, session_id"
+        }
+      ]
+    },
+    {
+      "name": "entity_field_clock",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"entity_field_clock\" (\"workspace_id\" TEXT NOT NULL, \"entity_type\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"field_name\" TEXT NOT NULL, \"winner_op_id\" TEXT NOT NULL REFERENCES oplog(op_id), \"hlc_wall_ms\" INTEGER NOT NULL, \"hlc_counter\" INTEGER NOT NULL, \"origin_device_id\" TEXT NOT NULL, \"origin_seq\" INTEGER NOT NULL, \"value_bytes\" BLOB NOT NULL, PRIMARY KEY(workspace_id, entity_type, entity_id, field_name));"
+        }
+      ]
+    },
+    {
+      "name": "tombstones",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"tombstones\" (\"workspace_id\" TEXT NOT NULL, \"entity_type\" TEXT NOT NULL CHECK (entity_type <> 'daily_review'), \"entity_id\" TEXT NOT NULL, \"delete_op_id\" TEXT NOT NULL REFERENCES oplog(op_id), \"hlc_wall_ms\" INTEGER NOT NULL, \"hlc_counter\" INTEGER NOT NULL, \"origin_device_id\" TEXT NOT NULL, \"origin_seq\" INTEGER NOT NULL, PRIMARY KEY(workspace_id, entity_type, entity_id));"
+        }
+      ]
+    },
+    {
+      "name": "text_field_versions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"text_field_versions\" (\"workspace_id\" TEXT NOT NULL, \"entity_type\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"field_name\" TEXT NOT NULL, \"op_id\" TEXT NOT NULL REFERENCES oplog(op_id), \"origin_device_id\" TEXT NOT NULL, \"origin_seq\" INTEGER NOT NULL, \"value\" TEXT NOT NULL, \"is_active\" INTEGER NOT NULL CHECK (is_active = 1), PRIMARY KEY(workspace_id, entity_type, entity_id, field_name, op_id));"
+        }
+      ]
+    },
+    {
+      "name": "materialization_state",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"materialization_state\" (\"workspace_id\" TEXT NOT NULL, \"entity_type\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"state\" TEXT NOT NULL CHECK (state IN ('pending_create', 'pending_dependency', 'materialized', 'deleted')), PRIMARY KEY(workspace_id, entity_type, entity_id));"
+        }
+      ]
+    },
+    {
+      "name": "origin_progress",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"origin_progress\" (\"workspace_id\" TEXT NOT NULL, \"origin_device_id\" TEXT NOT NULL, \"max_contiguous_seq\" INTEGER NOT NULL CHECK (max_contiguous_seq >= 0), PRIMARY KEY(workspace_id, origin_device_id));"
+        }
+      ]
+    }
+  ]
+}

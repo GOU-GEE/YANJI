@@ -1,0 +1,813 @@
+{
+  "description": "Observed passing M3 runs only; fixed tests and replay test reported separately.",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "seeds": [
+    202609030001,
+    202609030002,
+    202609030003,
+    202609030004,
+    202609030005,
+    202609030006,
+    202609030007,
+    202609030008,
+    202609030009,
+    202609030010
+  ],
+  "workload_actions": 2000,
+  "seed_duration_ms": {
+    "min": 15455,
+    "median": 23742.5,
+    "max": 28384
+  },
+  "total_seed_duration_ms": 231003,
+  "operations_per_db": {
+    "min": 140,
+    "median": 168.0,
+    "max": 183
+  },
+  "rebuild_us": {
+    "min": 507108,
+    "median": 616934.5,
+    "max": 861970
+  },
+  "digest_us": {
+    "min": 2985,
+    "median": 4227.5,
+    "max": 5257
+  },
+  "database_bytes_without_wal": {
+    "min": 409600,
+    "median": 464896.0,
+    "max": 507904
+  },
+  "delivered_packets": 4409,
+  "dropped_attempts": 11,
+  "duplicates": 15,
+  "event_counts": {
+    "authorization_grant": 10,
+    "bad_signature": 32,
+    "daily_review.update": 298,
+    "delete_no_candidate": 77,
+    "future_schema": 28,
+    "network_0": 10,
+    "network_1": 15,
+    "network_10": 18,
+    "network_11": 11,
+    "network_12": 13,
+    "network_2": 16,
+    "network_3": 18,
+    "network_4": 14,
+    "network_5": 18,
+    "network_6": 14,
+    "network_7": 14,
+    "network_8": 19,
+    "network_9": 15,
+    "restart": 53,
+    "revoke": 14,
+    "study_session.delete": 54,
+    "study_session.session.pause": 79,
+    "study_session.session.resume": 28,
+    "study_session.session.start": 194,
+    "study_session.session.stop": 114,
+    "subject.create": 78,
+    "subject.delete": 33,
+    "subject.update": 230,
+    "task.create": 132,
+    "task.delete": 36,
+    "task.update": 369
+  },
+  "records": [
+    {
+      "seed": 202609030001,
+      "actions": 200,
+      "duration_ms": 23088,
+      "authorized_operations": 70,
+      "stored_op_counts": {
+        "A": 167,
+        "B": 167,
+        "C": 167
+      },
+      "apply_count": {
+        "A": 221,
+        "B": 215,
+        "C": 226
+      },
+      "apply_total_us": {
+        "A": 5801770,
+        "B": 6300896,
+        "C": 7260535
+      },
+      "rebuild_us": {
+        "A": 650668,
+        "B": 654252,
+        "C": 659453
+      },
+      "digest_us": {
+        "A": 3459,
+        "B": 3357,
+        "C": 3829
+      },
+      "sqlite_bytes": {
+        "A": 442368,
+        "A_wal": 4305432,
+        "B": 446464,
+        "B_wal": 4284832,
+        "C": 450560,
+        "C_wal": 4293072
+      },
+      "event_counts": {
+        "task.update": 39,
+        "restart": 9,
+        "authorization_grant": 1,
+        "delete_no_candidate": 8,
+        "study_session.session.start": 14,
+        "task.create": 13,
+        "study_session.session.stop": 11,
+        "daily_review.update": 31,
+        "study_session.session.pause": 7,
+        "study_session.delete": 3,
+        "subject.update": 23,
+        "future_schema": 3,
+        "network_12": 1,
+        "revoke": 2,
+        "network_8": 2,
+        "network_10": 4,
+        "network_6": 3,
+        "network_3": 4,
+        "network_2": 2,
+        "network_7": 2,
+        "network_9": 4,
+        "task.delete": 4,
+        "subject.create": 8,
+        "bad_signature": 1,
+        "subject.delete": 4,
+        "study_session.session.resume": 2,
+        "network_5": 2,
+        "network_11": 1
+      },
+      "delivered": 497,
+      "dropped_attempts": 1,
+      "duplicated": 2,
+      "fingerprint": "f5b92e5cdf847725731788c3134e238d81860b8f34be68fbe9ad5b1a10caf3d1"
+    },
+    {
+      "seed": 202609030002,
+      "actions": 200,
+      "duration_ms": 15455,
+      "authorized_operations": 82,
+      "stored_op_counts": {
+        "A": 140,
+        "B": 153,
+        "C": 156
+      },
+      "apply_count": {
+        "A": 139,
+        "B": 177,
+        "C": 188
+      },
+      "apply_total_us": {
+        "A": 3231836,
+        "B": 4475533,
+        "C": 4806479
+      },
+      "rebuild_us": {
+        "A": 532026,
+        "B": 567078,
+        "C": 578894
+      },
+      "digest_us": {
+        "A": 3521,
+        "B": 3723,
+        "C": 3358
+      },
+      "sqlite_bytes": {
+        "A": 409600,
+        "A_wal": 4288952,
+        "B": 434176,
+        "B_wal": 4297192,
+        "C": 438272,
+        "C_wal": 4317792
+      },
+      "event_counts": {
+        "task.update": 46,
+        "restart": 4,
+        "authorization_grant": 1,
+        "study_session.session.start": 20,
+        "subject.update": 27,
+        "network_5": 2,
+        "network_9": 2,
+        "daily_review.update": 27,
+        "delete_no_candidate": 8,
+        "network_4": 5,
+        "task.create": 16,
+        "study_session.session.pause": 7,
+        "subject.create": 4,
+        "network_10": 2,
+        "study_session.session.stop": 9,
+        "task.delete": 4,
+        "revoke": 2,
+        "network_8": 3,
+        "network_12": 1,
+        "network_1": 2,
+        "study_session.delete": 4,
+        "study_session.session.resume": 2,
+        "subject.delete": 2,
+        "network_11": 1,
+        "bad_signature": 2,
+        "network_0": 1,
+        "future_schema": 1,
+        "network_2": 1
+      },
+      "delivered": 329,
+      "dropped_attempts": 1,
+      "duplicated": 1,
+      "fingerprint": "e307bfc8059e65981e71fba6f93a4e092f8a0dfad5f756ab3cb330cdb7189d75"
+    },
+    {
+      "seed": 202609030003,
+      "actions": 200,
+      "duration_ms": 26536,
+      "authorized_operations": 123,
+      "stored_op_counts": {
+        "A": 178,
+        "B": 178,
+        "C": 178
+      },
+      "apply_count": {
+        "A": 216,
+        "B": 219,
+        "C": 222
+      },
+      "apply_total_us": {
+        "A": 7054254,
+        "B": 8098482,
+        "C": 7765991
+      },
+      "rebuild_us": {
+        "A": 662016,
+        "B": 655092,
+        "C": 659084
+      },
+      "digest_us": {
+        "A": 4197,
+        "B": 4263,
+        "C": 4300
+      },
+      "sqlite_bytes": {
+        "A": 471040,
+        "A_wal": 4280712,
+        "B": 475136,
+        "B_wal": 4326032,
+        "C": 479232,
+        "C_wal": 4284832
+      },
+      "event_counts": {
+        "task.update": 35,
+        "restart": 5,
+        "authorization_grant": 1,
+        "daily_review.update": 35,
+        "task.create": 17,
+        "study_session.session.start": 20,
+        "delete_no_candidate": 3,
+        "future_schema": 3,
+        "study_session.session.stop": 13,
+        "network_5": 3,
+        "subject.update": 18,
+        "subject.create": 14,
+        "network_7": 1,
+        "bad_signature": 4,
+        "network_6": 2,
+        "study_session.delete": 9,
+        "study_session.session.pause": 4,
+        "task.delete": 3,
+        "network_0": 2,
+        "network_8": 1,
+        "network_4": 1,
+        "network_12": 1,
+        "revoke": 2,
+        "network_3": 2,
+        "network_1": 1,
+        "network_9": 1,
+        "study_session.session.resume": 1,
+        "network_10": 1,
+        "subject.delete": 1,
+        "network_11": 1
+      },
+      "delivered": 478,
+      "dropped_attempts": 1,
+      "duplicated": 0,
+      "fingerprint": "90e767b99121e5aa082c4a2bef6e1056c06567b7019945d9f7d287ae46594d0c"
+    },
+    {
+      "seed": 202609030004,
+      "actions": 200,
+      "duration_ms": 28384,
+      "authorized_operations": 184,
+      "stored_op_counts": {
+        "A": 183,
+        "B": 183,
+        "C": 183
+      },
+      "apply_count": {
+        "A": 218,
+        "B": 241,
+        "C": 227
+      },
+      "apply_total_us": {
+        "A": 7895997,
+        "B": 9012394,
+        "C": 8105505
+      },
+      "rebuild_us": {
+        "A": 664177,
+        "B": 665427,
+        "C": 665570
+      },
+      "digest_us": {
+        "A": 5061,
+        "B": 5104,
+        "C": 5100
+      },
+      "sqlite_bytes": {
+        "A": 503808,
+        "A_wal": 4334272,
+        "B": 503808,
+        "B_wal": 4326032,
+        "C": 507904,
+        "C_wal": 4350752
+      },
+      "event_counts": {
+        "task.update": 34,
+        "restart": 4,
+        "authorization_grant": 1,
+        "study_session.session.start": 25,
+        "daily_review.update": 30,
+        "network_2": 2,
+        "delete_no_candidate": 7,
+        "study_session.session.pause": 11,
+        "subject.update": 28,
+        "network_12": 2,
+        "study_session.session.stop": 15,
+        "study_session.session.resume": 3,
+        "network_1": 1,
+        "task.create": 7,
+        "study_session.delete": 7,
+        "future_schema": 4,
+        "network_5": 2,
+        "bad_signature": 2,
+        "subject.create": 5,
+        "task.delete": 4,
+        "subject.delete": 5,
+        "network_8": 2,
+        "network_11": 1,
+        "network_4": 1,
+        "network_3": 1
+      },
+      "delivered": 505,
+      "dropped_attempts": 1,
+      "duplicated": 2,
+      "fingerprint": "5b78bdadf02f399ac3fb65a4797f0f58347f4cb87da4df3c41e5f83c9c82eb3a"
+    },
+    {
+      "seed": 202609030005,
+      "actions": 200,
+      "duration_ms": 22339,
+      "authorized_operations": 141,
+      "stored_op_counts": {
+        "A": 169,
+        "B": 156,
+        "C": 169
+      },
+      "apply_count": {
+        "A": 188,
+        "B": 184,
+        "C": 219
+      },
+      "apply_total_us": {
+        "A": 5942653,
+        "B": 5944382,
+        "C": 7310832
+      },
+      "rebuild_us": {
+        "A": 623578,
+        "B": 569190,
+        "C": 615832
+      },
+      "digest_us": {
+        "A": 4521,
+        "B": 4245,
+        "C": 4143
+      },
+      "sqlite_bytes": {
+        "A": 454656,
+        "A_wal": 4280712,
+        "B": 446464,
+        "B_wal": 4301312,
+        "C": 466944,
+        "C_wal": 4288952
+      },
+      "event_counts": {
+        "task.update": 24,
+        "restart": 5,
+        "authorization_grant": 1,
+        "network_5": 1,
+        "subject.update": 18,
+        "delete_no_candidate": 8,
+        "daily_review.update": 35,
+        "network_3": 5,
+        "network_4": 2,
+        "study_session.session.start": 19,
+        "task.create": 12,
+        "network_2": 1,
+        "network_11": 2,
+        "study_session.session.pause": 12,
+        "study_session.session.resume": 6,
+        "study_session.delete": 10,
+        "task.delete": 6,
+        "study_session.session.stop": 11,
+        "future_schema": 2,
+        "network_6": 4,
+        "subject.create": 6,
+        "network_8": 2,
+        "network_7": 1,
+        "network_12": 2,
+        "network_10": 1,
+        "revoke": 1,
+        "subject.delete": 3,
+        "bad_signature": 3,
+        "network_9": 1,
+        "network_1": 1
+      },
+      "delivered": 421,
+      "dropped_attempts": 2,
+      "duplicated": 1,
+      "fingerprint": "fd781cf287109502a6abf46169eea8a031bf302ca2fbd7fbf0db172cd8eddf62"
+    },
+    {
+      "seed": 202609030006,
+      "actions": 200,
+      "duration_ms": 26058,
+      "authorized_operations": 112,
+      "stored_op_counts": {
+        "A": 168,
+        "B": 168,
+        "C": 168
+      },
+      "apply_count": {
+        "A": 226,
+        "B": 231,
+        "C": 208
+      },
+      "apply_total_us": {
+        "A": 7352496,
+        "B": 8044446,
+        "C": 7494130
+      },
+      "rebuild_us": {
+        "A": 618037,
+        "B": 609869,
+        "C": 611368
+      },
+      "digest_us": {
+        "A": 4071,
+        "B": 4205,
+        "C": 4018
+      },
+      "sqlite_bytes": {
+        "A": 466944,
+        "A_wal": 4313672,
+        "B": 466944,
+        "B_wal": 4326032,
+        "C": 475136,
+        "C_wal": 4383712
+      },
+      "event_counts": {
+        "task.update": 29,
+        "restart": 5,
+        "authorization_grant": 1,
+        "study_session.session.start": 20,
+        "network_4": 2,
+        "daily_review.update": 28,
+        "subject.create": 5,
+        "delete_no_candidate": 11,
+        "revoke": 1,
+        "task.create": 19,
+        "subject.delete": 2,
+        "network_7": 1,
+        "subject.update": 25,
+        "future_schema": 4,
+        "study_session.session.stop": 10,
+        "network_11": 2,
+        "network_10": 4,
+        "study_session.session.pause": 8,
+        "bad_signature": 3,
+        "study_session.session.resume": 5,
+        "network_12": 1,
+        "network_0": 1,
+        "study_session.delete": 4,
+        "task.delete": 4,
+        "network_8": 2,
+        "network_2": 3,
+        "network_6": 2,
+        "network_3": 1,
+        "network_5": 1
+      },
+      "delivered": 498,
+      "dropped_attempts": 2,
+      "duplicated": 3,
+      "fingerprint": "a623975c3bba9207e6d727bccd9a59c23ed6ee007437a4543c7bc2e96520840a"
+    },
+    {
+      "seed": 202609030007,
+      "actions": 200,
+      "duration_ms": 22889,
+      "authorized_operations": 109,
+      "stored_op_counts": {
+        "A": 158,
+        "B": 149,
+        "C": 161
+      },
+      "apply_count": {
+        "A": 200,
+        "B": 188,
+        "C": 215
+      },
+      "apply_total_us": {
+        "A": 5824460,
+        "B": 6536684,
+        "C": 6833059
+      },
+      "rebuild_us": {
+        "A": 629723,
+        "B": 861970,
+        "C": 600429
+      },
+      "digest_us": {
+        "A": 4388,
+        "B": 4520,
+        "C": 4210
+      },
+      "sqlite_bytes": {
+        "A": 458752,
+        "A_wal": 4305432,
+        "B": 442368,
+        "B_wal": 4330152,
+        "C": 462848,
+        "C_wal": 4313672
+      },
+      "event_counts": {
+        "task.update": 36,
+        "restart": 7,
+        "authorization_grant": 1,
+        "daily_review.update": 33,
+        "task.create": 8,
+        "task.delete": 2,
+        "subject.update": 26,
+        "future_schema": 3,
+        "delete_no_candidate": 5,
+        "network_8": 3,
+        "study_session.session.start": 18,
+        "network_5": 2,
+        "study_session.delete": 4,
+        "subject.create": 8,
+        "study_session.session.stop": 12,
+        "revoke": 2,
+        "study_session.session.pause": 8,
+        "network_2": 1,
+        "network_7": 5,
+        "bad_signature": 6,
+        "network_0": 3,
+        "network_3": 2,
+        "subject.delete": 3,
+        "study_session.session.resume": 2,
+        "network_12": 1,
+        "network_1": 1,
+        "network_11": 1,
+        "network_9": 3
+      },
+      "delivered": 432,
+      "dropped_attempts": 1,
+      "duplicated": 1,
+      "fingerprint": "6ca210a29b812b40f8d13e88657ba8d4b89a8e66766fc55cf53a1d877a5b7c69"
+    },
+    {
+      "seed": 202609030008,
+      "actions": 200,
+      "duration_ms": 17246,
+      "authorized_operations": 96,
+      "stored_op_counts": {
+        "A": 157,
+        "B": 149,
+        "C": 159
+      },
+      "apply_count": {
+        "A": 161,
+        "B": 161,
+        "C": 185
+      },
+      "apply_total_us": {
+        "A": 3716150,
+        "B": 5055744,
+        "C": 5602320
+      },
+      "rebuild_us": {
+        "A": 533798,
+        "B": 507108,
+        "C": 539626
+      },
+      "digest_us": {
+        "A": 2985,
+        "B": 3001,
+        "C": 3059
+      },
+      "sqlite_bytes": {
+        "A": 409600,
+        "A_wal": 4301312,
+        "B": 425984,
+        "B_wal": 4309552,
+        "C": 442368,
+        "C_wal": 4297192
+      },
+      "event_counts": {
+        "task.update": 42,
+        "restart": 3,
+        "authorization_grant": 1,
+        "study_session.session.start": 19,
+        "study_session.session.stop": 13,
+        "subject.update": 29,
+        "network_1": 3,
+        "task.create": 11,
+        "network_2": 2,
+        "network_6": 2,
+        "daily_review.update": 27,
+        "revoke": 2,
+        "delete_no_candidate": 6,
+        "network_5": 3,
+        "network_10": 3,
+        "network_3": 1,
+        "network_4": 2,
+        "task.delete": 3,
+        "network_0": 2,
+        "network_8": 1,
+        "subject.create": 9,
+        "bad_signature": 6,
+        "subject.delete": 3,
+        "study_session.session.pause": 6,
+        "network_7": 1,
+        "study_session.session.resume": 3,
+        "network_12": 1,
+        "network_9": 1
+      },
+      "delivered": 331,
+      "dropped_attempts": 0,
+      "duplicated": 2,
+      "fingerprint": "8cabe69ed06cdcfe14f6572fe888c1887650739750146c69ea30f0013ad2ddf9"
+    },
+    {
+      "seed": 202609030009,
+      "actions": 200,
+      "duration_ms": 24397,
+      "authorized_operations": 173,
+      "stored_op_counts": {
+        "A": 172,
+        "B": 172,
+        "C": 172
+      },
+      "apply_count": {
+        "A": 210,
+        "B": 209,
+        "C": 215
+      },
+      "apply_total_us": {
+        "A": 6683695,
+        "B": 7177737,
+        "C": 7304654
+      },
+      "rebuild_us": {
+        "A": 607919,
+        "B": 729325,
+        "C": 621826
+      },
+      "digest_us": {
+        "A": 4798,
+        "B": 5257,
+        "C": 4653
+      },
+      "sqlite_bytes": {
+        "A": 487424,
+        "A_wal": 4276592,
+        "B": 487424,
+        "B_wal": 4326032,
+        "C": 487424,
+        "C_wal": 4297192
+      },
+      "event_counts": {
+        "task.update": 47,
+        "restart": 6,
+        "authorization_grant": 1,
+        "delete_no_candidate": 12,
+        "study_session.session.start": 18,
+        "study_session.session.pause": 7,
+        "daily_review.update": 25,
+        "subject.update": 19,
+        "study_session.session.stop": 10,
+        "study_session.delete": 7,
+        "subject.create": 6,
+        "network_7": 2,
+        "task.create": 16,
+        "future_schema": 5,
+        "subject.delete": 3,
+        "network_0": 1,
+        "network_12": 1,
+        "task.delete": 2,
+        "network_11": 2,
+        "study_session.session.resume": 2,
+        "network_5": 1,
+        "network_9": 1,
+        "network_3": 2,
+        "network_2": 2,
+        "bad_signature": 2,
+        "network_6": 1,
+        "network_8": 2,
+        "network_1": 1,
+        "network_10": 1
+      },
+      "delivered": 465,
+      "dropped_attempts": 2,
+      "duplicated": 2,
+      "fingerprint": "e0c74230ea744c38c8cd80948a1b516045e87b04e38fd008e0c460955e04b108"
+    },
+    {
+      "seed": 202609030010,
+      "actions": 200,
+      "duration_ms": 24611,
+      "authorized_operations": 131,
+      "stored_op_counts": {
+        "A": 174,
+        "B": 170,
+        "C": 156
+      },
+      "apply_count": {
+        "A": 194,
+        "B": 225,
+        "C": 208
+      },
+      "apply_total_us": {
+        "A": 5935367,
+        "B": 8047437,
+        "C": 7395877
+      },
+      "rebuild_us": {
+        "A": 603519,
+        "B": 587927,
+        "C": 543714
+      },
+      "digest_us": {
+        "A": 4269,
+        "B": 5156,
+        "C": 4563
+      },
+      "sqlite_bytes": {
+        "A": 471040,
+        "A_wal": 4321912,
+        "B": 466944,
+        "B_wal": 4297192,
+        "C": 454656,
+        "C_wal": 4317792
+      },
+      "event_counts": {
+        "task.update": 37,
+        "restart": 5,
+        "authorization_grant": 1,
+        "network_2": 2,
+        "study_session.session.start": 21,
+        "network_1": 5,
+        "daily_review.update": 27,
+        "network_4": 1,
+        "subject.create": 13,
+        "study_session.session.pause": 9,
+        "subject.update": 17,
+        "delete_no_candidate": 9,
+        "task.create": 13,
+        "study_session.delete": 6,
+        "network_12": 2,
+        "subject.delete": 7,
+        "network_10": 2,
+        "task.delete": 4,
+        "study_session.session.stop": 10,
+        "network_9": 2,
+        "network_7": 1,
+        "future_schema": 3,
+        "revoke": 2,
+        "bad_signature": 3,
+        "study_session.session.resume": 2,
+        "network_8": 1,
+        "network_5": 1
+      },
+      "delivered": 453,
+      "dropped_attempts": 0,
+      "duplicated": 1,
+      "fingerprint": "e933955040b5ebd78192aabd193f39c223bd47c7e6dd843be6ece507ee7b9527"
+    }
+  ]
+}
