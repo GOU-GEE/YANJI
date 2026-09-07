@@ -1,6 +1,6 @@
-# 研迹 YanJi SYNC v1.1 — 数据与 P2P 同步规范
+# 研迹 YanJi SYNC v1.2 — 数据与 P2P 同步规范
 
-文档状态：2026-09-03 批准冻结 v1.1。本文件是 Operation、合并、Trust、Pairing 与同步协议的唯一事实来源。总体架构见 ARCHITECTURE.md，产品语义见 PRODUCT.md，版本范围见 ROADMAP.md。历史评审不覆盖根规范。
+文档状态：2026-09-07 批准 YPP/2。本文件是 Operation、合并、Trust、Pairing 与同步协议的唯一事实来源。总体架构见 ARCHITECTURE.md，产品语义见 PRODUCT.md，版本范围见 ROADMAP.md。历史评审不覆盖根规范。
 
 ## 1. 总体架构
 
@@ -1385,10 +1385,12 @@ max_contiguous_seq = 101
 版本：
 
 ```
-YPP/1
+YPP/2
 ```
 
-旧设备点击：
+每个 Workspace 设备拥有一个稳定设备二维码。只要 Workspace Genesis、设备身份密钥和 TLS 身份不轮换，该二维码保持不变。
+
+旧设备打开设备页面时另外生成：
 
 > 添加设备
 
@@ -1414,7 +1416,7 @@ pair_secret：
 
 # 只能使用一次。
 
-# 49. QR 内容
+# 49. 固定设备二维码与临时配对口令
 
 建议不是普通 JSON。
 
@@ -1424,18 +1426,22 @@ pair_secret：
 yanji://pair?v=1&data=BASE64URL(...)
 ```
 
-data 内部使用紧凑编码。QR 必须包含 workspace_genesis_hash、inviter 身份公钥/指纹、TLS fingerprint 和 pair_secret。新设备先锚定用户扫描的 Inviter，再验证 Genesis 到 Inviter 的授权链；失败则终止配对。
+升级为：
+
+```
+yanji://pair?v=2&data=BASE64URL(...)
+```
+
+data 内部使用确定性 CBOR。固定 QR 只包含 workspace_genesis_hash、inviter 身份公钥、TLS fingerprint、service 和从设备身份派生的 device_hint；不得包含 pair_secret、invite_id、端口、IP 或失效时间。新设备先锚定用户扫描的 Inviter。
 
 逻辑内容：
 
 ```
 {
-  "v": 1,
+  "v": 2,
 
   "workspace_id": "...",
   "workspace_genesis_hash": "SHA-256 of canonical genesis envelope bytes",
-
-  "invite_id": "...",
 
   "inviter_device_id": "...",
 
@@ -1443,31 +1449,25 @@ data 内部使用紧凑编码。QR 必须包含 workspace_genesis_hash、inviter
 
   "tls_cert_sha256": "...",
 
-  "pair_secret": "...",
-
   "service": "_yanji-sync._tcp",
-
-  "port": 48173,
-
-  "expires_at_ms": 1788426500000
+  "device_hint": "16-char identity digest"
 }
 ```
 
-可以额外带：
+临时配对口令使用：
 
 ```
-local IP hints
+yanji://pair-code?v=2&data=BASE64URL(...)
 ```
 
-例如：
+它包含固定二维码的全部身份锚点以及 invite_id、256-bit pair_secret、当前端口、失效时间和可选 IP hints。口令两分钟失效且只能使用一次，可以复制粘贴，但不得经聊天工具或其他第三方转发。
 
-```
-192.168.1.12
-```
+用户可以：
 
-但 IP 只是 hint。
+1. 扫描固定二维码，再输入/粘贴同一设备当前的临时配对口令；客户端必须确认两者身份锚点逐字节一致。
+2. 直接输入/粘贴完整临时配对口令；该口令同时提供身份锚点与当前连接 hints。
 
-不能作为身份依据。
+IP 仍然只是连接 hint，不能作为身份依据。
 
 # 50. 为什么 QR 必须包含 Fingerprint
 
@@ -1517,11 +1517,11 @@ Pairing Failed
 
 ```
 Device A
-点击添加设备
+打开设备页面
 
 ↓
 
-生成 Invite
+显示固定设备 QR，并生成临时配对口令
 
 ↓
 
@@ -1534,10 +1534,11 @@ Device B
 
 ↓
 
-读取
-workspace_id
-fingerprint
-pair_secret
+输入当前临时配对口令
+
+↓
+
+验证 QR 与口令中的 workspace_id、Genesis hash、Inviter key 和 TLS fingerprint 完全一致
 
 ↓
 
@@ -2400,27 +2401,19 @@ In Sync
 
 ```
 旧设备
-生成 Invite
+显示固定设备二维码
 
 ↓
 
-256-bit Pair Secret
-+
-TLS Fingerprint
-+
-Device Public Key
+生成两分钟、单次有效的临时配对口令
 
 ↓
 
-QR
+新设备扫描固定 QR，并输入临时配对口令
 
 ↓
 
-新设备扫描
-
-↓
-
-验证 TLS Fingerprint
+核对 QR 与口令身份锚点，验证 TLS Fingerprint
 
 ↓
 

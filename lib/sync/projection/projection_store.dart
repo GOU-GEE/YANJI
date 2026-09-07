@@ -59,6 +59,7 @@ final class ProjectionStore {
         )
         .get();
     final history = <OperationEnvelope>[];
+    final systemOperations = <OperationEnvelope>[];
     final origins = <String>{};
     for (final row in rows) {
       origins.add(row.read<String>('origin_device_id'));
@@ -72,7 +73,13 @@ final class ProjectionStore {
       final e = OperationEnvelope.fromBytes(
         row.read<Uint8List>('envelope_bytes'),
       );
-      if (e.payloadSchemaVersion == 1) history.add(e);
+      if (e.payloadSchemaVersion == 1) {
+        if (e.entityType == 'device') {
+          systemOperations.add(e);
+        } else {
+          history.add(e);
+        }
+      }
     }
     final resolution = resolver.resolve(history);
     for (final table in _deleteOrder) {
@@ -94,6 +101,12 @@ final class ProjectionStore {
             : 'pending',
         'max_allowed_origin_seq': policy.cutoff,
       });
+    }
+    for (final operation in systemOperations) {
+      await database.customStatement(
+        'UPDATE oplog SET apply_state=?, local_error=NULL WHERE op_id=?',
+        ['applied', operation.opId],
+      );
     }
     for (final entity in resolution.entities.values) {
       final base = {

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:timezone/data/latest_all.dart' as data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -84,6 +86,10 @@ final class BusinessSchema {
     if (!uuid.hasMatch(e.workspaceId)) {
       throw const FormatException('Invalid workspace UUID');
     }
+    if (e.entityType == 'device') {
+      _device(e);
+      return;
+    }
     if (e.entityType == 'workspace') {
       if (e.entityId != e.workspaceId) {
         throw const FormatException('Workspace ID mismatch');
@@ -132,6 +138,75 @@ final class BusinessSchema {
         e.entityId != 'daily_review/${e.workspaceId}/${p['review_date']}') {
       throw const FormatException('Review date mismatch');
     }
+  }
+
+  static void _device(OperationEnvelope e) {
+    if (e.action != 'system' || e.payload is! Map<String, Object?>) {
+      throw const FormatException('Invalid membership operation');
+    }
+    final p = e.payload! as Map<String, Object?>;
+    final type = p['type'];
+    if (type == 'workspace.genesis') {
+      const keys = {
+        'type',
+        'root_device_id',
+        'root_device_public_key',
+        'created_at_ms',
+      };
+      if (e.entityId != e.workspaceId ||
+          p.keys.toSet().difference(keys).isNotEmpty ||
+          !keys.every(p.containsKey) ||
+          p['root_device_id'] != e.originDeviceId ||
+          p['root_device_public_key'] is! Uint8List ||
+          (p['root_device_public_key'] as Uint8List).length != 32 ||
+          p['created_at_ms'] is! int ||
+          (p['created_at_ms'] as int) < 0) {
+        throw const FormatException('Invalid workspace genesis');
+      }
+      return;
+    }
+    if (type == 'device.add') {
+      const keys = {
+        'type',
+        'device_id',
+        'device_name',
+        'platform',
+        'identity_public_key',
+        'tls_cert_sha256',
+        'paired_at_ms',
+      };
+      if (p.keys.toSet().difference(keys).isNotEmpty ||
+          !keys.every(p.containsKey) ||
+          e.entityId != p['device_id'] ||
+          !uuid.hasMatch(e.entityId) ||
+          p['device_name'] is! String ||
+          (p['device_name'] as String).trim().isEmpty ||
+          (p['device_name'] as String).length > 80 ||
+          p['platform'] is! String ||
+          (p['platform'] as String).length > 32 ||
+          p['identity_public_key'] is! Uint8List ||
+          (p['identity_public_key'] as Uint8List).length != 32 ||
+          p['tls_cert_sha256'] is! Uint8List ||
+          (p['tls_cert_sha256'] as Uint8List).length != 32 ||
+          p['paired_at_ms'] is! int ||
+          (p['paired_at_ms'] as int) < 0) {
+        throw const FormatException('Invalid device.add');
+      }
+      return;
+    }
+    if (type == 'device.revoke') {
+      const keys = {'type', 'target_device_id', 'max_allowed_origin_seq'};
+      if (p.keys.toSet().difference(keys).isNotEmpty ||
+          !keys.every(p.containsKey) ||
+          e.entityId != p['target_device_id'] ||
+          !uuid.hasMatch(e.entityId) ||
+          p['max_allowed_origin_seq'] is! int ||
+          (p['max_allowed_origin_seq'] as int) < 0) {
+        throw const FormatException('Invalid device.revoke');
+      }
+      return;
+    }
+    throw const FormatException('Unknown membership operation');
   }
 
   static bool _date(String s) {

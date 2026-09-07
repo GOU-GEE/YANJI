@@ -77,6 +77,21 @@ final class OperationApplier {
       });
   Future<List<Operation>> export(String workspace) =>
       _journal.export(workspace);
+  Future<Operation> appendSystem({
+    required String workspaceId,
+    required String entityId,
+    required Map<String, Object?> payload,
+  }) => database.transaction(() async {
+    final packet = await _journal.append(
+      workspaceId: workspaceId,
+      entityType: 'device',
+      entityId: entityId,
+      action: 'system',
+      payload: payload,
+    );
+    await projections.rebuildWorkspace(workspaceId);
+    return packet;
+  });
   Future<String> projectionDigest(String workspace) =>
       projections.projectionDigest(workspace);
 }

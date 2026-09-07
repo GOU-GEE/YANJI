@@ -141,7 +141,9 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
     );
     router = GoRouter(
       redirect: (context, state) {
-        if (!app.isReady) return '/onboarding';
+        if (!app.isReady && state.uri.path != '/device-tree') {
+          return '/onboarding';
+        }
         if (state.uri.path == '/onboarding') return '/';
         return null;
       },
@@ -175,7 +177,7 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
         ),
         GoRoute(
           path: '/device-tree',
-          builder: (context, state) => const DevicePage(),
+          builder: (context, state) => listen(() => DevicePage(app)),
         ),
         GoRoute(
           path: '/subjects',

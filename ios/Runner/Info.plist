@@ -68,5 +68,7 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>用于扫描其他设备的 YanJi 配对二维码</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>用于在同一局域网内安全添加研迹设备并传输学习记录</string>
 </dict>
 </plist>

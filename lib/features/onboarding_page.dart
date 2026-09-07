@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../application/study_app_controller.dart';
 import '../application/exam_schedule.dart';
@@ -237,6 +238,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
               : '下一步',
         ),
       ),
+      if (step == 0) ...[
+        const SizedBox(height: YanJiSpacing.md),
+        OutlinedButton.icon(
+          key: const Key('join-existing-device'),
+          onPressed: widget.app.busy
+              ? null
+              : () => context.push('/device-tree'),
+          icon: const Icon(Icons.qr_code_scanner),
+          label: const Text('从已有设备导入'),
+        ),
+      ],
       if (step > 0)
         TextButton(
           onPressed: widget.app.busy ? null : () => setState(() => step--),

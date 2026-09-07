@@ -271,12 +271,12 @@ class ProfilePage extends StatelessWidget {
       ListTile(
         contentPadding: EdgeInsets.zero,
         leading: const Icon(Icons.devices_outlined),
-        title: const Text('添加设备'),
+        title: const Text('设备与同步'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => context.push('/device-tree'),
       ),
       const Divider(height: 40),
-      const Text('你的学习记录保存在这台设备上。\n无需登录，也能离线使用。'),
+      const Text('学习记录优先保存在本机。\n添加设备时通过局域网加密传输，无需登录。'),
     ],
   );
 }

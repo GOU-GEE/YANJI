@@ -3,6 +3,8 @@ import 'dart:math';
 import 'study_statistics.dart';
 import 'exam_schedule.dart';
 
+import 'package:cryptography/cryptography.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -11,7 +13,11 @@ import '../core/crypto/device_identity.dart';
 import '../core/database/app_database.dart';
 import '../core/ids/entity_ids.dart';
 import '../sync/operation_pipeline.dart';
+import '../sync/oplog/operation.dart';
 import '../sync/oplog/operation_journal.dart';
+import '../sync/pairing/pairing_invite.dart';
+import '../sync/protocol/deterministic_cbor.dart';
+import '../sync/trust/trust_chain.dart';
 
 String calendarDate(DateTime date) =>
     '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -26,16 +32,14 @@ String clockLabel(int milliseconds) {
 }
 
 /// Application boundary: presentation sees snapshots and commands, never DAOs.
-/// Single-device policy permits only this installation's identity. No remote
-/// origins or network receive entry point is exposed by this UI composition.
+/// Remote operations enter only through the verified pairing/sync boundary.
 class StudyAppController extends ChangeNotifier {
   StudyAppController._(this.database, this.identity, this.ids, this.now) {
+    trust = TrustChain(database, identity);
     applier = OperationApplier(
       database,
       identity,
-      lookupOrigin: (workspace, origin) async => origin == identity.deviceId
-          ? OriginPolicy(publicKey: identity.publicKey, authorized: true)
-          : null,
+      lookupOrigin: trust.lookup,
       ids: ids,
       nowMs: () => now().millisecondsSinceEpoch,
     );
@@ -54,6 +58,10 @@ class StudyAppController extends ChangeNotifier {
       ids ?? EntityIds(),
       now ?? DateTime.now,
     );
+    final existingWorkspace = await db.select(db.workspaces).getSingleOrNull();
+    if (existingWorkspace != null) {
+      await controller.trust.reload(existingWorkspace.id);
+    }
     await controller.refresh();
     // Seed a small set of child-subject records for the in-development stats
     // screen. This runs once per workspace, only when child subjects exist and
@@ -73,6 +81,7 @@ class StudyAppController extends ChangeNotifier {
   final DateTime Function() now;
   late final OperationApplier applier;
   late final OperationWriter writer;
+  late final TrustChain trust;
   Workspace? workspace;
   ExamProfile? exam;
   List<Subject> subjects = [];
@@ -342,6 +351,181 @@ class StudyAppController extends ChangeNotifier {
         payload: payload,
       ),
     );
+  }
+
+  List<TrustedPeer> get trustedPeers =>
+      workspace == null ? const [] : trust.peers(workspace!.id);
+
+  Future<Uint8List> ensureWorkspaceGenesis() async {
+    final current = workspace;
+    if (current == null) throw StateError('工作区尚未初始化');
+    final rows = await database
+        .customSelect(
+          "SELECT envelope_bytes FROM oplog WHERE workspace_id=? AND entity_type='device' ORDER BY origin_seq",
+          variables: [Variable(current.id)],
+        )
+        .get();
+    for (final row in rows) {
+      final packet = OperationEnvelope.fromBytes(
+        row.read<Uint8List>('envelope_bytes'),
+      );
+      final payload = packet.payload;
+      if (payload is Map<String, Object?> &&
+          payload['type'] == 'workspace.genesis' &&
+          payload['root_device_id'] == current.createdByDeviceId &&
+          packet.originDeviceId == current.createdByDeviceId) {
+        return Uint8List.fromList((await Sha256().hash(packet.bytes)).bytes);
+      }
+    }
+    if (current.createdByDeviceId != identity.deviceId) {
+      throw StateError('本机授权历史缺少 Workspace Genesis');
+    }
+    final genesis = await applier.appendSystem(
+      workspaceId: current.id,
+      entityId: current.id,
+      payload: {
+        'type': 'workspace.genesis',
+        'root_device_id': identity.deviceId,
+        'root_device_public_key': Uint8List.fromList(identity.publicKey.bytes),
+        'created_at_ms': current.createdAtMs,
+      },
+    );
+    await trust.reload(current.id);
+    return Uint8List.fromList(
+      (await Sha256().hash(genesis.envelopeBytes)).bytes,
+    );
+  }
+
+  Future<void> addTrustedPeer({
+    required String deviceId,
+    required String deviceName,
+    required String platform,
+    required Uint8List identityPublicKey,
+    required Uint8List tlsCertificateSha256,
+  }) async {
+    final current = workspace ?? (throw StateError('工作区尚未初始化'));
+    await applier.appendSystem(
+      workspaceId: current.id,
+      entityId: deviceId,
+      payload: {
+        'type': 'device.add',
+        'device_id': deviceId,
+        'device_name': deviceName.trim(),
+        'platform': platform,
+        'identity_public_key': identityPublicKey,
+        'tls_cert_sha256': tlsCertificateSha256,
+        'paired_at_ms': now().millisecondsSinceEpoch,
+      },
+    );
+    await trust.reload(current.id);
+    await applier.refreshAuthorization(current.id);
+    notifyListeners();
+  }
+
+  Future<void> revokeTrustedPeer(TrustedPeer peer) async {
+    final current = workspace ?? (throw StateError('工作区尚未初始化'));
+    if (peer.deviceId == identity.deviceId) {
+      throw StateError('不能在本机撤销本机身份');
+    }
+    final row = await database
+        .customSelect(
+          'SELECT COALESCE(MAX(origin_seq),0) AS seq FROM oplog WHERE workspace_id=? AND origin_device_id=?',
+          variables: [Variable(current.id), Variable(peer.deviceId)],
+        )
+        .getSingle();
+    await applier.appendSystem(
+      workspaceId: current.id,
+      entityId: peer.deviceId,
+      payload: {
+        'type': 'device.revoke',
+        'target_device_id': peer.deviceId,
+        'max_allowed_origin_seq': row.read<int>('seq'),
+      },
+    );
+    await trust.reload(current.id);
+    await applier.refreshAuthorization(current.id);
+    notifyListeners();
+  }
+
+  Future<void> importPairedHistory(
+    PairingInvite invite,
+    List<Operation> operations,
+  ) async {
+    if (workspace != null && workspace!.id != invite.workspaceId) {
+      throw StateError('当前安装已有另一个学习空间，不能直接合并');
+    }
+    Operation? genesis;
+    for (final operation in operations) {
+      final envelope = operation.parse();
+      final payload = envelope.payload;
+      if (envelope.workspaceId == invite.workspaceId &&
+          envelope.entityType == 'device' &&
+          payload is Map<String, Object?> &&
+          payload['type'] == 'workspace.genesis') {
+        genesis = operation;
+        break;
+      }
+    }
+    if (genesis == null) throw StateError('邀请设备没有提供 Workspace Genesis');
+    final envelope = genesis.parse();
+    final payload = envelope.payload! as Map<String, Object?>;
+    final digest = Uint8List.fromList(
+      (await Sha256().hash(envelope.bytes)).bytes,
+    );
+    if (DeterministicCbor.compareBytes(digest, invite.workspaceGenesisHash) !=
+        0) {
+      throw StateError('Workspace Genesis 与二维码锚点不一致');
+    }
+    final rootKey = SimplePublicKey(
+      payload['root_device_public_key']! as Uint8List,
+      type: KeyPairType.ed25519,
+    );
+    trust.anchorRoot(invite.workspaceId, envelope.originDeviceId, rootKey);
+    final pending = operations.toList();
+    var progressed = true;
+    while (pending.isNotEmpty && progressed) {
+      progressed = false;
+      for (final operation in pending.toList()) {
+        final item = operation.parse();
+        if (item.workspaceId != invite.workspaceId ||
+            await trust.lookup(invite.workspaceId, item.originDeviceId) ==
+                null) {
+          continue;
+        }
+        final result = await applier.receive(
+          operation,
+          workspaceId: invite.workspaceId,
+          originDeviceId: item.originDeviceId,
+          receivedFrom: invite.inviterDeviceId,
+        );
+        if (result != ReceiveResult.rejected) {
+          pending.remove(operation);
+          progressed = true;
+          if (item.entityType == 'device') {
+            await trust.reload(invite.workspaceId);
+          }
+        }
+      }
+    }
+    if (pending.isNotEmpty) {
+      throw StateError('授权链不完整，${pending.length} 条操作无法验证');
+    }
+    await trust.reload(invite.workspaceId);
+    final inviter = await trust.lookup(
+      invite.workspaceId,
+      invite.inviterDeviceId,
+    );
+    if (inviter == null ||
+        !inviter.authorized ||
+        inviter.cutoff != null ||
+        DeterministicCbor.compareBytes(
+              inviter.publicKey.bytes,
+              invite.identityPublicKey,
+            ) !=
+            0) {
+      throw StateError('邀请者不在 Genesis 授权链中');
+    }
+    await refresh();
   }
 
   Future<void> onboard({
