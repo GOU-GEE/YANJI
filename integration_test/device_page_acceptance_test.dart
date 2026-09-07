@@ -54,7 +54,7 @@ void main() {
       expect(find.text('带回我的学习空间'), findsOneWidget);
       expect(find.byKey(const Key('scan-pairing-qr')), findsOneWidget);
       expect(find.byKey(const Key('enter-pairing-code')), findsOneWidget);
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await settle();
       await tap(find.byKey(const Key('exam-date')));
       await tap(find.text('确定'));
@@ -83,6 +83,17 @@ void main() {
     final second = tester.widget<QrImageView>(find.byType(QrImageView)).key;
     expect(second, first);
     expect(find.byKey(const Key('enter-pairing-code')), findsOneWidget);
+    for (var index = 0; index < 6; index++) {
+      await tap(find.byKey(const Key('enter-pairing-code')));
+      expect(find.byKey(const Key('pairing-code-input')), findsOneWidget);
+      if (index.isEven) {
+        await tap(find.text('取消'));
+      } else {
+        await tester.binding.handlePopRoute();
+        await settle();
+      }
+      expect(tester.takeException(), isNull);
+    }
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(minutes: 3)));
 }

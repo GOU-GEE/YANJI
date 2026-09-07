@@ -244,54 +244,10 @@ class _DevicePageState extends State<DevicePage> {
   Future<String?> _pasteInvite({
     required String title,
     required String detail,
-  }) async {
-    final controller = TextEditingController();
-    final value = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            YanJiCaption(detail),
-            const SizedBox(height: YanJiSpacing.md),
-            TextField(
-              key: const Key('pairing-code-input'),
-              controller: controller,
-              autofocus: true,
-              minLines: 2,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'yanji://pair-code…',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: () async {
-              final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
-              controller.text = clipboard?.text?.trim() ?? '';
-            },
-            icon: const Icon(Icons.content_paste),
-            label: const Text('粘贴'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.pop(dialogContext, controller.text.trim()),
-            child: const Text('连接'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return value;
-  }
+  }) => showDialog<String>(
+    context: context,
+    builder: (_) => _PairingCodeDialog(title: title, detail: detail),
+  );
 
   Future<void> _revoke(TrustedPeer peer) async {
     final confirmed = await showDialog<bool>(
@@ -486,6 +442,68 @@ class _DevicePageState extends State<DevicePage> {
       ],
     );
   }
+}
+
+class _PairingCodeDialog extends StatefulWidget {
+  const _PairingCodeDialog({required this.title, required this.detail});
+
+  final String title;
+  final String detail;
+
+  @override
+  State<_PairingCodeDialog> createState() => _PairingCodeDialogState();
+}
+
+class _PairingCodeDialogState extends State<_PairingCodeDialog> {
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _paste() async {
+    final clipboard = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    controller.text = clipboard?.text?.trim() ?? '';
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(widget.title),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        YanJiCaption(widget.detail),
+        const SizedBox(height: YanJiSpacing.md),
+        TextField(
+          key: const Key('pairing-code-input'),
+          controller: controller,
+          autofocus: true,
+          minLines: 2,
+          maxLines: 5,
+          decoration: const InputDecoration(labelText: 'yanji://pair-code…'),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton.icon(
+        onPressed: _paste,
+        icon: const Icon(Icons.content_paste),
+        label: const Text('粘贴'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('取消'),
+      ),
+      FilledButton(
+        onPressed: () => Navigator.pop(context, controller.text.trim()),
+        child: const Text('连接'),
+      ),
+    ],
+  );
 }
 
 class _ScannerPage extends StatefulWidget {
