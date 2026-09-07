@@ -439,7 +439,7 @@ class _DevicePageState extends State<DevicePage> {
           ),
           if (currentInvite != null && remaining > 0) ...[
             const SizedBox(height: YanJiSpacing.sm),
-            TextButton.icon(
+            OutlinedButton.icon(
               onPressed: () async {
                 await Clipboard.setData(
                   ClipboardData(text: currentInvite.encode()),
