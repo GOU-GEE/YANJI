@@ -109,3 +109,13 @@ OperationWriter.execute(command) 与 OperationApplier.receive(packet) 通过同�
 测试 Harness 使用三份独立文件数据库和生产连接，设备之间只传播签名字节。SimulatedTransport 处理路由、队列和可达性，不理解业务语义；重启销毁并重建数据库与 Identity/Writer/Applier 对象。确定性 ID/时钟注入仅用于复现，生产默认保持 UUIDv7/HLC。
 
 显式 membership policy 的签名传播夹具位于 test/，用独立 policy workspace 和测试表保存验证输入，不实现或注册生产 Genesis/授权链。每轮最终分别比较业务、字段时钟、删除、正文版本、有效 Operation、membership 和 Frontier，再检查 invariant 和全量重建。测试入口与已运行规模见 docs/m2-m3.md。
+
+## 单设备 UI 组合根
+
+Riverpod 初始化真实文件数据库、PlatformKeyStorage 和 StudyAppController；GoRouter 负责手机底部导航及宽屏 NavigationRail。Widget 只使用 Application Service 的快照和命令，不直接调用 DAO。Onboarding 的 Workspace、ExamProfile、Subjects 在一个外层事务内通过生产 Writer 创建；失败整体回滚。
+
+OS secure storage 适配已接入 flutter_secure_storage，私钥与 Device ID 作为一个受平台保护的值保存。初始化写入在当前应用 isolate 内串行化，不声称提供跨进程 CAS。安全存储失败进入可重试错误页，不使用明文或临时身份回退；现存工作区的创建者与当前身份不符时拒绝自动授权。
+
+当前单设备组合根的 OriginLookup 仅允许本机持久身份，不提供远端接收入口；完整 Genesis / device.add 授权链继续作为接网前门槛。此边界不能当作多设备授权实现。
+
+Timer 一秒 ticker 仅更新显示，生命周期 resumed 时重新读取快照；持续时长由 Segment 时间戳计算。统计按 Workspace.stats_timezone 的相邻日历日边界与 Segment 区间求交，跨午夜分摊并处理 DST，未增加每日时长真值表。

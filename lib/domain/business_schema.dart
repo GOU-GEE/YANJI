@@ -27,6 +27,7 @@ final class BusinessSchema {
     'subject': {
       'name': 'text',
       'category': 'text?',
+      'parent_subject_id': 'uuid?',
       'target_score_x100': 'int?',
       'max_score_x100': 'int?',
       'sort_order': 'int',
@@ -37,6 +38,7 @@ final class BusinessSchema {
       'subject_id': 'uuid?',
       'knowledge_node_id': 'uuid?',
       'scheduled_date': 'date?',
+      'repeat_daily': 'bool',
       'due_at_ms': 'int?',
       'estimated_seconds': 'int?',
       'priority': 'int',
@@ -61,7 +63,12 @@ final class BusinessSchema {
   };
   static const defaults = <String, Map<String, Object?>>{
     'subject': {'sort_order': 0, 'archived': false},
-    'task': {'priority': 0, 'sort_order': 0, 'status': 'todo'},
+    'task': {
+      'priority': 0,
+      'sort_order': 0,
+      'status': 'todo',
+      'repeat_daily': false,
+    },
   };
   static const tables = {
     'workspace': 'workspaces',

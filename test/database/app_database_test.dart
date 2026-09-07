@@ -42,7 +42,7 @@ void main() {
             .data
             .values
             .single,
-        1,
+        3,
       );
       expect(
         (await db.customSelect('PRAGMA foreign_keys').getSingle())

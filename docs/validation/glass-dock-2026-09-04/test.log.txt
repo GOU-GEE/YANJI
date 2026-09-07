@@ -1,0 +1,12 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart
+00:00 +0: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:00 +1: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:01 +2: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:01 +3: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:01 +4: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:01 +5: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:02 +6: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:02 +7: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:02 +8: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:09 +9: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: bootstrap failure has a retry action
+00:09 +10: All tests passed!

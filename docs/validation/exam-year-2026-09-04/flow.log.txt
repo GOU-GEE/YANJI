@@ -1,0 +1,4 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart
+00:00 +0: phone daily cycle: onboarding subject task timer and statistics
+00:09 +1: bootstrap failure has a retry action
+00:09 +2: All tests passed!

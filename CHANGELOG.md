@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased · M2/M3 Convergence Verification · 2026-09-03
+## Unreleased · Data 页面 · 2026-09-04
+
+- 七日趋势替换 Progress Bar 列表：保留真实点、轻微平滑与面积、触摸精确时长、本周累计与上周整周比较；未来日期留空。
+- 单张科目 Donut 支持本周/累计切换，中心总时长，列表实际时长与占比，圆环/列表触摸提示。
+- 新增学习天数、最长连续学习与自然日日均，预留热力图；只从 Session / Segment 构建临时只读统计，不新增表或统计写入。
+- 新增 5 项聚合测试、3 项图表 Widget 测试和 1 项原生视觉集成测试。口径、截图和验收范围见 docs/validation/data-page-2026-09-04.md。
+
+## Unreleased · Design System v1 · 2026-09-03
+
+- 根据用户设计 brief 研究 Linear / Notion / Cal.com 参考，建立根目录 DESIGN.md 为唯一 UI/UX 规范；原文完整归档，保留产品与架构优先级。
+- 新增 YanJi Semantic Tokens 和系统明暗主题。第一批只迁移 Onboarding、Today、Task、Timer 与必要共享组件；其他业务页面仅继承主题。
+- 表单和弹层支持键盘避让，任务/摘要支持小屏大字重排；Timer 操作位于底部且可滚动；修正快捷动作读屏标签、宽屏 Rail 语义隔离和 sheet 覆盖范围。
+- 新增 5 项设计验证，覆盖对比度和四种窗口/文字/主题场景；与原 Widget 日循环合计 8 项。结果与原生截图见 docs/validation/design-system-v1-2026-09-03.md。
+
+## Unreleased · Single-Device UI · 2026-09-03
+
+- 新增手机导航及宽屏 Rail，按批准顺序完成首次目标/科目设置、科目管理、Today/Tasks、Segment 计时、每日复盘和基础统计。
+- Riverpod 接入真实文件数据库、系统安全存储身份与 Application Service；业务修改全部经过生产 Writer，Onboarding 多实体创建整体回滚。既有工作区与当前身份不匹配时禁止自动重新授权。
+- 统计使用 Workspace IANA 时区日界线并拆分跨午夜区间；ticker 只刷新显示，暂停不累计，清空复盘写正文更新。
+- 新增 Widget 日循环及错误状态、应用服务文件重开/跨午夜/DST/事务回滚/身份隔离验证。全量 98 项测试通过，保留原 92 项；固定 CBOR/Ed25519 oracle 通过。原生日循环、后台/锁屏和进程重启单独验收。
+- 增加 fast/database/widget/convergence/all 分层入口与 Android 宿主生命周期脚本。补齐 Android SDK/模拟器、Xcode、CocoaPods；具体原生构建和验证边界见 docs/validation/single-device-ui-2026-09-03.md。
+- iPhone 17 Pro / iOS 26.5 与 Android API 36 原生日循环、独立进程重启全部通过；iPhone 普通应用补充实际锁屏/唤醒与 Active Session 跨模拟器重启恢复。普通 iOS/Android Debug 构建通过，flutter doctor 全部通过；macOS Keychain 构建仍缺开发签名证书。
+- 达到 Single-Device Alpha Ready（模拟器日循环验收范围）。当前未开始 LAN/QR、热力图、复杂计划或 Extended/Soak；该状态不等于真机验收、正式 Alpha 发布或完整 V0.1 发布。
+
+## M2/M3 Convergence Verification 历史 · 2026-09-03
 
 - 新增三个独立文件数据库 DeviceHarness，使用生产连接、签名、Writer/Applier、Resolver、Projection；重启实际关闭并重建数据库和身份对象。
 - 新增六条字节队列及 Frontier Diff/Gossip，覆盖重复、乱序、延迟、失败投递、分区和恢复；独立持久化的测试 membership policy 经签名消息传播后触发真实授权重验。
@@ -41,3 +65,28 @@
 - 添加文档、迁移快照配置与静态检查配置。
 - 验证：静态检查通过；16 项基础测试通过，包括文件数据库重开和事务失败回滚。平台构建未验证（本机缺少完整 Xcode 与 Android SDK）。
 - 尚未实现签名、系统安全身份、OperationWriter、完整业务模型或同步引擎。
+
+### 2026-09-04 数据页展示精简
+
+- 去除四个主导航页面的重复页头标签。
+- 趋势提示改为图内节点浮层；科目切换右对齐，圆环使用环外名称/时长引导线标注。
+- 实现自适应年度学习热力图、历史年份切换和日期触摸详情。
+- 保持 Session / Segment 统计来源与日均口径不变。
+
+### 2026-09-04 连续学习热力图
+
+- 趋势提示移到标题旁并增加纵轴；圆环移除点击效果；积累指标分散对齐。
+- 热力图从首次学习日起连续排列，数据页最多两行，“查看更多”进入全屏历史列表，末行补浅色占位。
+- 时长图例改为 0–<1h、≥1h、≥2h、≥4h、≥6h，移除底部时区文字。
+
+
+- 添加任务改为居中弹窗，增加本地科目/时长识别与手动覆盖，去掉优先级和备注控件。
+- 我的科目支持一级/二级展开管理，数据库 v2 无损添加父科目引用。
+- 关联任务累计真实学习片段，达到预计时长自动完成，支持重启补判。
+
+
+- 任务支持当日/每日模式及空名称自动生成，每日按当地自然日重新计算进度。
+- 开始学习新增取消按钮；科目移除目标分编辑，增加可恢复删除与折叠回收区、彻底删除确认。
+- 删除科目从统计排除、恢复重新计入；数据库无损升级至 v3。
+
+- 我的页面移除考试目标与每日复盘入口；模拟器调试默认关闭连接 Mac 硬件键盘，便于使用中文软件键盘。

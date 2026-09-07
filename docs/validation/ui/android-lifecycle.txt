@@ -1,0 +1,1 @@
+API 36 ARM emulator. Host adb executed HOME, 5 s wait, KEYCODE_SLEEP, 5 s wait, KEYCODE_WAKEUP, dismiss-keyguard, am start. Timer screenshot after returning. Integration test checks elapsed >= 60 s, paused time excluded, and successful completion.

@@ -1,0 +1,26 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart
+00:00 +0: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: natural text, aliases, ambiguous subjects and durations
+00:00 +1: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: child subject waits for parent and converges after out-of-order delivery
+00:00 +2: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: linked sessions accumulate, pause and unrelated time excluded, completes once after reopen
+00:00 +3: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: linked sessions accumulate, pause and unrelated time excluded, completes once after reopen
+00:00 +4: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: projection insert failure rolls back log, seq, HLC, context and previous rows
+00:00 +5: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +6: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +7: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +8: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: update before create stores field state without a half row then materializes newer values
+00:00 +9: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: a late required field completes a partial remote create without weakening NOT NULL
+00:00 +10: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: session-before-subject automatically retries and cross-workspace FK is guarded
+00:01 +11: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: concurrent different fields merge and same field winner is order-independent
+00:01 +12: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: causally newer field wins even when its HLC is lower
+00:01 +13: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: MV register persists both concurrent versions then resolves through observed operation
+00:01 +14: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: delete before create and late updates cannot resurrect; dependent rows become pending
+00:01 +15: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: revocation cutoff recomputes real rows and field clocks, preserving signed history
+00:01 +16: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: rebuild entity/workspace restores cleared derived state with identical digest
+00:01 +17: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: atomic timer owner actions and out-of-order delivery never produce completed with open segment
+00:01 +18: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: local writes cannot report success for a tombstoned target
+00:01 +19: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: explicit null clears one nullable field without replacing the patch row
+00:01 +20: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: paused stop completes the closed segment atomically
+00:01 +21: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: file reopen preserves production rows and deterministic rebuild
+00:02 +22: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: malformed domain payload is quarantined and unknown schema remains pending without apply
+00:02 +23: /Users/goulijun/Documents/project/YANJI/test/database/production_projection_test.dart: (tearDownAll)
+00:02 +23: All tests passed!

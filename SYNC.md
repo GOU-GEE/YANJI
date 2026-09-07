@@ -2568,3 +2568,13 @@ rebuildEntity 可以扩展到整个 Workspace 的依赖闭包；M1c 初版直接
 projectionDigest 对业务表、FieldClock、Tombstone、正文活动版本和 materialization 状态按规范排序/CBOR/SHA-256；排除接收时间、重试、日志等本机元数据。
 
 M2/M3 验证中 Frontier 和 membership 独立逐项比较，不纳入业务 projectionDigest。合法未知 schema 仍推进连续存储进度且可 Gossip，但不得改变业务 digest。超 cutoff 的历史禁止正常 Gossip，因此各库已撤销 Oplog 的本地保留集合可以不同；合法 Operation 集合和授权状态必须一致，已撤销历史不得影响任何业务派生状态。
+
+
+### 2026-09-04 科目层级增量
+
+subject 字段补充 parent_subject_id（可空 UUID），沿用同一实体的字段时钟与操作日志。父引用在工作区依赖闭包内解析，限定父级为根科目，防止自引用和多级循环；乱序父子到达可收敛。该可选字段扩展需要所有参与设备升级到支持本字段的版本，旧客户端未获兼容性保证，不更改历史 envelope。任务达标状态由现有 Writer 写入 task.status/completed_at_ms，累计时长仍从 session/segment 推导。
+
+
+### 2026-09-04 每日任务增量
+
+task 新增可选布尔字段 repeat_daily，旧操作缺失时默认为 false。各参与设备须升级支持该字段。每日进度依然由 session/segment 与统计时区推导；完成事件仍是现有 task 字段更新。科目可恢复删除复用 archived，彻底删除沿用 delete-wins 墓碑和依赖闭包。

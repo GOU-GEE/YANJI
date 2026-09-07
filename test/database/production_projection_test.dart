@@ -145,6 +145,43 @@ void main() {
     await b.db.close();
   });
 
+  test(
+    'child subject waits for parent and converges after out-of-order delivery',
+    () async {
+      final base = await a.base();
+      for (final packet in base) {
+        await b.receive(packet);
+      }
+      final parentId = uid(20), childId = uid(21);
+      final parent = await a.write('subject', parentId, 'create', {
+        'name': '408',
+      });
+      final child = await a.write('subject', childId, 'create', {
+        'name': '数据结构',
+        'parent_subject_id': parentId,
+      });
+      await b.receive(child);
+      expect(
+        (await b.rows('subjects')).any((row) => row['id'] == childId),
+        isFalse,
+      );
+      await b.receive(parent);
+      expect(
+        (await b.rows('subjects'))
+            .singleWhere((row) => row['id'] == childId)['parent_subject_id'],
+        parentId,
+      );
+      expect(await b.digest(), await a.digest());
+      await a.write('subject', parentId, 'delete', {});
+      await a.sendTo(b);
+      expect(
+        (await b.rows('subjects')).any((row) => row['id'] == childId),
+        isFalse,
+      );
+      expect(await b.digest(), await a.digest());
+    },
+  );
+
   test('local command commits signed log, typed projection, field clocks and persistent sequence', () async {
     final packets = await a.base();
     expect((await a.rows('tasks')).single['title'], '初始');

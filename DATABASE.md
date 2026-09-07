@@ -56,7 +56,7 @@ PRIMARY KEY(workspace_id, device_id, origin_device_id)，max_observed_seq。
 | study_sessions | id 全局主键；workspace/subject/task/owner 关联；owner_device_id 固定；status/mode/start 必填；completed 必须有合法结束时间 |
 | study_session_segments | id 全局主键；复合 workspace+session FK；开始必填、结束可空且不得早于开始；每 Session 最多一个 open Segment |
 
-Session Duration 不存独立同步字段，session_durations 视图从已关闭 Segment 求和（毫秒）；open Segment 的当前显示时长在未来 Timer 层派生。knowledge_node_id 暂保留可空 UUID，不创建或解析暂缓的 KnowledgeTree。
+Session Duration 不存独立同步字段，session_durations 视图从已关闭 Segment 求和（毫秒）；open Segment 的当前显示时长由 Application Service 根据时间戳派生，UI ticker 仅刷新显示。knowledge_node_id 暂保留可空 UUID，不创建或解析暂缓的 KnowledgeTree。
 
 ## M1c 同步派生表
 
@@ -87,8 +87,18 @@ projectionDigest 在一致的读事务内对业务表、FieldClock、Tombstone�
 
 ## 后续
 
-StudyPhase、KnowledgeTree、TaskTemplate、ExamAttempt、复杂 Plans 暂缓。M2/M3 接着用三份真实数据库测试随机分区/Gossip/撤销/依赖延迟；不提前进入网络或 UI。
+StudyPhase、KnowledgeTree、TaskTemplate、ExamAttempt、复杂 Plans 暂缓。M2/M3 PR Gate 已通过；本轮接入单设备业务 UI，不增加网络。
 
 ## 备份
 
 不直接复制运行中的 SQLite 主文件。备份使用 SQLite Backup API/一致性快照；恢复新安装生成新 Device ID 与新 key pair，不能把旧私钥作为当前身份。
+
+
+### Schema v2 · 2026-09-04
+
+subjects 增加可空 parent_subject_id，根科目为 null。v1→v2 仅添加列，保留原有记录及 oplog。父科目引用由 ConflictResolver 的 workspace 内依赖闭包验证，仅允许两级；没有引入无法通过 ALTER TABLE 平滑添加的自引用 SQL 外键。父科目未到达/删除时子科目等待依赖，补齐后自动物化。
+
+
+### Schema v3 · 2026-09-04
+
+tasks 新增 repeat_daily INTEGER NOT NULL DEFAULT 0（0/1）。v2→v3 只添加该列；v1→v3 先添加 parent_subject_id 再添加 repeat_daily，保留记录及日志。每日完成日期复用 completed_at_ms，不增加一份每日时长计数。

@@ -1,0 +1,5 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart
+00:00 +0: data charts 390.0 Brightness.light: points, scope, tooltip, accumulation
+00:01 +1: data charts 320.0 Brightness.dark: points, scope, tooltip, accumulation
+00:02 +2: empty charts have no fabricated comparison or learning days
+00:02 +3: All tests passed!

@@ -1203,3 +1203,11 @@ M2：三份独立 SQLite 文件、六条字节队列、Frontier Diff/Gossip、�
 M3：可重放 seed 与完整 ScenarioLog、随机四类业务动作及网络/重启/授权事件、有上限的 convergence phase、五层结果断言、三设备重建一致性、失败 seed corpus、性能记录。PR 配置 10 × 200，Extended 100 × 1000，Soak 100 × 2000；配置规模不等于已执行规模，实际运行结果以 docs/validation 与 CHANGELOG 为准。Shrinker 为后续增强项，暂不做投影性能优化。
 
 M3 Gate 通过后的开发顺序：基础业务 UI（Onboarding、Subjects、Today、Tasks、Timer、Daily Review）→ 单设备可用 → Xcode/Android 工具链及平台构建/真机验证 → LAN Transport。M3 完成不自动表示平台或网络已验证。
+
+## 单设备 UI 当前进度
+
+M0 / M1a / M1b / M1c / M2 / M3 PR Gate 已验收。基础 UI 已按 Shell → Onboarding → Subjects → Today/Tasks → Timer → Daily Review → 基础统计顺序实现。全量测试扩展至 98 项，保留原 92 项；原生模拟器验收结果单独记录在 docs/validation/single-device-ui-2026-09-03.md，不由 Widget 测试代替。
+
+Extended / Soak 尚未执行，不阻塞当前 UI；后续在首次 Alpha 发布或接入真实网络前独立执行。单设备模拟器日循环及进程重启验证之后，才进入下一阶段。热力图、复杂规划、番茄钟、备份与真实网络仍未完成，不能将本轮基础 UI 等同于完整 M4–M10 或 V0.1 发布。
+
+2026-09-03 本轮手机 Gate：iPhone 17 Pro / iOS 26.5 与 Android API 36 的原生日循环、独立进程重启通过；iPhone 普通应用另验证实际锁屏显示及活动 Session 跨模拟器重启恢复。标记 **Single-Device Alpha Ready（模拟器验收范围）**。真机与 Extended/Soak 尚未执行；macOS 应用构建仍缺开发签名证书，不影响本轮手机 Gate。

@@ -1,0 +1,6 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/integration_test/statistics_visual_test.dart
+Running Xcode build...                                          
+Xcode build done.                                           30.5s
+00:00 +0: native data page: trend, touch, scopes, dark and accumulation
+00:07 +1: (tearDownAll)
+00:07 +1: All tests passed!

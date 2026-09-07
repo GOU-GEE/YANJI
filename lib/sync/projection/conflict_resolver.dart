@@ -70,6 +70,16 @@ final class ConflictResolver {
             (entity.key.$1 == 'workspace' ||
                 present('workspace', e.workspaceId)) &&
             present('subject', entity.values['subject_id']) &&
+            present('subject', entity.values['parent_subject_id']) &&
+            (entity.values['parent_subject_id'] == null ||
+                (entity.values['parent_subject_id'] != entity.key.$2 &&
+                    result
+                            .entities[(
+                              'subject',
+                              entity.values['parent_subject_id'],
+                            )]
+                            ?.values['parent_subject_id'] ==
+                        null)) &&
             present('task', entity.values['task_id']);
         if (!ok) {
           entity.state = 'pending_dependency';

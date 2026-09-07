@@ -1,0 +1,8 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart
+00:00 +0: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: natural text, aliases, ambiguous subjects and durations
+00:00 +1: /Users/goulijun/Documents/project/YANJI/test/application/daily_tasks_deletion_test.dart: empty title generation and daily progress reset preserve history across reopen
+00:00 +2: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: linked sessions accumulate, pause and unrelated time excluded, completes once after reopen
+00:00 +3: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: linked sessions accumulate, pause and unrelated time excluded, completes once after reopen
+00:00 +4: /Users/goulijun/Documents/project/YANJI/test/application/daily_tasks_deletion_test.dart: delete hides stats, restore recovers time, permanent delete survives rebuild
+00:00 +5: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +6: All tests passed!

@@ -1,0 +1,6 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/integration_test/smart_tasks_visual_test.dart
+Running Xcode build...                                          
+Xcode build done.                                           26.3s
+00:00 +0: subject children, natural task dialog, automatic completion
+00:21 +1: (tearDownAll)
+00:21 +1: All tests passed!

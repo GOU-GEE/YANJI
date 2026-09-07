@@ -3394,6 +3394,17 @@ class Subjects extends Table with TableInfo<Subjects, Subject> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
+  static const VerificationMeta _parentSubjectIdMeta = const VerificationMeta(
+    'parentSubjectId',
+  );
+  late final GeneratedColumn<String> parentSubjectId = GeneratedColumn<String>(
+    'parent_subject_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   static const VerificationMeta _targetScoreX100Meta = const VerificationMeta(
     'targetScoreX100',
   );
@@ -3446,6 +3457,7 @@ class Subjects extends Table with TableInfo<Subjects, Subject> {
     workspaceId,
     name,
     category,
+    parentSubjectId,
     targetScoreX100,
     maxScoreX100,
     sortOrder,
@@ -3491,6 +3503,15 @@ class Subjects extends Table with TableInfo<Subjects, Subject> {
       context.handle(
         _categoryMeta,
         category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('parent_subject_id')) {
+      context.handle(
+        _parentSubjectIdMeta,
+        parentSubjectId.isAcceptableOrUnknown(
+          data['parent_subject_id']!,
+          _parentSubjectIdMeta,
+        ),
       );
     }
     if (data.containsKey('target_score_x100')) {
@@ -3552,6 +3573,10 @@ class Subjects extends Table with TableInfo<Subjects, Subject> {
         DriftSqlType.string,
         data['${effectivePrefix}category'],
       ),
+      parentSubjectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parent_subject_id'],
+      ),
       targetScoreX100: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}target_score_x100'],
@@ -3587,6 +3612,7 @@ class Subject extends DataClass implements Insertable<Subject> {
   final String workspaceId;
   final String name;
   final String? category;
+  final String? parentSubjectId;
   final int? targetScoreX100;
   final int? maxScoreX100;
   final int sortOrder;
@@ -3596,6 +3622,7 @@ class Subject extends DataClass implements Insertable<Subject> {
     required this.workspaceId,
     required this.name,
     this.category,
+    this.parentSubjectId,
     this.targetScoreX100,
     this.maxScoreX100,
     required this.sortOrder,
@@ -3609,6 +3636,9 @@ class Subject extends DataClass implements Insertable<Subject> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || category != null) {
       map['category'] = Variable<String>(category);
+    }
+    if (!nullToAbsent || parentSubjectId != null) {
+      map['parent_subject_id'] = Variable<String>(parentSubjectId);
     }
     if (!nullToAbsent || targetScoreX100 != null) {
       map['target_score_x100'] = Variable<int>(targetScoreX100);
@@ -3629,6 +3659,9 @@ class Subject extends DataClass implements Insertable<Subject> {
       category: category == null && nullToAbsent
           ? const Value.absent()
           : Value(category),
+      parentSubjectId: parentSubjectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentSubjectId),
       targetScoreX100: targetScoreX100 == null && nullToAbsent
           ? const Value.absent()
           : Value(targetScoreX100),
@@ -3650,6 +3683,7 @@ class Subject extends DataClass implements Insertable<Subject> {
       workspaceId: serializer.fromJson<String>(json['workspace_id']),
       name: serializer.fromJson<String>(json['name']),
       category: serializer.fromJson<String?>(json['category']),
+      parentSubjectId: serializer.fromJson<String?>(json['parent_subject_id']),
       targetScoreX100: serializer.fromJson<int?>(json['target_score_x100']),
       maxScoreX100: serializer.fromJson<int?>(json['max_score_x100']),
       sortOrder: serializer.fromJson<int>(json['sort_order']),
@@ -3664,6 +3698,7 @@ class Subject extends DataClass implements Insertable<Subject> {
       'workspace_id': serializer.toJson<String>(workspaceId),
       'name': serializer.toJson<String>(name),
       'category': serializer.toJson<String?>(category),
+      'parent_subject_id': serializer.toJson<String?>(parentSubjectId),
       'target_score_x100': serializer.toJson<int?>(targetScoreX100),
       'max_score_x100': serializer.toJson<int?>(maxScoreX100),
       'sort_order': serializer.toJson<int>(sortOrder),
@@ -3676,6 +3711,7 @@ class Subject extends DataClass implements Insertable<Subject> {
     String? workspaceId,
     String? name,
     Value<String?> category = const Value.absent(),
+    Value<String?> parentSubjectId = const Value.absent(),
     Value<int?> targetScoreX100 = const Value.absent(),
     Value<int?> maxScoreX100 = const Value.absent(),
     int? sortOrder,
@@ -3685,6 +3721,9 @@ class Subject extends DataClass implements Insertable<Subject> {
     workspaceId: workspaceId ?? this.workspaceId,
     name: name ?? this.name,
     category: category.present ? category.value : this.category,
+    parentSubjectId: parentSubjectId.present
+        ? parentSubjectId.value
+        : this.parentSubjectId,
     targetScoreX100: targetScoreX100.present
         ? targetScoreX100.value
         : this.targetScoreX100,
@@ -3700,6 +3739,9 @@ class Subject extends DataClass implements Insertable<Subject> {
           : this.workspaceId,
       name: data.name.present ? data.name.value : this.name,
       category: data.category.present ? data.category.value : this.category,
+      parentSubjectId: data.parentSubjectId.present
+          ? data.parentSubjectId.value
+          : this.parentSubjectId,
       targetScoreX100: data.targetScoreX100.present
           ? data.targetScoreX100.value
           : this.targetScoreX100,
@@ -3718,6 +3760,7 @@ class Subject extends DataClass implements Insertable<Subject> {
           ..write('workspaceId: $workspaceId, ')
           ..write('name: $name, ')
           ..write('category: $category, ')
+          ..write('parentSubjectId: $parentSubjectId, ')
           ..write('targetScoreX100: $targetScoreX100, ')
           ..write('maxScoreX100: $maxScoreX100, ')
           ..write('sortOrder: $sortOrder, ')
@@ -3732,6 +3775,7 @@ class Subject extends DataClass implements Insertable<Subject> {
     workspaceId,
     name,
     category,
+    parentSubjectId,
     targetScoreX100,
     maxScoreX100,
     sortOrder,
@@ -3745,6 +3789,7 @@ class Subject extends DataClass implements Insertable<Subject> {
           other.workspaceId == this.workspaceId &&
           other.name == this.name &&
           other.category == this.category &&
+          other.parentSubjectId == this.parentSubjectId &&
           other.targetScoreX100 == this.targetScoreX100 &&
           other.maxScoreX100 == this.maxScoreX100 &&
           other.sortOrder == this.sortOrder &&
@@ -3756,6 +3801,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
   final Value<String> workspaceId;
   final Value<String> name;
   final Value<String?> category;
+  final Value<String?> parentSubjectId;
   final Value<int?> targetScoreX100;
   final Value<int?> maxScoreX100;
   final Value<int> sortOrder;
@@ -3766,6 +3812,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
     this.workspaceId = const Value.absent(),
     this.name = const Value.absent(),
     this.category = const Value.absent(),
+    this.parentSubjectId = const Value.absent(),
     this.targetScoreX100 = const Value.absent(),
     this.maxScoreX100 = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3777,6 +3824,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
     required String workspaceId,
     required String name,
     this.category = const Value.absent(),
+    this.parentSubjectId = const Value.absent(),
     this.targetScoreX100 = const Value.absent(),
     this.maxScoreX100 = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3790,6 +3838,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
     Expression<String>? workspaceId,
     Expression<String>? name,
     Expression<String>? category,
+    Expression<String>? parentSubjectId,
     Expression<int>? targetScoreX100,
     Expression<int>? maxScoreX100,
     Expression<int>? sortOrder,
@@ -3801,6 +3850,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
       if (workspaceId != null) 'workspace_id': workspaceId,
       if (name != null) 'name': name,
       if (category != null) 'category': category,
+      if (parentSubjectId != null) 'parent_subject_id': parentSubjectId,
       if (targetScoreX100 != null) 'target_score_x100': targetScoreX100,
       if (maxScoreX100 != null) 'max_score_x100': maxScoreX100,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -3814,6 +3864,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
     Value<String>? workspaceId,
     Value<String>? name,
     Value<String?>? category,
+    Value<String?>? parentSubjectId,
     Value<int?>? targetScoreX100,
     Value<int?>? maxScoreX100,
     Value<int>? sortOrder,
@@ -3825,6 +3876,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
       workspaceId: workspaceId ?? this.workspaceId,
       name: name ?? this.name,
       category: category ?? this.category,
+      parentSubjectId: parentSubjectId ?? this.parentSubjectId,
       targetScoreX100: targetScoreX100 ?? this.targetScoreX100,
       maxScoreX100: maxScoreX100 ?? this.maxScoreX100,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -3847,6 +3899,9 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
     }
     if (category.present) {
       map['category'] = Variable<String>(category.value);
+    }
+    if (parentSubjectId.present) {
+      map['parent_subject_id'] = Variable<String>(parentSubjectId.value);
     }
     if (targetScoreX100.present) {
       map['target_score_x100'] = Variable<int>(targetScoreX100.value);
@@ -3873,6 +3928,7 @@ class SubjectsCompanion extends UpdateCompanion<Subject> {
           ..write('workspaceId: $workspaceId, ')
           ..write('name: $name, ')
           ..write('category: $category, ')
+          ..write('parentSubjectId: $parentSubjectId, ')
           ..write('targetScoreX100: $targetScoreX100, ')
           ..write('maxScoreX100: $maxScoreX100, ')
           ..write('sortOrder: $sortOrder, ')
@@ -3949,6 +4005,18 @@ class Tasks extends Table with TableInfo<Tasks, Task> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     $customConstraints: '',
+  );
+  static const VerificationMeta _repeatDailyMeta = const VerificationMeta(
+    'repeatDaily',
+  );
+  late final GeneratedColumn<int> repeatDaily = GeneratedColumn<int>(
+    'repeat_daily',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0 CHECK (repeat_daily IN (0, 1))',
+    defaultValue: const CustomExpression('0'),
   );
   static const VerificationMeta _dueAtMsMeta = const VerificationMeta(
     'dueAtMs',
@@ -4033,6 +4101,7 @@ class Tasks extends Table with TableInfo<Tasks, Task> {
     subjectId,
     knowledgeNodeId,
     scheduledDate,
+    repeatDaily,
     dueAtMs,
     estimatedSeconds,
     priority,
@@ -4098,6 +4167,15 @@ class Tasks extends Table with TableInfo<Tasks, Task> {
         scheduledDate.isAcceptableOrUnknown(
           data['scheduled_date']!,
           _scheduledDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('repeat_daily')) {
+      context.handle(
+        _repeatDailyMeta,
+        repeatDaily.isAcceptableOrUnknown(
+          data['repeat_daily']!,
+          _repeatDailyMeta,
         ),
       );
     }
@@ -4188,6 +4266,10 @@ class Tasks extends Table with TableInfo<Tasks, Task> {
         DriftSqlType.string,
         data['${effectivePrefix}scheduled_date'],
       ),
+      repeatDaily: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}repeat_daily'],
+      )!,
       dueAtMs: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}due_at_ms'],
@@ -4240,6 +4322,7 @@ class Task extends DataClass implements Insertable<Task> {
   final String? subjectId;
   final String? knowledgeNodeId;
   final String? scheduledDate;
+  final int repeatDaily;
   final int? dueAtMs;
   final int? estimatedSeconds;
   final int priority;
@@ -4254,6 +4337,7 @@ class Task extends DataClass implements Insertable<Task> {
     this.subjectId,
     this.knowledgeNodeId,
     this.scheduledDate,
+    required this.repeatDaily,
     this.dueAtMs,
     this.estimatedSeconds,
     required this.priority,
@@ -4277,6 +4361,7 @@ class Task extends DataClass implements Insertable<Task> {
     if (!nullToAbsent || scheduledDate != null) {
       map['scheduled_date'] = Variable<String>(scheduledDate);
     }
+    map['repeat_daily'] = Variable<int>(repeatDaily);
     if (!nullToAbsent || dueAtMs != null) {
       map['due_at_ms'] = Variable<int>(dueAtMs);
     }
@@ -4309,6 +4394,7 @@ class Task extends DataClass implements Insertable<Task> {
       scheduledDate: scheduledDate == null && nullToAbsent
           ? const Value.absent()
           : Value(scheduledDate),
+      repeatDaily: Value(repeatDaily),
       dueAtMs: dueAtMs == null && nullToAbsent
           ? const Value.absent()
           : Value(dueAtMs),
@@ -4337,6 +4423,7 @@ class Task extends DataClass implements Insertable<Task> {
       subjectId: serializer.fromJson<String?>(json['subject_id']),
       knowledgeNodeId: serializer.fromJson<String?>(json['knowledge_node_id']),
       scheduledDate: serializer.fromJson<String?>(json['scheduled_date']),
+      repeatDaily: serializer.fromJson<int>(json['repeat_daily']),
       dueAtMs: serializer.fromJson<int?>(json['due_at_ms']),
       estimatedSeconds: serializer.fromJson<int?>(json['estimated_seconds']),
       priority: serializer.fromJson<int>(json['priority']),
@@ -4356,6 +4443,7 @@ class Task extends DataClass implements Insertable<Task> {
       'subject_id': serializer.toJson<String?>(subjectId),
       'knowledge_node_id': serializer.toJson<String?>(knowledgeNodeId),
       'scheduled_date': serializer.toJson<String?>(scheduledDate),
+      'repeat_daily': serializer.toJson<int>(repeatDaily),
       'due_at_ms': serializer.toJson<int?>(dueAtMs),
       'estimated_seconds': serializer.toJson<int?>(estimatedSeconds),
       'priority': serializer.toJson<int>(priority),
@@ -4373,6 +4461,7 @@ class Task extends DataClass implements Insertable<Task> {
     Value<String?> subjectId = const Value.absent(),
     Value<String?> knowledgeNodeId = const Value.absent(),
     Value<String?> scheduledDate = const Value.absent(),
+    int? repeatDaily,
     Value<int?> dueAtMs = const Value.absent(),
     Value<int?> estimatedSeconds = const Value.absent(),
     int? priority,
@@ -4391,6 +4480,7 @@ class Task extends DataClass implements Insertable<Task> {
     scheduledDate: scheduledDate.present
         ? scheduledDate.value
         : this.scheduledDate,
+    repeatDaily: repeatDaily ?? this.repeatDaily,
     dueAtMs: dueAtMs.present ? dueAtMs.value : this.dueAtMs,
     estimatedSeconds: estimatedSeconds.present
         ? estimatedSeconds.value
@@ -4417,6 +4507,9 @@ class Task extends DataClass implements Insertable<Task> {
       scheduledDate: data.scheduledDate.present
           ? data.scheduledDate.value
           : this.scheduledDate,
+      repeatDaily: data.repeatDaily.present
+          ? data.repeatDaily.value
+          : this.repeatDaily,
       dueAtMs: data.dueAtMs.present ? data.dueAtMs.value : this.dueAtMs,
       estimatedSeconds: data.estimatedSeconds.present
           ? data.estimatedSeconds.value
@@ -4440,6 +4533,7 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('subjectId: $subjectId, ')
           ..write('knowledgeNodeId: $knowledgeNodeId, ')
           ..write('scheduledDate: $scheduledDate, ')
+          ..write('repeatDaily: $repeatDaily, ')
           ..write('dueAtMs: $dueAtMs, ')
           ..write('estimatedSeconds: $estimatedSeconds, ')
           ..write('priority: $priority, ')
@@ -4459,6 +4553,7 @@ class Task extends DataClass implements Insertable<Task> {
     subjectId,
     knowledgeNodeId,
     scheduledDate,
+    repeatDaily,
     dueAtMs,
     estimatedSeconds,
     priority,
@@ -4477,6 +4572,7 @@ class Task extends DataClass implements Insertable<Task> {
           other.subjectId == this.subjectId &&
           other.knowledgeNodeId == this.knowledgeNodeId &&
           other.scheduledDate == this.scheduledDate &&
+          other.repeatDaily == this.repeatDaily &&
           other.dueAtMs == this.dueAtMs &&
           other.estimatedSeconds == this.estimatedSeconds &&
           other.priority == this.priority &&
@@ -4493,6 +4589,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String?> subjectId;
   final Value<String?> knowledgeNodeId;
   final Value<String?> scheduledDate;
+  final Value<int> repeatDaily;
   final Value<int?> dueAtMs;
   final Value<int?> estimatedSeconds;
   final Value<int> priority;
@@ -4508,6 +4605,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.subjectId = const Value.absent(),
     this.knowledgeNodeId = const Value.absent(),
     this.scheduledDate = const Value.absent(),
+    this.repeatDaily = const Value.absent(),
     this.dueAtMs = const Value.absent(),
     this.estimatedSeconds = const Value.absent(),
     this.priority = const Value.absent(),
@@ -4524,6 +4622,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.subjectId = const Value.absent(),
     this.knowledgeNodeId = const Value.absent(),
     this.scheduledDate = const Value.absent(),
+    this.repeatDaily = const Value.absent(),
     this.dueAtMs = const Value.absent(),
     this.estimatedSeconds = const Value.absent(),
     this.priority = const Value.absent(),
@@ -4543,6 +4642,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? subjectId,
     Expression<String>? knowledgeNodeId,
     Expression<String>? scheduledDate,
+    Expression<int>? repeatDaily,
     Expression<int>? dueAtMs,
     Expression<int>? estimatedSeconds,
     Expression<int>? priority,
@@ -4559,6 +4659,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (subjectId != null) 'subject_id': subjectId,
       if (knowledgeNodeId != null) 'knowledge_node_id': knowledgeNodeId,
       if (scheduledDate != null) 'scheduled_date': scheduledDate,
+      if (repeatDaily != null) 'repeat_daily': repeatDaily,
       if (dueAtMs != null) 'due_at_ms': dueAtMs,
       if (estimatedSeconds != null) 'estimated_seconds': estimatedSeconds,
       if (priority != null) 'priority': priority,
@@ -4577,6 +4678,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<String?>? subjectId,
     Value<String?>? knowledgeNodeId,
     Value<String?>? scheduledDate,
+    Value<int>? repeatDaily,
     Value<int?>? dueAtMs,
     Value<int?>? estimatedSeconds,
     Value<int>? priority,
@@ -4593,6 +4695,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       subjectId: subjectId ?? this.subjectId,
       knowledgeNodeId: knowledgeNodeId ?? this.knowledgeNodeId,
       scheduledDate: scheduledDate ?? this.scheduledDate,
+      repeatDaily: repeatDaily ?? this.repeatDaily,
       dueAtMs: dueAtMs ?? this.dueAtMs,
       estimatedSeconds: estimatedSeconds ?? this.estimatedSeconds,
       priority: priority ?? this.priority,
@@ -4624,6 +4727,9 @@ class TasksCompanion extends UpdateCompanion<Task> {
     }
     if (scheduledDate.present) {
       map['scheduled_date'] = Variable<String>(scheduledDate.value);
+    }
+    if (repeatDaily.present) {
+      map['repeat_daily'] = Variable<int>(repeatDaily.value);
     }
     if (dueAtMs.present) {
       map['due_at_ms'] = Variable<int>(dueAtMs.value);
@@ -4661,6 +4767,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('subjectId: $subjectId, ')
           ..write('knowledgeNodeId: $knowledgeNodeId, ')
           ..write('scheduledDate: $scheduledDate, ')
+          ..write('repeatDaily: $repeatDaily, ')
           ..write('dueAtMs: $dueAtMs, ')
           ..write('estimatedSeconds: $estimatedSeconds, ')
           ..write('priority: $priority, ')
@@ -11325,6 +11432,7 @@ typedef $SubjectsCreateCompanionBuilder = SubjectsCompanion Function({
   required String workspaceId,
   required String name,
   Value<String?> category,
+  Value<String?> parentSubjectId,
   Value<int?> targetScoreX100,
   Value<int?> maxScoreX100,
   Value<int> sortOrder,
@@ -11336,6 +11444,7 @@ typedef $SubjectsUpdateCompanionBuilder = SubjectsCompanion Function({
   Value<String> workspaceId,
   Value<String> name,
   Value<String?> category,
+  Value<String?> parentSubjectId,
   Value<int?> targetScoreX100,
   Value<int?> maxScoreX100,
   Value<int> sortOrder,
@@ -11385,6 +11494,11 @@ class $SubjectsFilterComposer extends Composer<_$AppDatabase, Subjects> {
 
   ColumnFilters<String> get category => $composableBuilder(
     column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get parentSubjectId => $composableBuilder(
+    column: $table.parentSubjectId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11455,6 +11569,11 @@ class $SubjectsOrderingComposer extends Composer<_$AppDatabase, Subjects> {
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get parentSubjectId => $composableBuilder(
+    column: $table.parentSubjectId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get targetScoreX100 => $composableBuilder(
     column: $table.targetScoreX100,
     builder: (column) => ColumnOrderings(column),
@@ -11515,6 +11634,11 @@ class $SubjectsAnnotationComposer extends Composer<_$AppDatabase, Subjects> {
 
   GeneratedColumn<String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get parentSubjectId => $composableBuilder(
+    column: $table.parentSubjectId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get targetScoreX100 => $composableBuilder(
     column: $table.targetScoreX100,
@@ -11588,6 +11712,7 @@ class $SubjectsTableManager
                 Value<String> workspaceId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> category = const Value.absent(),
+                Value<String?> parentSubjectId = const Value.absent(),
                 Value<int?> targetScoreX100 = const Value.absent(),
                 Value<int?> maxScoreX100 = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -11598,6 +11723,7 @@ class $SubjectsTableManager
                 workspaceId: workspaceId,
                 name: name,
                 category: category,
+                parentSubjectId: parentSubjectId,
                 targetScoreX100: targetScoreX100,
                 maxScoreX100: maxScoreX100,
                 sortOrder: sortOrder,
@@ -11610,6 +11736,7 @@ class $SubjectsTableManager
                 required String workspaceId,
                 required String name,
                 Value<String?> category = const Value.absent(),
+                Value<String?> parentSubjectId = const Value.absent(),
                 Value<int?> targetScoreX100 = const Value.absent(),
                 Value<int?> maxScoreX100 = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -11620,6 +11747,7 @@ class $SubjectsTableManager
                 workspaceId: workspaceId,
                 name: name,
                 category: category,
+                parentSubjectId: parentSubjectId,
                 targetScoreX100: targetScoreX100,
                 maxScoreX100: maxScoreX100,
                 sortOrder: sortOrder,
@@ -11699,6 +11827,7 @@ typedef $TasksCreateCompanionBuilder = TasksCompanion Function({
   Value<String?> subjectId,
   Value<String?> knowledgeNodeId,
   Value<String?> scheduledDate,
+  Value<int> repeatDaily,
   Value<int?> dueAtMs,
   Value<int?> estimatedSeconds,
   Value<int> priority,
@@ -11715,6 +11844,7 @@ typedef $TasksUpdateCompanionBuilder = TasksCompanion Function({
   Value<String?> subjectId,
   Value<String?> knowledgeNodeId,
   Value<String?> scheduledDate,
+  Value<int> repeatDaily,
   Value<int?> dueAtMs,
   Value<int?> estimatedSeconds,
   Value<int> priority,
@@ -11777,6 +11907,11 @@ class $TasksFilterComposer extends Composer<_$AppDatabase, Tasks> {
 
   ColumnFilters<String> get scheduledDate => $composableBuilder(
     column: $table.scheduledDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get repeatDaily => $composableBuilder(
+    column: $table.repeatDaily,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11872,6 +12007,11 @@ class $TasksOrderingComposer extends Composer<_$AppDatabase, Tasks> {
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get repeatDaily => $composableBuilder(
+    column: $table.repeatDaily,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get dueAtMs => $composableBuilder(
     column: $table.dueAtMs,
     builder: (column) => ColumnOrderings(column),
@@ -11958,6 +12098,11 @@ class $TasksAnnotationComposer extends Composer<_$AppDatabase, Tasks> {
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get repeatDaily => $composableBuilder(
+    column: $table.repeatDaily,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get dueAtMs =>
       $composableBuilder(column: $table.dueAtMs, builder: (column) => column);
 
@@ -12041,6 +12186,7 @@ class $TasksTableManager
                 Value<String?> subjectId = const Value.absent(),
                 Value<String?> knowledgeNodeId = const Value.absent(),
                 Value<String?> scheduledDate = const Value.absent(),
+                Value<int> repeatDaily = const Value.absent(),
                 Value<int?> dueAtMs = const Value.absent(),
                 Value<int?> estimatedSeconds = const Value.absent(),
                 Value<int> priority = const Value.absent(),
@@ -12056,6 +12202,7 @@ class $TasksTableManager
                 subjectId: subjectId,
                 knowledgeNodeId: knowledgeNodeId,
                 scheduledDate: scheduledDate,
+                repeatDaily: repeatDaily,
                 dueAtMs: dueAtMs,
                 estimatedSeconds: estimatedSeconds,
                 priority: priority,
@@ -12073,6 +12220,7 @@ class $TasksTableManager
                 Value<String?> subjectId = const Value.absent(),
                 Value<String?> knowledgeNodeId = const Value.absent(),
                 Value<String?> scheduledDate = const Value.absent(),
+                Value<int> repeatDaily = const Value.absent(),
                 Value<int?> dueAtMs = const Value.absent(),
                 Value<int?> estimatedSeconds = const Value.absent(),
                 Value<int> priority = const Value.absent(),
@@ -12088,6 +12236,7 @@ class $TasksTableManager
                 subjectId: subjectId,
                 knowledgeNodeId: knowledgeNodeId,
                 scheduledDate: scheduledDate,
+                repeatDaily: repeatDaily,
                 dueAtMs: dueAtMs,
                 estimatedSeconds: estimatedSeconds,
                 priority: priority,

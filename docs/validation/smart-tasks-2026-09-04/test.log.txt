@@ -1,0 +1,89 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart
+00:00 +0: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: admission year uses prior year, announced dates and explicit estimates
+00:00 +1: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +2: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +3: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +4: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +5: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +6: /Users/goulijun/Documents/project/YANJI/test/application/exam_schedule_test.dart: year selection persists through writer and countdown uses calendar days
+00:00 +7: /Users/goulijun/Documents/project/YANJI/test/application/study_app_controller_test.dart: timezone midnight split, pause exclusion, persisted review and timer after reopen
+00:00 +8: /Users/goulijun/Documents/project/YANJI/test/application/study_app_controller_test.dart: timezone midnight split, pause exclusion, persisted review and timer after reopen
+00:00 +9: /Users/goulijun/Documents/project/YANJI/test/application/study_app_controller_test.dart: timezone midnight split, pause exclusion, persisted review and timer after reopen
+00:00 +10: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +11: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +12: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:00 +13: /Users/goulijun/Documents/project/YANJI/test/application/smart_tasks_test.dart: v1 database upgrades without losing tasks or session history
+00:03 +14: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:03 +15: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:03 +16: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +17: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +18: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +19: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +20: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +21: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:04 +22: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +23: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +24: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +25: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +26: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +27: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +28: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +29: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +30: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +31: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +32: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +33: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +34: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +35: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:05 +36: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +37: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +38: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +39: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +40: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +41: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +42: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +43: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +44: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +45: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +46: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +47: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +48: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +49: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +50: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +51: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +52: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +53: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +54: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +55: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:06 +56: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +57: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +58: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +59: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +60: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +61: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +62: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +63: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +64: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +65: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +66: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:07 +67: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:08 +68: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:09 +69: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:09 +70: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:10 +71: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:10 +72: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:11 +73: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:11 +74: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:12 +75: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:12 +76: /Users/goulijun/Documents/project/YANJI/test/widget/daily_cycle_test.dart: phone daily cycle: onboarding subject task timer and statistics
+00:12 +77: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 concurrent MV versions persist over restart, C resolves after observing both
+00:12 +78: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 concurrent MV versions persist over restart, C resolves after observing both
+00:13 +79: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 delete arrives before create/update and deleted dependency closure stays FK-safe
+00:13 +80: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 missing dependency persists across restart and automatically retries on arrival
+00:14 +81: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 timer actions shuffled across three devices; non-owner writes rollback before publication
+00:14 +82: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 100-operation gap 41–60 holds frontier at 40 and diff repairs failed attempts
+00:21 +83: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 pending authorization and signed policy Gossip A → B → C triggers automatic retry
+00:21 +84: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 cutoff 100 removes #101/#102; signed revoke travels via B to C and survives restart
+00:29 +85: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: M2 future schema gossips opaquely without changing business digest; tampering quarantined
+00:29 +86: /Users/goulijun/Documents/project/YANJI/test/convergence/deterministic_test.dart: (tearDownAll)
+00:29 +86: All tests passed!

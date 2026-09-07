@@ -1,0 +1,9 @@
+00:00 +0: loading /Users/goulijun/Documents/project/YANJI/test/widget/study_heatmap_test.dart
+00:00 +0: /Users/goulijun/Documents/project/YANJI/test/widget/study_heatmap_test.dart: calendar preserves leap days and week alignment without duplicated dates
+00:00 +1: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: data charts 390.0 Brightness.light: points, scope, tooltip, accumulation
+00:00 +2: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: data charts 390.0 Brightness.light: points, scope, tooltip, accumulation
+00:01 +3: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: data charts 390.0 Brightness.light: points, scope, tooltip, accumulation
+00:01 +4: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: data charts 390.0 Brightness.light: points, scope, tooltip, accumulation
+00:01 +5: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: data charts 320.0 Brightness.dark: points, scope, tooltip, accumulation
+00:02 +6: /Users/goulijun/Documents/project/YANJI/test/widget/statistics_page_test.dart: empty charts have no fabricated comparison or learning days
+00:02 +7: All tests passed!
