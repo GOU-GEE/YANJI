@@ -1,0 +1,33 @@
+group = 'com.yanji.syncthing'
+version = '0.1.0'
+
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    namespace 'com.yanji.syncthing'
+    compileSdk 36
+    defaultConfig {
+        minSdk 26
+        // Preserve gomobile's JNI entry points in consuming release apps.
+        // Unpacking only classes.jar/jni drops the AAR's consumer rules.
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = '17' }
+    sourceSets.main.jniLibs.srcDirs += "${buildDir}/embedded-engine/jni"
+}
+// Unpack gomobile's code and JNI libraries into this plugin. AGP forbids
+// nesting a file-based AAR dependency inside a library AAR.
+def unpackEngine = tasks.register('unpackEmbeddedEngine', Copy) {
+    from zipTree(file('../native/build/engine.aar'))
+    include 'classes.jar', 'jni/**', 'proguard.txt'
+    into "${buildDir}/embedded-engine"
+}
+tasks.named('preBuild').configure { dependsOn unpackEngine }
+dependencies {
+    implementation files("${buildDir}/embedded-engine/classes.jar").builtBy(unpackEngine)
+}

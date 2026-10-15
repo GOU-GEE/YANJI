@@ -28,6 +28,11 @@ dependencies:
       ref: v7.4.0
   webview_flutter: ^4.10.0
   http: ^1.2.2
+  liquid_glass_renderer:
+    path: packages/liquid_glass_renderer
+  bonsoir: ^7.1.5
+  yanji_syncthing:
+    path: packages/yanji_syncthing
 
 dev_dependencies:
   flutter_test:
@@ -40,5 +45,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  shaders:
+    - assets/shaders/coolapk_navigation.frag
+    - assets/shaders/coolapk_content.frag
+    - assets/shaders/coolapk_accent.frag
   assets:
     - assets/icqr/

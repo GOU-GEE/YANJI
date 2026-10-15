@@ -13,6 +13,9 @@ class StudyStatistics {
     required tz.Location zone,
     required DateTime now,
   }) {
+    _segments = segments;
+    _zone = zone;
+    _nowMs = now.millisecondsSinceEpoch;
     final local = tz.TZDateTime.from(now, zone);
     today = DateTime.utc(local.year, local.month, local.day);
     monday = today.subtract(Duration(days: today.weekday - 1));
@@ -24,6 +27,7 @@ class StudyStatistics {
     ).millisecondsSinceEpoch;
     final nowMs = now.millisecondsSinceEpoch;
     final owners = {for (final s in sessions) s.id: s.subjectId};
+    _owners = owners;
     for (final segment in segments) {
       if (!owners.containsKey(segment.sessionId)) continue;
       final end = min(segment.endedAtMs ?? nowMs, nowMs);
@@ -32,6 +36,29 @@ class StudyStatistics {
       final duration = end - segment.startedAtMs;
       total += duration;
       bySubject.update(subject, (v) => v + duration, ifAbsent: () => duration);
+      final todayStart = tz.TZDateTime(
+        zone,
+        local.year,
+        local.month,
+        local.day,
+      ).millisecondsSinceEpoch;
+      final todayEnd = tz.TZDateTime(
+        zone,
+        local.year,
+        local.month,
+        local.day + 1,
+      ).millisecondsSinceEpoch;
+      final todayDuration = max<int>(
+        0,
+        min<int>(end, todayEnd) - max<int>(segment.startedAtMs, todayStart),
+      );
+      if (todayDuration > 0) {
+        dayBySubject.update(
+          subject,
+          (v) => v + todayDuration,
+          ifAbsent: () => todayDuration,
+        );
+      }
       final inWeek = max<int>(
         0,
         end - max<int>(weekStart, segment.startedAtMs),
@@ -85,12 +112,52 @@ class StudyStatistics {
   }
 
   late final DateTime today, monday;
+  late final List<StudySessionSegment> _segments;
+  late final Map<String, String> _owners;
+  late final tz.Location _zone;
+  late final int _nowMs;
   final Map<DateTime, int> daily = {};
-  final Map<String, int> bySubject = {}, weekBySubject = {};
+  final Map<String, int> bySubject = {}, weekBySubject = {}, dayBySubject = {};
   int total = 0, longestStreak = 0, currentStreak = 0, calendarDays = 0;
   int get learningDays => daily.length;
-  int get averagePerDay => calendarDays == 0 ? 0 : total ~/ calendarDays;
+  int get averagePerDay => learningDays == 0 ? 0 : total ~/ learningDays;
   int get todayDuration => daily[today] ?? 0;
+
+  /// Clip each real session segment to local calendar-day boundaries. This
+  /// keeps month and custom ranges correct across midnight and DST changes.
+  Map<String, int> bySubjectIn(DateTime firstDay, DateTime lastDay) {
+    final start = tz.TZDateTime(
+      _zone,
+      firstDay.year,
+      firstDay.month,
+      firstDay.day,
+    ).millisecondsSinceEpoch;
+    final end = tz.TZDateTime(
+      _zone,
+      lastDay.year,
+      lastDay.month,
+      lastDay.day + 1,
+    ).millisecondsSinceEpoch;
+    final values = <String, int>{};
+    for (final segment in _segments) {
+      final subject = _owners[segment.sessionId];
+      if (subject == null) continue;
+      final clipped = max<int>(
+        0,
+        min<int>(min<int>(segment.endedAtMs ?? _nowMs, _nowMs), end) -
+            max<int>(segment.startedAtMs, start),
+      );
+      if (clipped > 0) {
+        values.update(
+          subject,
+          (value) => value + clipped,
+          ifAbsent: () => clipped,
+        );
+      }
+    }
+    return values;
+  }
+
   List<DateTime> get weekDays =>
       List.generate(7, (i) => monday.add(Duration(days: i)));
   List<int?> get weekValues =>

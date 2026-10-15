@@ -1,0 +1,10 @@
+include: package:flutter_lints/flutter.yaml
+
+# Retain upstream syntax/API during this narrow optical patch.
+analyzer:
+  errors:
+    deprecated_member_use: ignore
+linter:
+  rules:
+    unnecessary_library_name: false
+    unnecessary_this: false

@@ -1,0 +1,23 @@
+name: yanji_syncthing
+description: Embedded Syncthing transport for YanJi immutable operation files.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.13.2
+  flutter: '>=3.38.0'
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  assets:
+    - path: native/build/sync-harness-windows-amd64.exe
+      platforms: [windows]
+  plugin:
+    platforms:
+      android:
+        package: com.yanji.syncthing
+        pluginClass: YanjiSyncthingPlugin
+      ios:
+        pluginClass: YanjiSyncthingPlugin
+      macos:
+        pluginClass: YanjiSyncthingPlugin

@@ -10,15 +10,27 @@ import 'tls_identity.dart';
 
 final class PinnedTlsTransport {
   static Future<SecureSocket> connect(PairingInvite invite) async {
-    if (invite.ipHints.isEmpty) {
+    return connectEndpoint(
+      addresses: invite.ipHints,
+      port: invite.port,
+      tlsCertificateSha256: invite.tlsCertificateSha256,
+    );
+  }
+
+  static Future<SecureSocket> connectEndpoint({
+    required List<String> addresses,
+    required int port,
+    required Uint8List tlsCertificateSha256,
+  }) async {
+    if (addresses.isEmpty) {
       throw const SocketException('邀请中没有可连接的局域网地址');
     }
     Object? lastError;
-    for (final address in invite.ipHints) {
+    for (final address in addresses) {
       try {
         final socket = await SecureSocket.connect(
           address,
-          invite.port,
+          port,
           context: TlsIdentity.clientContext(),
           timeout: const Duration(seconds: 5),
           onBadCertificate: (certificate) {
@@ -26,7 +38,7 @@ final class PinnedTlsTransport {
             final actual = crypto.sha256.convert(der).bytes;
             return DeterministicCbor.compareBytes(
                   actual,
-                  invite.tlsCertificateSha256,
+                  tlsCertificateSha256,
                 ) ==
                 0;
           },
@@ -39,11 +51,7 @@ final class PinnedTlsTransport {
         final actual = crypto.sha256
             .convert(TlsIdentity.certificateDerFromPem(certificate.pem))
             .bytes;
-        if (DeterministicCbor.compareBytes(
-              actual,
-              invite.tlsCertificateSha256,
-            ) !=
-            0) {
+        if (DeterministicCbor.compareBytes(actual, tlsCertificateSha256) != 0) {
           socket.destroy();
           throw const HandshakeException('服务端证书指纹不匹配');
         }

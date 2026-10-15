@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'study_statistics.dart';
@@ -12,6 +13,7 @@ import 'package:timezone/timezone.dart' as tz;
 import '../core/crypto/device_identity.dart';
 import '../core/database/app_database.dart';
 import '../core/ids/entity_ids.dart';
+import '../platform/study_live_activity.dart';
 import '../sync/operation_pipeline.dart';
 import '../sync/oplog/operation.dart';
 import '../sync/oplog/operation_journal.dart';
@@ -34,6 +36,8 @@ String clockLabel(int milliseconds) {
 /// Application boundary: presentation sees snapshots and commands, never DAOs.
 /// Remote operations enter only through the verified pairing/sync boundary.
 class StudyAppController extends ChangeNotifier {
+  static const maxStudyDuration = Duration(hours: 8);
+  static const studyCheckpointInterval = Duration(seconds: 30);
   StudyAppController._(this.database, this.identity, this.ids, this.now) {
     trust = TrustChain(database, identity);
     applier = OperationApplier(
@@ -58,19 +62,49 @@ class StudyAppController extends ChangeNotifier {
       ids ?? EntityIds(),
       now ?? DateTime.now,
     );
-    final existingWorkspace = await db.select(db.workspaces).getSingleOrNull();
+    final selected = await db
+        .customSelect(
+          'SELECT workspace_id FROM local_workspace_selection WHERE singleton=1',
+        )
+        .getSingleOrNull();
+    controller._selectedWorkspace = selected?.read<String>('workspace_id');
+    final existingWorkspaces = await db.select(db.workspaces).get();
+    final existingWorkspace =
+        existingWorkspaces
+            .where((w) => w.id == controller._selectedWorkspace)
+            .firstOrNull ??
+        existingWorkspaces.firstOrNull;
     if (existingWorkspace != null) {
       await controller.trust.reload(existingWorkspace.id);
+      final duplicates = await db
+          .customSelect(
+            "SELECT name FROM subjects WHERE workspace_id=? GROUP BY trim(name),coalesce(parent_subject_id,'') HAVING COUNT(*)>1 LIMIT 1",
+            variables: [Variable(existingWorkspace.id)],
+          )
+          .getSingleOrNull();
+      if (duplicates != null) {
+        await controller.applier.rebuildWorkspace(existingWorkspace.id);
+      }
     }
+    await controller.refresh(completeTasks: false);
+    await controller._recoverInterruptedStudy();
     await controller.refresh();
     // Seed a small set of child-subject records for the in-development stats
     // screen. This runs once per workspace, only when child subjects exist and
     // none has a recorded segment yet.
     await controller._seedMockChildSessions();
+    final localPeer = controller.trustedPeers
+        .where((peer) => peer.deviceId == identity.deviceId && peer.active)
+        .firstOrNull;
     if (controller.workspace != null &&
-        controller.workspace!.createdByDeviceId != identity.deviceId) {
+        (localPeer == null ||
+            DeterministicCbor.compareBytes(
+                  localPeer.publicKey.bytes,
+                  identity.publicKey.bytes,
+                ) !=
+                0)) {
       controller.dispose();
-      throw StateError('当前身份不拥有本机工作区，不能自动重新授权');
+      throw StateError('当前身份未获学习空间授权，不能自动重新授权');
     }
     return controller;
   }
@@ -83,6 +117,7 @@ class StudyAppController extends ChangeNotifier {
   late final OperationWriter writer;
   late final TrustChain trust;
   Workspace? workspace;
+  String? _selectedWorkspace;
   ExamProfile? exam;
   List<Subject> subjects = [];
   List<Task> tasks = [];
@@ -91,6 +126,8 @@ class StudyAppController extends ChangeNotifier {
   List<DailyReview> reviews = [];
   bool busy = false;
   String? error;
+  bool studyDoNotDisturbEnabled = false;
+  int? lastCompletedStudyDuration;
   bool get isReady => workspace != null && exam != null;
   tz.Location get zone =>
       tz.getLocation(workspace?.statsTimezone ?? 'Asia/Shanghai');
@@ -193,6 +230,28 @@ class StudyAppController extends ChangeNotifier {
     });
   });
 
+  Future<void> saveExamGoal({
+    String? school,
+    String? major,
+    int? totalScoreX100,
+  }) => _perform(() async {
+    final current = exam;
+    if (current == null) throw StateError('尚未创建考试目标');
+    if (totalScoreX100 != null && totalScoreX100 < 0) {
+      throw ArgumentError('目标分数不能为负数');
+    }
+    String? optionalText(String? value) {
+      final trimmed = value?.trim();
+      return trimmed == null || trimmed.isEmpty ? null : trimmed;
+    }
+
+    await _write('exam_profile', current.id, 'update', {
+      'target_school': optionalText(school),
+      'target_major': optionalText(major),
+      'target_total_score_x100': totalScoreX100,
+    });
+  });
+
   int get daysUntilExam {
     final parsed = DateTime.tryParse(exam?.examDate ?? '');
     if (parsed == null) return 0;
@@ -205,9 +264,11 @@ class StudyAppController extends ChangeNotifier {
     );
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh({bool completeTasks = true}) async {
     final workspaces = await database.select(database.workspaces).get();
-    workspace = workspaces.firstOrNull;
+    workspace =
+        workspaces.where((w) => w.id == _selectedWorkspace).firstOrNull ??
+        workspaces.firstOrNull;
     final profiles = await database.select(database.examProfiles).get();
     exam = profiles.where((e) => e.workspaceId == workspace?.id).firstOrNull;
     subjects =
@@ -235,18 +296,24 @@ class StudyAppController extends ChangeNotifier {
     reviews = (await database.select(database.dailyReviews).get())
         .where((s) => s.workspaceId == workspace?.id)
         .toList();
-    await _completeReachedTasks();
+    if (completeTasks) await _completeReachedTasks();
     notifyListeners();
   }
 
+  final Map<String, ({String status, int? completedAtMs})>
+  _pendingTaskStatuses = {};
+
   bool isTaskCompleted(Task task) =>
-      task.status == 'completed' &&
+      (_pendingTaskStatuses[task.id]?.status ?? task.status) == 'completed' &&
       (task.repeatDaily == 0 ||
-          (task.completedAtMs != null &&
+          ((_pendingTaskStatuses[task.id]?.completedAtMs ??
+                      task.completedAtMs) !=
+                  null &&
               calendarDate(
                     tz.TZDateTime.fromMillisecondsSinceEpoch(
                       zone,
-                      task.completedAtMs!,
+                      (_pendingTaskStatuses[task.id]?.completedAtMs ??
+                          task.completedAtMs)!,
                     ),
                   ) ==
                   today));
@@ -274,7 +341,7 @@ class StudyAppController extends ChangeNotifier {
               total +
               max(
                 0,
-                min(s.endedAtMs ?? until, until) - max(s.startedAtMs, from),
+                min(_segmentEnd(s, until), until) - max(s.startedAtMs, from),
               ),
         );
   }
@@ -310,6 +377,14 @@ class StudyAppController extends ChangeNotifier {
   String? _progressDay;
   Future<void> tickTaskProgress() async {
     if (busy) return;
+    final current = runningSession;
+    if (current != null &&
+        sessionDuration(current.id) >= maxStudyDuration.inMilliseconds) {
+      await stopStudy();
+      return;
+    }
+    await checkpointStudyProgress(force: false);
+    if (busy) return;
     if (_reachedTasks.isNotEmpty) {
       await _perform(() async {});
     } else if (runningSession != null || _progressDay != today) {
@@ -326,6 +401,8 @@ class StudyAppController extends ChangeNotifier {
     try {
       await operation();
       await refresh();
+      await checkpointStudyProgress();
+      unawaited(syncLiveActivity());
     } catch (e) {
       error = '保存未完成，请重试。';
       rethrow;
@@ -333,6 +410,83 @@ class StudyAppController extends ChangeNotifier {
       busy = false;
       notifyListeners();
     }
+  }
+
+  Future<void> syncLiveActivity() async {
+    final current = runningSession;
+    final snapshotAt = now().millisecondsSinceEpoch;
+    final int statusUpdatedAt;
+    if (current == null) {
+      statusUpdatedAt = snapshotAt;
+    } else {
+      final segment = _lastSegment(current);
+      statusUpdatedAt = current.status == 'paused'
+          ? segment.endedAtMs ?? segment.startedAtMs
+          : segment.startedAtMs;
+    }
+    await StudyLiveActivity.sync(
+      sessionId: current?.id,
+      subject: subject(current?.subjectId)?.name ?? '自由学习',
+      status: current?.status ?? 'finished',
+      elapsedMilliseconds: current == null ? 0 : sessionDuration(current.id),
+      todayTotalMilliseconds: todayDuration,
+      doNotDisturbEnabled: studyDoNotDisturbEnabled,
+      snapshotAtMilliseconds: snapshotAt,
+      statusUpdatedAtMilliseconds: statusUpdatedAt,
+    );
+  }
+
+  Future<String?> handlePendingLiveActivityAction() async {
+    final action = await StudyLiveActivity.consumePendingAction();
+    final liveState = await StudyLiveActivity.currentActivityState();
+    var current = runningSession;
+    if (current == null || busy) return action;
+
+    if (liveState != null) {
+      final liveStatus = liveState['status'] as String?;
+      final capturedAtMs = liveState['capturedAtMs'] as int?;
+      final elapsedSeconds = liveState['elapsedSeconds'] as int?;
+      if (capturedAtMs != null && elapsedSeconds != null) {
+        if (liveStatus == 'paused' && current.status != 'paused') {
+          final databaseDuration = sessionDuration(
+            current.id,
+            at: capturedAtMs,
+          );
+          final durationDifference = databaseDuration - elapsedSeconds * 1000;
+          final pauseAt =
+              capturedAtMs - (durationDifference > 0 ? durationDifference : 0);
+          await pauseStudy(atMilliseconds: pauseAt);
+        } else if (liveStatus == 'active' && current.status == 'paused') {
+          await resumeStudy(atMilliseconds: capturedAtMs);
+        } else if (liveStatus == 'active' && current.status == 'active') {
+          final databaseDuration = sessionDuration(
+            current.id,
+            at: capturedAtMs,
+          );
+          final uncountedPause = databaseDuration - elapsedSeconds * 1000;
+          if (uncountedPause > 1500) {
+            await pauseStudy(atMilliseconds: capturedAtMs - uncountedPause);
+            await resumeStudy(atMilliseconds: capturedAtMs);
+          }
+        }
+        current = runningSession;
+        if (current == null) return action;
+      }
+    }
+
+    if (action == null) return null;
+    if (action == 'pause' && current.status != 'paused') {
+      await pauseStudy();
+    } else if (action == 'resume' && current.status == 'paused') {
+      await resumeStudy();
+    } else if (action == 'finish') {
+      await stopStudy();
+    } else if (action == 'dnd') {
+      studyDoNotDisturbEnabled = !studyDoNotDisturbEnabled;
+      notifyListeners();
+      await syncLiveActivity();
+    }
+    return action;
   }
 
   Future<void> _write(
@@ -422,6 +576,33 @@ class StudyAppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void notifyPairingChanged() {
+    applier.revision++;
+    notifyListeners();
+  }
+
+  Future<void> renameTrustedPeer(TrustedPeer peer, String name) => _perform(
+    () async {
+      final value = name.trim();
+      if (value.isEmpty || value.length > 40) throw StateError('设备名称请输入一到四十个字');
+      if (!peer.active) throw StateError('已撤销的设备不能重命名');
+      await applier.appendSystem(
+        workspaceId: workspace!.id,
+        entityId: peer.deviceId,
+        payload: {
+          'type': 'device.add',
+          'device_id': peer.deviceId,
+          'device_name': value,
+          'platform': peer.platform,
+          'identity_public_key': Uint8List.fromList(peer.publicKey.bytes),
+          'tls_cert_sha256': peer.tlsCertificateSha256,
+          'paired_at_ms': peer.pairedAtMs,
+        },
+      );
+      await trust.reload(workspace!.id);
+    },
+  );
+
   Future<void> revokeTrustedPeer(TrustedPeer peer) async {
     final current = workspace ?? (throw StateError('工作区尚未初始化'));
     if (peer.deviceId == identity.deviceId) {
@@ -449,11 +630,206 @@ class StudyAppController extends ChangeNotifier {
 
   Future<void> importPairedHistory(
     PairingInvite invite,
+    List<Operation> operations, {
+    bool mergeExisting = false,
+  }) async {
+    final original = workspace?.id;
+    final different = original != null && original != invite.workspaceId;
+    if (different && !mergeExisting) throw StateError('两台设备属于不同学习空间，请先确认合并记录');
+    if (different && runningSession != null) {
+      throw StateError('请先结束本机正在进行的计时，再合并配对');
+    }
+    if (busy) throw StateError('上一项操作尚未完成，请稍后重试');
+    busy = true;
+    notifyListeners();
+    try {
+      await database.transaction(() async {
+        await _importTrustedHistory(invite, operations);
+        if (different) {
+          await _mergeWorkspaceRecords(original, invite.workspaceId);
+        }
+        await database.customStatement(
+          'INSERT OR REPLACE INTO local_workspace_selection(singleton,workspace_id) VALUES(1,?)',
+          [invite.workspaceId],
+        );
+      });
+      _selectedWorkspace = invite.workspaceId;
+      await refresh();
+    } catch (_) {
+      if (original != null) await trust.reload(original);
+      rethrow;
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _mergeWorkspaceRecords(String original, String target) async {
+    Future<List<Map<String, dynamic>>> rows(String table, String id) async =>
+        (await database
+                .customSelect(
+                  'SELECT * FROM $table WHERE workspace_id=?',
+                  variables: [Variable(id)],
+                )
+                .get())
+            .map((r) => Map<String, dynamic>.from(r.data))
+            .toList();
+    final subjects = await rows('subjects', original);
+    final tasks = await rows('tasks', original);
+    final sessions = await rows('study_sessions', original);
+    final segments = await rows('study_session_segments', original);
+    final reviews = await rows('daily_reviews', original);
+    final idMap = <String, String>{
+      for (final row in [...subjects, ...tasks, ...sessions, ...segments])
+        row['id'] as String: ids.next(),
+    };
+    final commands = <BusinessCommand>[];
+    void add(
+      String type,
+      String id,
+      String action,
+      Map<String, Object?> payload,
+    ) => commands.add(
+      BusinessCommand(
+        workspaceId: target,
+        entityType: type,
+        entityId: id,
+        action: action,
+        payload: payload,
+      ),
+    );
+    Map<String, Object?> payload(Map<String, dynamic> row) {
+      final result = Map<String, Object?>.from(row)
+        ..remove('id')
+        ..remove('workspace_id');
+      for (final key in ['parent_subject_id', 'subject_id', 'task_id']) {
+        if (result[key] != null) {
+          result[key] = idMap[result[key]] ?? result[key];
+        }
+      }
+      for (final key in ['archived', 'repeat_daily']) {
+        if (result.containsKey(key)) result[key] = result[key] == 1;
+      }
+      return result;
+    }
+
+    final targetSubjects = await rows('subjects', target);
+    final byName = <(String?, String), Map<String, dynamic>>{
+      for (final row in targetSubjects)
+        (row['parent_subject_id'] as String?, (row['name'] as String).trim()):
+            row,
+    };
+    for (final child in [false, true]) {
+      for (final row in subjects) {
+        final parent = row['parent_subject_id'] as String?;
+        if ((parent != null) != child) continue;
+        final key = (
+          parent == null ? null : idMap[parent],
+          (row['name'] as String).trim(),
+        );
+        final existing = byName[key];
+        if (existing != null) {
+          idMap[row['id'] as String] = existing['id'] as String;
+          final updates = <String, Object?>{};
+          if (existing['archived'] == 1 && row['archived'] == 0) {
+            updates['archived'] = false;
+            existing['archived'] = 0;
+          }
+          for (final field in [
+            'category',
+            'target_score_x100',
+            'max_score_x100',
+          ]) {
+            if (existing[field] == null && row[field] != null) {
+              updates[field] = row[field];
+              existing[field] = row[field];
+            }
+          }
+          if (updates.isNotEmpty) {
+            add('subject', existing['id'] as String, 'update', updates);
+          }
+        } else {
+          final values = payload(row)..['name'] = key.$2;
+          add('subject', idMap[row['id']]!, 'create', values);
+          byName[key] = {
+            ...row,
+            'id': idMap[row['id']],
+            'parent_subject_id': key.$1,
+          };
+        }
+      }
+    }
+    for (final row in tasks) {
+      add('task', idMap[row['id']]!, 'create', payload(row));
+    }
+    for (final session in sessions) {
+      final parts =
+          segments.where((r) => r['session_id'] == session['id']).toList()
+            ..sort(
+              (a, b) => (a['started_at_ms'] as int).compareTo(
+                b['started_at_ms'] as int,
+              ),
+            );
+      if (parts.isEmpty) throw StateError('本机计时记录不完整，合并已取消，原记录保留');
+      final sessionId = idMap[session['id']]!;
+      for (var index = 0; index < parts.length; index++) {
+        final part = parts[index];
+        final segmentId = idMap[part['id']]!;
+        add(
+          'study_session',
+          sessionId,
+          index == 0 ? 'session.start' : 'session.resume',
+          {
+            if (index == 0) ...{
+              'owner_device_id': identity.deviceId,
+              'subject_id': idMap[session['subject_id']],
+              'task_id': idMap[session['task_id']],
+              'knowledge_node_id': session['knowledge_node_id'],
+              'mode': session['mode'],
+              'note': session['note'],
+            },
+            'segment_id': segmentId,
+            'started_at_ms': part['started_at_ms'],
+          },
+        );
+        add(
+          'study_session',
+          sessionId,
+          index == parts.length - 1 && session['status'] == 'completed'
+              ? 'session.stop'
+              : 'session.pause',
+          {
+            'segment_id': segmentId,
+            'ended_at_ms': part['ended_at_ms'] ?? part['started_at_ms'],
+          },
+        );
+      }
+    }
+    final existingReviews = await rows('daily_reviews', target);
+    for (final row in reviews) {
+      final existing = existingReviews
+          .where((r) => r['review_date'] == row['review_date'])
+          .firstOrNull;
+      if (existing != null && existing['content'] == row['content']) continue;
+      add(
+        'daily_review',
+        'daily_review/$target/${row['review_date']}',
+        existing == null ? 'create' : 'update',
+        {
+          if (existing == null) 'review_date': row['review_date'],
+          'content': existing == null
+              ? row['content']
+              : '${existing['content']}\n\n${row['content']}',
+        },
+      );
+    }
+    await writer.executeBatch(commands);
+  }
+
+  Future<void> _importTrustedHistory(
+    PairingInvite invite,
     List<Operation> operations,
   ) async {
-    if (workspace != null && workspace!.id != invite.workspaceId) {
-      throw StateError('当前安装已有另一个学习空间，不能直接合并');
-    }
     Operation? genesis;
     for (final operation in operations) {
       final envelope = operation.parse();
@@ -466,7 +842,7 @@ class StudyAppController extends ChangeNotifier {
         break;
       }
     }
-    if (genesis == null) throw StateError('邀请设备没有提供 Workspace Genesis');
+    if (genesis == null) throw StateError('邀请设备没有提供学习空间身份记录');
     final envelope = genesis.parse();
     final payload = envelope.payload! as Map<String, Object?>;
     final digest = Uint8List.fromList(
@@ -474,7 +850,7 @@ class StudyAppController extends ChangeNotifier {
     );
     if (DeterministicCbor.compareBytes(digest, invite.workspaceGenesisHash) !=
         0) {
-      throw StateError('Workspace Genesis 与二维码锚点不一致');
+      throw StateError('学习空间身份记录与二维码不一致');
     }
     final rootKey = SimplePublicKey(
       payload['root_device_public_key']! as Uint8List,
@@ -482,30 +858,30 @@ class StudyAppController extends ChangeNotifier {
     );
     trust.anchorRoot(invite.workspaceId, envelope.originDeviceId, rootKey);
     final pending = operations.toList();
-    var progressed = true;
-    while (pending.isNotEmpty && progressed) {
-      progressed = false;
-      for (final operation in pending.toList()) {
+    while (pending.isNotEmpty) {
+      final available = <Operation>[];
+      for (final operation in pending) {
         final item = operation.parse();
-        if (item.workspaceId != invite.workspaceId ||
-            await trust.lookup(invite.workspaceId, item.originDeviceId) ==
-                null) {
-          continue;
+        if (item.workspaceId != invite.workspaceId) {
+          throw StateError('配对记录不属于该学习空间');
         }
-        final result = await applier.receive(
-          operation,
-          workspaceId: invite.workspaceId,
-          originDeviceId: item.originDeviceId,
-          receivedFrom: invite.inviterDeviceId,
-        );
-        if (result != ReceiveResult.rejected) {
-          pending.remove(operation);
-          progressed = true;
-          if (item.entityType == 'device') {
-            await trust.reload(invite.workspaceId);
-          }
+        if (await trust.lookup(invite.workspaceId, item.originDeviceId) !=
+            null) {
+          available.add(operation);
         }
       }
+      if (available.isEmpty) break;
+      final results = await applier.receiveBatch(
+        invite.workspaceId,
+        available,
+        receivedFrom: invite.inviterDeviceId,
+      );
+      if (results.any((r) => r == ReceiveResult.rejected)) {
+        throw StateError('配对记录未通过验证');
+      }
+      pending.removeWhere(available.contains);
+      await trust.reload(invite.workspaceId);
+      await applier.refreshAuthorization(invite.workspaceId);
     }
     if (pending.isNotEmpty) {
       throw StateError('授权链不完整，${pending.length} 条操作无法验证');
@@ -523,9 +899,19 @@ class StudyAppController extends ChangeNotifier {
               invite.identityPublicKey,
             ) !=
             0) {
-      throw StateError('邀请者不在 Genesis 授权链中');
+      throw StateError('邀请设备未获该学习空间授权');
     }
-    await refresh();
+    final local = await trust.lookup(invite.workspaceId, identity.deviceId);
+    if (local == null ||
+        !local.authorized ||
+        local.cutoff != null ||
+        DeterministicCbor.compareBytes(
+              local.publicKey.bytes,
+              identity.publicKey.bytes,
+            ) !=
+            0) {
+      throw StateError('本机尚未获得配对授权');
+    }
   }
 
   Future<void> onboard({
@@ -685,14 +1071,30 @@ class StudyAppController extends ChangeNotifier {
       'note': note,
     });
   });
-  Future<void> setTaskStatus(Task task, String status) => _perform(
-    () => _write('task', task.id, 'update', {
-      'status': status,
-      'completed_at_ms': status == 'completed'
-          ? now().millisecondsSinceEpoch
-          : null,
-    }),
-  );
+  Future<void> setTaskStatus(Task task, String status) async {
+    if (busy) throw StateError('上一项操作尚未完成');
+    final completedAtMs = status == 'completed'
+        ? now().millisecondsSinceEpoch
+        : null;
+    // Publish the intended state before signing/writing and reloading SQLite.
+    // Persisted snapshots stay authoritative; a failed save removes this overlay.
+    _pendingTaskStatuses[task.id] = (
+      status: status,
+      completedAtMs: completedAtMs,
+    );
+    try {
+      await _perform(
+        () => _write('task', task.id, 'update', {
+          'status': status,
+          'completed_at_ms': completedAtMs,
+        }),
+      );
+    } finally {
+      _pendingTaskStatuses.remove(task.id);
+      notifyListeners();
+    }
+  }
+
   Future<void> startStudy(String subjectId, {String? taskId}) =>
       _perform(() async {
         if (runningSession != null) throw StateError('请先结束当前学习');
@@ -722,34 +1124,137 @@ class StudyAppController extends ChangeNotifier {
     return list.last;
   }
 
-  Future<void> pauseStudy() => _perform(() async {
+  Future<void> pauseStudy({int? atMilliseconds}) => _perform(() async {
     final s = runningSession!;
     final segment = _lastSegment(s);
     await _write('study_session', s.id, 'session.pause', {
       'segment_id': segment.id,
-      'ended_at_ms': max(segment.startedAtMs, now().millisecondsSinceEpoch),
-    });
-  });
-  Future<void> resumeStudy() => _perform(() async {
-    final s = runningSession!;
-    await _write('study_session', s.id, 'session.resume', {
-      'segment_id': ids.next(),
-      'started_at_ms': max(
-        _lastSegment(s).endedAtMs!,
-        now().millisecondsSinceEpoch,
+      'ended_at_ms': max(
+        segment.startedAtMs,
+        min(atMilliseconds ?? now().millisecondsSinceEpoch, _studyDeadline(s)),
       ),
     });
   });
-  Future<void> stopStudy() => _perform(() async {
-    final s = runningSession!;
-    final segment = _lastSegment(s);
-    await _write('study_session', s.id, 'session.stop', {
-      'segment_id': segment.id,
-      'ended_at_ms': s.status == 'paused'
-          ? segment.endedAtMs
-          : max(segment.startedAtMs, now().millisecondsSinceEpoch),
+  Future<void> resumeStudy({int? atMilliseconds}) async {
+    if (sessionDuration(runningSession!.id) >=
+        maxStudyDuration.inMilliseconds) {
+      await stopStudy();
+      return;
+    }
+    await _perform(() async {
+      final s = runningSession!;
+      await _write('study_session', s.id, 'session.resume', {
+        'segment_id': ids.next(),
+        'started_at_ms': max(
+          _lastSegment(s).endedAtMs!,
+          atMilliseconds ?? now().millisecondsSinceEpoch,
+        ),
+      });
     });
-  });
+  }
+
+  Future<void> stopStudy({int? atMilliseconds}) async {
+    final current = runningSession!;
+    final segment = _lastSegment(current);
+    final requestedEnd = atMilliseconds ?? now().millisecondsSinceEpoch;
+    final end = current.status == 'paused'
+        ? segment.endedAtMs!
+        : max(segment.startedAtMs, min(requestedEnd, _studyDeadline(current)));
+    final completedDuration = sessionDuration(current.id, at: end);
+    await _perform(() async {
+      final s = runningSession!;
+      final segment = _lastSegment(s);
+      await _write('study_session', s.id, 'session.stop', {
+        'segment_id': segment.id,
+        'ended_at_ms': end,
+      });
+    });
+    lastCompletedStudyDuration = completedDuration;
+    studyDoNotDisturbEnabled = false;
+    notifyListeners();
+  }
+
+  /// A detached engine means the app process is being torn down. Close the
+  /// active segment at the last observable moment so a force-closed task does
+  /// not continue accumulating time after the process is gone.
+  Future<void> finishStudyForProcessExit() async {
+    await checkpointStudyProgress();
+    if (runningSession == null || busy) return;
+    await stopStudy();
+  }
+
+  int _studyDeadline(StudySession session) {
+    final closedDuration = segments
+        .where((s) => s.sessionId == session.id && s.endedAtMs != null)
+        .fold<int>(0, (sum, s) => sum + max(0, s.endedAtMs! - s.startedAtMs));
+    return _lastSegment(session).startedAtMs +
+        max(0, maxStudyDuration.inMilliseconds - closedDuration);
+  }
+
+  int _segmentEnd(StudySessionSegment segment, int at) {
+    if (segment.endedAtMs != null) return segment.endedAtMs!;
+    final session = sessions
+        .where((s) => s.id == segment.sessionId)
+        .firstOrNull;
+    if (session == null || session.ownerDeviceId != identity.deviceId) {
+      return at;
+    }
+    return min(at, _studyDeadline(session));
+  }
+
+  /// Persist only locally, so a killed process cannot add time on next launch.
+  DateTime? _lastStudyCheckpointAt;
+  String? _lastStudyCheckpointSessionId;
+  Future<void> checkpointStudyProgress({bool force = true}) async {
+    final current = runningSession;
+    if (current == null) {
+      if (!force) return;
+      await (database.delete(
+        database.localStudyCheckpoints,
+      )..where((row) => row.deviceId.equals(identity.deviceId))).go();
+      _lastStudyCheckpointAt = null;
+      _lastStudyCheckpointSessionId = null;
+      return;
+    }
+    final observedAt = now();
+    final previousAt = _lastStudyCheckpointAt;
+    // UI ticks still run every second; only the durable heartbeat is throttled.
+    // Commands and lifecycle changes force a save through the default argument.
+    if (!force &&
+        _lastStudyCheckpointSessionId == current.id &&
+        previousAt != null &&
+        !observedAt.isBefore(previousAt) &&
+        observedAt.difference(previousAt) < studyCheckpointInterval) {
+      return;
+    }
+    await database
+        .into(database.localStudyCheckpoints)
+        .insertOnConflictUpdate(
+          LocalStudyCheckpointsCompanion.insert(
+            deviceId: identity.deviceId,
+            sessionId: current.id,
+            observedAtMs: observedAt.millisecondsSinceEpoch,
+          ),
+        );
+    _lastStudyCheckpointAt = observedAt;
+    _lastStudyCheckpointSessionId = current.id;
+  }
+
+  Future<void> _recoverInterruptedStudy() async {
+    final current = runningSession;
+    if (current == null) return;
+    final checkpoint =
+        await (database.select(database.localStudyCheckpoints)
+              ..where((row) => row.deviceId.equals(identity.deviceId)))
+            .getSingleOrNull();
+    // Older installs have no checkpoint: never invent time after their last
+    // observable segment boundary.
+    final end = checkpoint?.sessionId == current.id
+        ? checkpoint!.observedAtMs
+        : _lastSegment(current).startedAtMs;
+    await stopStudy(atMilliseconds: min(end, now().millisecondsSinceEpoch));
+  }
+
   Future<void> saveReview(String date, String content) => _perform(
     () => _write(
       'daily_review',
@@ -766,7 +1271,7 @@ class StudyAppController extends ChangeNotifier {
             sum +
             max(
               0,
-              (s.endedAtMs ?? at ?? now().millisecondsSinceEpoch) -
+              _segmentEnd(s, at ?? now().millisecondsSinceEpoch) -
                   s.startedAtMs,
             ),
       );
@@ -787,7 +1292,7 @@ class StudyAppController extends ChangeNotifier {
               sum +
               max(
                 0,
-                min(to, s.endedAtMs ?? now().millisecondsSinceEpoch) -
+                min(to, _segmentEnd(s, now().millisecondsSinceEpoch)) -
                     max(from, s.startedAtMs),
               ),
         );
@@ -810,7 +1315,17 @@ class StudyAppController extends ChangeNotifier {
               subjects.any((v) => v.id == s.subjectId && isSubjectVisible(v)),
         )
         .toList(),
-    segments: segments,
+    segments: segments
+        .map(
+          (segment) => segment.endedAtMs != null
+              ? segment
+              : segment.copyWith(
+                  endedAtMs: Value(
+                    _segmentEnd(segment, now().millisecondsSinceEpoch),
+                  ),
+                ),
+        )
+        .toList(),
     zone: zone,
     now: now(),
   );

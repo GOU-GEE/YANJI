@@ -82,6 +82,7 @@ final class ProjectionStore {
       }
     }
     final resolution = resolver.resolve(history);
+    final aliases = _subjectAliases(resolution);
     for (final table in _deleteOrder) {
       await _delete(table, workspace);
     }
@@ -146,10 +147,38 @@ final class ProjectionStore {
               .toList()
             ..sort((a, b) => a.key.$2.compareTo(b.key.$2));
       for (final entity in entities) {
+        if (type == 'subject' && aliases[entity.key.$2] != entity.key.$2) {
+          continue;
+        }
+        final values = Map<String, Object?>.from(entity.values);
+        for (final key in ['subject_id', 'parent_subject_id']) {
+          if (values[key] != null) {
+            values[key] = aliases[values[key]] ?? values[key];
+          }
+        }
+        if (type == 'subject') {
+          final members = entities
+              .where((e) => aliases[e.key.$2] == entity.key.$2)
+              .toList();
+          values['name'] = (values['name'] as String).trim();
+          values['archived'] = members.every(
+            (e) => e.values['archived'] == true,
+          );
+          for (final field in [
+            'category',
+            'target_score_x100',
+            'max_score_x100',
+          ]) {
+            values[field] ??= members
+                .map((e) => e.values[field])
+                .where((v) => v != null)
+                .firstOrNull;
+          }
+        }
         await _insert(BusinessSchema.tables[type]!, {
           'id': entity.key.$2,
           if (type != 'workspace') 'workspace_id': workspace,
-          ...entity.values,
+          ...values,
         });
         if (type == 'study_session') {
           for (final segment in entity.segments) {
@@ -209,6 +238,49 @@ final class ProjectionStore {
       });
     }
   });
+
+  /// Retain every signed entity in history; only the derived subject rows and
+  /// their references coalesce. Sorting makes this independent of arrival order.
+  Map<String, String> _subjectAliases(Resolution resolution) {
+    final subjects =
+        resolution.entities.values
+            .where((e) => e.key.$1 == 'subject' && e.state == 'materialized')
+            .toList()
+          ..sort((a, b) => a.key.$2.compareTo(b.key.$2));
+    final aliases = <String, String>{};
+    final byName = <(String?, String), String>{};
+    for (final child in [false, true]) {
+      for (final subject in subjects) {
+        final parent = subject.values['parent_subject_id'] as String?;
+        if ((parent != null) != child) continue;
+        final key = (
+          parent == null ? null : aliases[parent] ?? parent,
+          (subject.values['name'] as String).trim(),
+        );
+        aliases[subject.key.$2] = byName.putIfAbsent(key, () => subject.key.$2);
+      }
+    }
+    return aliases;
+  }
+
+  Future<Map<String, String>> subjectAliases(String workspace) async {
+    final rows = await database
+        .customSelect(
+          "SELECT envelope_bytes FROM oplog WHERE workspace_id=? AND apply_state NOT IN ('pending_authorization','unauthorized_revoked','pending_schema')",
+          variables: [Variable(workspace)],
+        )
+        .get();
+    final history = rows
+        .map(
+          (row) => OperationEnvelope.fromBytes(
+            row.read<Uint8List>('envelope_bytes'),
+          ),
+        )
+        .where((e) => e.payloadSchemaVersion == 1 && e.entityType != 'device')
+        .toList();
+    return _subjectAliases(resolver.resolve(history));
+  }
+
   Map<String, Object?> _clock(OperationEnvelope op) => {
     'hlc_wall_ms': op.hlc.wallMs,
     'hlc_counter': op.hlc.counter,

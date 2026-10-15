@@ -1,0 +1,107 @@
+name: Sync engine
+
+# Builds the embedded Syncthing transport from pinned, checksum-verified
+# upstream source and verifies the synchronization layer.
+#
+# Engine binaries are never committed (see .gitignore); every job builds them
+# from source via tool/build_syncthing.py.
+
+on:
+  push:
+    paths:
+      - 'lib/sync/**'
+      - 'lib/application/study_app_controller.dart'
+      - 'lib/core/database/**'
+      - 'lib/core/storage/platform_key_storage.dart'
+      - 'lib/platform/**'
+      - 'packages/yanji_syncthing/**'
+      - 'tool/build_syncthing.py'
+      - 'tool/test_syncthing_nodes.py'
+      - 'test/application/operation_file_exchange_test.dart'
+      - 'test/application/device_sync_reconnect_test.dart'
+      - 'test/protocol/lan_peer_discovery_test.dart'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/sync-engine.yml'
+  pull_request:
+    paths:
+      - 'lib/sync/**'
+      - 'packages/yanji_syncthing/**'
+      - 'tool/build_syncthing.py'
+      - 'tool/test_syncthing_nodes.py'
+      - 'pubspec.yaml'
+      - '.github/workflows/sync-engine.yml'
+  workflow_dispatch:
+
+env:
+  GO_VERSION: '1.26.2'
+  # Must match .tooling/flutter used by the repository.
+  FLUTTER_VERSION: '3.47.2'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  native-transport:
+    name: Build engine and test two-node transfer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: packages/yanji_syncthing/native/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build loopback harness
+        run: python3 tool/build_syncthing.py harness
+      - name: Two embedded nodes over loopback TLS
+        run: python3 tool/test_syncthing_nodes.py
+      - name: Cross-compile the Windows engine
+        run: python3 tool/build_syncthing.py windows
+      - name: Verify no engine binary was added to git
+        run: |
+          if git ls-files --error-unmatch packages/yanji_syncthing/native/build >/dev/null 2>&1; then
+            echo 'native build artifacts must not be committed' >&2
+            exit 1
+          fi
+
+  flutter-sync-tests:
+    name: Analyze and test the sync layer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: packages/yanji_syncthing/native/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      # yanji_syncthing declares the Windows harness as a platform asset, but
+      # Flutter validates asset existence for every test target. Build it first.
+      - name: Build the Windows harness asset
+        run: python3 tool/build_syncthing.py windows
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Static analysis of the sync layer
+        run: >-
+          dart analyze
+          lib/sync
+          lib/application
+          lib/core
+          lib/platform
+          packages/yanji_syncthing/lib
+      - name: Synchronization tests
+        run: >-
+          flutter test
+          test/application/operation_file_exchange_test.dart
+          test/application/device_sync_reconnect_test.dart
+          test/protocol/lan_peer_discovery_test.dart
+          test/protocol/pinned_tls_transport_test.dart
+          test/protocol/tls_identity_test.dart
+
+  # Apple and Android engines need Xcode / the Android NDK. Run them on demand:
+  #   python3 tool/build_syncthing.py apple     # macOS with Xcode
+  #   python3 tool/build_syncthing.py android   # Android SDK + NDK

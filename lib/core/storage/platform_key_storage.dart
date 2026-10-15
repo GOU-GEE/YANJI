@@ -51,11 +51,13 @@ final class PlatformKeyStorage implements SecureKeyStorage {
       _exclusive(() => _write(replacement));
 }
 
-final class PlatformTlsIdentityStorage implements SecureTlsIdentityStorage {
+final class PlatformTlsIdentityStorage
+    implements SecureTlsIdentityStorage, PersistentSyncEndpointStorage {
   PlatformTlsIdentityStorage({FlutterSecureStorage? storage})
     : storage = storage ?? const FlutterSecureStorage();
   final FlutterSecureStorage storage;
   static const key = 'yanji.tls.identity.v1';
+  static const syncEndpointsKey = 'yanji.sync.endpoints.v1';
   static Future<void> _pending = Future.value();
 
   @override
@@ -91,4 +93,11 @@ final class PlatformTlsIdentityStorage implements SecureTlsIdentityStorage {
         );
         return (await readCurrent())!;
       });
+
+  @override
+  Future<String?> readSyncEndpoints() => storage.read(key: syncEndpointsKey);
+
+  @override
+  Future<void> writeSyncEndpoints(String value) =>
+      _exclusive(() => storage.write(key: syncEndpointsKey, value: value));
 }

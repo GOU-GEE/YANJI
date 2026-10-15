@@ -5108,6 +5108,285 @@ class DailyReviewsCompanion extends UpdateCompanion<DailyReview> {
   }
 }
 
+class LocalStudyCheckpoints extends Table
+    with TableInfo<LocalStudyCheckpoints, LocalStudyCheckpoint> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  LocalStudyCheckpoints(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _observedAtMsMeta = const VerificationMeta(
+    'observedAtMs',
+  );
+  late final GeneratedColumn<int> observedAtMs = GeneratedColumn<int>(
+    'observed_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [deviceId, sessionId, observedAtMs];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_study_checkpoints';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalStudyCheckpoint> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('observed_at_ms')) {
+      context.handle(
+        _observedAtMsMeta,
+        observedAtMs.isAcceptableOrUnknown(
+          data['observed_at_ms']!,
+          _observedAtMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_observedAtMsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {deviceId};
+  @override
+  LocalStudyCheckpoint map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalStudyCheckpoint(
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      observedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}observed_at_ms'],
+      )!,
+    );
+  }
+
+  @override
+  LocalStudyCheckpoints createAlias(String alias) {
+    return LocalStudyCheckpoints(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalStudyCheckpoint extends DataClass
+    implements Insertable<LocalStudyCheckpoint> {
+  final String deviceId;
+  final String sessionId;
+  final int observedAtMs;
+  const LocalStudyCheckpoint({
+    required this.deviceId,
+    required this.sessionId,
+    required this.observedAtMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['device_id'] = Variable<String>(deviceId);
+    map['session_id'] = Variable<String>(sessionId);
+    map['observed_at_ms'] = Variable<int>(observedAtMs);
+    return map;
+  }
+
+  LocalStudyCheckpointsCompanion toCompanion(bool nullToAbsent) {
+    return LocalStudyCheckpointsCompanion(
+      deviceId: Value(deviceId),
+      sessionId: Value(sessionId),
+      observedAtMs: Value(observedAtMs),
+    );
+  }
+
+  factory LocalStudyCheckpoint.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalStudyCheckpoint(
+      deviceId: serializer.fromJson<String>(json['device_id']),
+      sessionId: serializer.fromJson<String>(json['session_id']),
+      observedAtMs: serializer.fromJson<int>(json['observed_at_ms']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'device_id': serializer.toJson<String>(deviceId),
+      'session_id': serializer.toJson<String>(sessionId),
+      'observed_at_ms': serializer.toJson<int>(observedAtMs),
+    };
+  }
+
+  LocalStudyCheckpoint copyWith({
+    String? deviceId,
+    String? sessionId,
+    int? observedAtMs,
+  }) => LocalStudyCheckpoint(
+    deviceId: deviceId ?? this.deviceId,
+    sessionId: sessionId ?? this.sessionId,
+    observedAtMs: observedAtMs ?? this.observedAtMs,
+  );
+  LocalStudyCheckpoint copyWithCompanion(LocalStudyCheckpointsCompanion data) {
+    return LocalStudyCheckpoint(
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      observedAtMs: data.observedAtMs.present
+          ? data.observedAtMs.value
+          : this.observedAtMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalStudyCheckpoint(')
+          ..write('deviceId: $deviceId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('observedAtMs: $observedAtMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(deviceId, sessionId, observedAtMs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalStudyCheckpoint &&
+          other.deviceId == this.deviceId &&
+          other.sessionId == this.sessionId &&
+          other.observedAtMs == this.observedAtMs);
+}
+
+class LocalStudyCheckpointsCompanion
+    extends UpdateCompanion<LocalStudyCheckpoint> {
+  final Value<String> deviceId;
+  final Value<String> sessionId;
+  final Value<int> observedAtMs;
+  final Value<int> rowid;
+  const LocalStudyCheckpointsCompanion({
+    this.deviceId = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.observedAtMs = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalStudyCheckpointsCompanion.insert({
+    required String deviceId,
+    required String sessionId,
+    required int observedAtMs,
+    this.rowid = const Value.absent(),
+  }) : deviceId = Value(deviceId),
+       sessionId = Value(sessionId),
+       observedAtMs = Value(observedAtMs);
+  static Insertable<LocalStudyCheckpoint> custom({
+    Expression<String>? deviceId,
+    Expression<String>? sessionId,
+    Expression<int>? observedAtMs,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (deviceId != null) 'device_id': deviceId,
+      if (sessionId != null) 'session_id': sessionId,
+      if (observedAtMs != null) 'observed_at_ms': observedAtMs,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalStudyCheckpointsCompanion copyWith({
+    Value<String>? deviceId,
+    Value<String>? sessionId,
+    Value<int>? observedAtMs,
+    Value<int>? rowid,
+  }) {
+    return LocalStudyCheckpointsCompanion(
+      deviceId: deviceId ?? this.deviceId,
+      sessionId: sessionId ?? this.sessionId,
+      observedAtMs: observedAtMs ?? this.observedAtMs,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (observedAtMs.present) {
+      map['observed_at_ms'] = Variable<int>(observedAtMs.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalStudyCheckpointsCompanion(')
+          ..write('deviceId: $deviceId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('observedAtMs: $observedAtMs, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class StudySessions extends Table with TableInfo<StudySessions, StudySession> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -8724,6 +9003,228 @@ class OriginProgressCompanion extends UpdateCompanion<OriginProgressData> {
   }
 }
 
+class LocalWorkspaceSelection extends Table
+    with TableInfo<LocalWorkspaceSelection, LocalWorkspaceSelectionData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  LocalWorkspaceSelection(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _singletonMeta = const VerificationMeta(
+    'singleton',
+  );
+  late final GeneratedColumn<int> singleton = GeneratedColumn<int>(
+    'singleton',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL PRIMARY KEY CHECK (singleton = 1)',
+  );
+  static const VerificationMeta _workspaceIdMeta = const VerificationMeta(
+    'workspaceId',
+  );
+  late final GeneratedColumn<String> workspaceId = GeneratedColumn<String>(
+    'workspace_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [singleton, workspaceId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_workspace_selection';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalWorkspaceSelectionData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('singleton')) {
+      context.handle(
+        _singletonMeta,
+        singleton.isAcceptableOrUnknown(data['singleton']!, _singletonMeta),
+      );
+    }
+    if (data.containsKey('workspace_id')) {
+      context.handle(
+        _workspaceIdMeta,
+        workspaceId.isAcceptableOrUnknown(
+          data['workspace_id']!,
+          _workspaceIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_workspaceIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {singleton};
+  @override
+  LocalWorkspaceSelectionData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalWorkspaceSelectionData(
+      singleton: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}singleton'],
+      )!,
+      workspaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}workspace_id'],
+      )!,
+    );
+  }
+
+  @override
+  LocalWorkspaceSelection createAlias(String alias) {
+    return LocalWorkspaceSelection(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalWorkspaceSelectionData extends DataClass
+    implements Insertable<LocalWorkspaceSelectionData> {
+  final int singleton;
+  final String workspaceId;
+  const LocalWorkspaceSelectionData({
+    required this.singleton,
+    required this.workspaceId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['singleton'] = Variable<int>(singleton);
+    map['workspace_id'] = Variable<String>(workspaceId);
+    return map;
+  }
+
+  LocalWorkspaceSelectionCompanion toCompanion(bool nullToAbsent) {
+    return LocalWorkspaceSelectionCompanion(
+      singleton: Value(singleton),
+      workspaceId: Value(workspaceId),
+    );
+  }
+
+  factory LocalWorkspaceSelectionData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalWorkspaceSelectionData(
+      singleton: serializer.fromJson<int>(json['singleton']),
+      workspaceId: serializer.fromJson<String>(json['workspace_id']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'singleton': serializer.toJson<int>(singleton),
+      'workspace_id': serializer.toJson<String>(workspaceId),
+    };
+  }
+
+  LocalWorkspaceSelectionData copyWith({int? singleton, String? workspaceId}) =>
+      LocalWorkspaceSelectionData(
+        singleton: singleton ?? this.singleton,
+        workspaceId: workspaceId ?? this.workspaceId,
+      );
+  LocalWorkspaceSelectionData copyWithCompanion(
+    LocalWorkspaceSelectionCompanion data,
+  ) {
+    return LocalWorkspaceSelectionData(
+      singleton: data.singleton.present ? data.singleton.value : this.singleton,
+      workspaceId: data.workspaceId.present
+          ? data.workspaceId.value
+          : this.workspaceId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalWorkspaceSelectionData(')
+          ..write('singleton: $singleton, ')
+          ..write('workspaceId: $workspaceId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(singleton, workspaceId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalWorkspaceSelectionData &&
+          other.singleton == this.singleton &&
+          other.workspaceId == this.workspaceId);
+}
+
+class LocalWorkspaceSelectionCompanion
+    extends UpdateCompanion<LocalWorkspaceSelectionData> {
+  final Value<int> singleton;
+  final Value<String> workspaceId;
+  const LocalWorkspaceSelectionCompanion({
+    this.singleton = const Value.absent(),
+    this.workspaceId = const Value.absent(),
+  });
+  LocalWorkspaceSelectionCompanion.insert({
+    this.singleton = const Value.absent(),
+    required String workspaceId,
+  }) : workspaceId = Value(workspaceId);
+  static Insertable<LocalWorkspaceSelectionData> custom({
+    Expression<int>? singleton,
+    Expression<String>? workspaceId,
+  }) {
+    return RawValuesInsertable({
+      if (singleton != null) 'singleton': singleton,
+      if (workspaceId != null) 'workspace_id': workspaceId,
+    });
+  }
+
+  LocalWorkspaceSelectionCompanion copyWith({
+    Value<int>? singleton,
+    Value<String>? workspaceId,
+  }) {
+    return LocalWorkspaceSelectionCompanion(
+      singleton: singleton ?? this.singleton,
+      workspaceId: workspaceId ?? this.workspaceId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (singleton.present) {
+      map['singleton'] = Variable<int>(singleton.value);
+    }
+    if (workspaceId.present) {
+      map['workspace_id'] = Variable<String>(workspaceId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalWorkspaceSelectionCompanion(')
+          ..write('singleton: $singleton, ')
+          ..write('workspaceId: $workspaceId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8759,6 +9260,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Subjects subjects = Subjects(this);
   late final Tasks tasks = Tasks(this);
   late final DailyReviews dailyReviews = DailyReviews(this);
+  late final LocalStudyCheckpoints localStudyCheckpoints =
+      LocalStudyCheckpoints(this);
   late final StudySessions studySessions = StudySessions(this);
   late final StudySessionSegments studySessionSegments = StudySessionSegments(
     this,
@@ -8775,6 +9278,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final OriginProgress originProgress = OriginProgress(this);
+  late final LocalWorkspaceSelection localWorkspaceSelection =
+      LocalWorkspaceSelection(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8795,6 +9300,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     subjects,
     tasks,
     dailyReviews,
+    localStudyCheckpoints,
     studySessions,
     studySessionSegments,
     oneOpenSegment,
@@ -8804,6 +9310,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     textFieldVersions,
     materializationState,
     originProgress,
+    localWorkspaceSelection,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -12606,6 +13113,191 @@ typedef $DailyReviewsProcessedTableManager =
       DailyReview,
       PrefetchHooks Function({bool workspaceId})
     >;
+typedef $LocalStudyCheckpointsCreateCompanionBuilder =
+    LocalStudyCheckpointsCompanion Function({
+      required String deviceId,
+      required String sessionId,
+      required int observedAtMs,
+      Value<int> rowid,
+    });
+typedef $LocalStudyCheckpointsUpdateCompanionBuilder =
+    LocalStudyCheckpointsCompanion Function({
+      Value<String> deviceId,
+      Value<String> sessionId,
+      Value<int> observedAtMs,
+      Value<int> rowid,
+    });
+
+class $LocalStudyCheckpointsFilterComposer
+    extends Composer<_$AppDatabase, LocalStudyCheckpoints> {
+  $LocalStudyCheckpointsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get observedAtMs => $composableBuilder(
+    column: $table.observedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $LocalStudyCheckpointsOrderingComposer
+    extends Composer<_$AppDatabase, LocalStudyCheckpoints> {
+  $LocalStudyCheckpointsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get observedAtMs => $composableBuilder(
+    column: $table.observedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $LocalStudyCheckpointsAnnotationComposer
+    extends Composer<_$AppDatabase, LocalStudyCheckpoints> {
+  $LocalStudyCheckpointsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<int> get observedAtMs => $composableBuilder(
+    column: $table.observedAtMs,
+    builder: (column) => column,
+  );
+}
+
+class $LocalStudyCheckpointsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          LocalStudyCheckpoints,
+          LocalStudyCheckpoint,
+          $LocalStudyCheckpointsFilterComposer,
+          $LocalStudyCheckpointsOrderingComposer,
+          $LocalStudyCheckpointsAnnotationComposer,
+          $LocalStudyCheckpointsCreateCompanionBuilder,
+          $LocalStudyCheckpointsUpdateCompanionBuilder,
+          (
+            LocalStudyCheckpoint,
+            BaseReferences<
+              _$AppDatabase,
+              LocalStudyCheckpoints,
+              LocalStudyCheckpoint
+            >,
+          ),
+          LocalStudyCheckpoint,
+          PrefetchHooks Function()
+        > {
+  $LocalStudyCheckpointsTableManager(
+    _$AppDatabase db,
+    LocalStudyCheckpoints table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $LocalStudyCheckpointsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $LocalStudyCheckpointsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $LocalStudyCheckpointsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> deviceId = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<int> observedAtMs = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalStudyCheckpointsCompanion(
+                deviceId: deviceId,
+                sessionId: sessionId,
+                observedAtMs: observedAtMs,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String deviceId,
+                required String sessionId,
+                required int observedAtMs,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalStudyCheckpointsCompanion.insert(
+                deviceId: deviceId,
+                sessionId: sessionId,
+                observedAtMs: observedAtMs,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<LocalStudyCheckpoints, LocalStudyCheckpoint>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    LocalStudyCheckpoints,
+                    LocalStudyCheckpoint
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $LocalStudyCheckpointsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      LocalStudyCheckpoints,
+      LocalStudyCheckpoint,
+      $LocalStudyCheckpointsFilterComposer,
+      $LocalStudyCheckpointsOrderingComposer,
+      $LocalStudyCheckpointsAnnotationComposer,
+      $LocalStudyCheckpointsCreateCompanionBuilder,
+      $LocalStudyCheckpointsUpdateCompanionBuilder,
+      (
+        LocalStudyCheckpoint,
+        BaseReferences<
+          _$AppDatabase,
+          LocalStudyCheckpoints,
+          LocalStudyCheckpoint
+        >,
+      ),
+      LocalStudyCheckpoint,
+      PrefetchHooks Function()
+    >;
 typedef $StudySessionsCreateCompanionBuilder = StudySessionsCompanion Function({
   required String id,
   required String workspaceId,
@@ -14840,6 +15532,170 @@ typedef $OriginProgressProcessedTableManager =
       OriginProgressData,
       PrefetchHooks Function()
     >;
+typedef $LocalWorkspaceSelectionCreateCompanionBuilder =
+    LocalWorkspaceSelectionCompanion Function({
+      Value<int> singleton,
+      required String workspaceId,
+    });
+typedef $LocalWorkspaceSelectionUpdateCompanionBuilder =
+    LocalWorkspaceSelectionCompanion Function({
+      Value<int> singleton,
+      Value<String> workspaceId,
+    });
+
+class $LocalWorkspaceSelectionFilterComposer
+    extends Composer<_$AppDatabase, LocalWorkspaceSelection> {
+  $LocalWorkspaceSelectionFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get singleton => $composableBuilder(
+    column: $table.singleton,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get workspaceId => $composableBuilder(
+    column: $table.workspaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $LocalWorkspaceSelectionOrderingComposer
+    extends Composer<_$AppDatabase, LocalWorkspaceSelection> {
+  $LocalWorkspaceSelectionOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get singleton => $composableBuilder(
+    column: $table.singleton,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get workspaceId => $composableBuilder(
+    column: $table.workspaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $LocalWorkspaceSelectionAnnotationComposer
+    extends Composer<_$AppDatabase, LocalWorkspaceSelection> {
+  $LocalWorkspaceSelectionAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get singleton =>
+      $composableBuilder(column: $table.singleton, builder: (column) => column);
+
+  GeneratedColumn<String> get workspaceId => $composableBuilder(
+    column: $table.workspaceId,
+    builder: (column) => column,
+  );
+}
+
+class $LocalWorkspaceSelectionTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          LocalWorkspaceSelection,
+          LocalWorkspaceSelectionData,
+          $LocalWorkspaceSelectionFilterComposer,
+          $LocalWorkspaceSelectionOrderingComposer,
+          $LocalWorkspaceSelectionAnnotationComposer,
+          $LocalWorkspaceSelectionCreateCompanionBuilder,
+          $LocalWorkspaceSelectionUpdateCompanionBuilder,
+          (
+            LocalWorkspaceSelectionData,
+            BaseReferences<
+              _$AppDatabase,
+              LocalWorkspaceSelection,
+              LocalWorkspaceSelectionData
+            >,
+          ),
+          LocalWorkspaceSelectionData,
+          PrefetchHooks Function()
+        > {
+  $LocalWorkspaceSelectionTableManager(
+    _$AppDatabase db,
+    LocalWorkspaceSelection table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $LocalWorkspaceSelectionFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $LocalWorkspaceSelectionOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $LocalWorkspaceSelectionAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> singleton = const Value.absent(),
+                Value<String> workspaceId = const Value.absent(),
+              }) => LocalWorkspaceSelectionCompanion(
+                singleton: singleton,
+                workspaceId: workspaceId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> singleton = const Value.absent(),
+                required String workspaceId,
+              }) => LocalWorkspaceSelectionCompanion.insert(
+                singleton: singleton,
+                workspaceId: workspaceId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    LocalWorkspaceSelection,
+                    LocalWorkspaceSelectionData
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    LocalWorkspaceSelection,
+                    LocalWorkspaceSelectionData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $LocalWorkspaceSelectionProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      LocalWorkspaceSelection,
+      LocalWorkspaceSelectionData,
+      $LocalWorkspaceSelectionFilterComposer,
+      $LocalWorkspaceSelectionOrderingComposer,
+      $LocalWorkspaceSelectionAnnotationComposer,
+      $LocalWorkspaceSelectionCreateCompanionBuilder,
+      $LocalWorkspaceSelectionUpdateCompanionBuilder,
+      (
+        LocalWorkspaceSelectionData,
+        BaseReferences<
+          _$AppDatabase,
+          LocalWorkspaceSelection,
+          LocalWorkspaceSelectionData
+        >,
+      ),
+      LocalWorkspaceSelectionData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14862,6 +15718,8 @@ class $AppDatabaseManager {
   $TasksTableManager get tasks => $TasksTableManager(_db, _db.tasks);
   $DailyReviewsTableManager get dailyReviews =>
       $DailyReviewsTableManager(_db, _db.dailyReviews);
+  $LocalStudyCheckpointsTableManager get localStudyCheckpoints =>
+      $LocalStudyCheckpointsTableManager(_db, _db.localStudyCheckpoints);
   $StudySessionsTableManager get studySessions =>
       $StudySessionsTableManager(_db, _db.studySessions);
   $StudySessionSegmentsTableManager get studySessionSegments =>
@@ -14876,4 +15734,6 @@ class $AppDatabaseManager {
       $MaterializationStateTableManager(_db, _db.materializationState);
   $OriginProgressTableManager get originProgress =>
       $OriginProgressTableManager(_db, _db.originProgress);
+  $LocalWorkspaceSelectionTableManager get localWorkspaceSelection =>
+      $LocalWorkspaceSelectionTableManager(_db, _db.localWorkspaceSelection);
 }

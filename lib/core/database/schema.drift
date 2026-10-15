@@ -124,6 +124,13 @@ CREATE TABLE daily_reviews (
  content TEXT NOT NULL,
  UNIQUE (workspace_id,review_date)
 );
+-- Device-local process checkpoints, deliberately excluded from synchronized ops.
+CREATE TABLE local_study_checkpoints (
+ device_id TEXT NOT NULL PRIMARY KEY,
+ session_id TEXT NOT NULL,
+ observed_at_ms INTEGER NOT NULL
+);
+
 CREATE TABLE study_sessions (
  id TEXT NOT NULL PRIMARY KEY,
  workspace_id TEXT NOT NULL REFERENCES workspaces(id),
@@ -202,4 +209,10 @@ CREATE TABLE origin_progress (
  origin_device_id TEXT NOT NULL,
  max_contiguous_seq INTEGER NOT NULL CHECK (max_contiguous_seq >= 0),
  PRIMARY KEY (workspace_id,origin_device_id)
+);
+
+-- Local selection only; never synchronized or used as an authorization source.
+CREATE TABLE local_workspace_selection (
+ singleton INTEGER NOT NULL PRIMARY KEY CHECK (singleton=1),
+ workspace_id TEXT NOT NULL
 );

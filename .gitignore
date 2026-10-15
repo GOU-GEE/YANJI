@@ -4,6 +4,8 @@
 .pub-cache/
 .pub/
 build/
+# Embedded Syncthing engine binaries (rebuild with tool/build_syncthing.py).
+packages/yanji_syncthing/native/build/
 coverage/
 .flutter-plugins
 .flutter-plugins-dependencies

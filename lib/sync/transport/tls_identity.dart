@@ -12,6 +12,14 @@ abstract interface class SecureTlsIdentityStorage {
   Future<TlsIdentity> installIfAbsent(TlsIdentity candidate);
 }
 
+/// Optional durable storage for the last LAN endpoints learned during
+/// pairing. Endpoints are only hints; every connection still pins the TLS
+/// certificate and authenticates the device identity.
+abstract interface class PersistentSyncEndpointStorage {
+  Future<String?> readSyncEndpoints();
+  Future<void> writeSyncEndpoints(String value);
+}
+
 final class TlsIdentityService {
   TlsIdentityService(this.storage);
   final SecureTlsIdentityStorage storage;
