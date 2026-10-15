@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart';
 
 import '../../application/study_app_controller.dart';
 import '../oplog/operation.dart';
@@ -14,6 +13,7 @@ import '../transport/pinned_tls_transport.dart';
 import '../transport/lan_peer_discovery.dart';
 import '../transport/tls_identity.dart';
 import '../trust/trust_chain.dart';
+import 'debug_peer_addresses.dart';
 import 'pairing_invite.dart';
 
 final class SyncPeerEndpoint {
@@ -159,6 +159,7 @@ final class DevicePairingCoordinator {
     this.ipHints,
     this.endpointStorage,
     this.discovery,
+    this.debugPeerAddresses,
   ) {
     _subscription = listener.connections.listen(
       _accept,
@@ -174,6 +175,7 @@ final class DevicePairingCoordinator {
   final List<String> ipHints;
   final PersistentSyncEndpointStorage? endpointStorage;
   final LanPeerDiscovery discovery;
+  final Map<String, String> debugPeerAddresses;
   final incomingRequests = StreamController<IncomingPairRequest>.broadcast();
   final _endpoints = <String, SyncPeerEndpoint>{};
   StreamSubscription<SecureSocket>? _subscription;
@@ -185,6 +187,7 @@ final class DevicePairingCoordinator {
     InternetAddress? bindAddress,
     List<String>? advertisedAddresses,
     LanPeerDiscovery? discovery,
+    Map<String, String>? debugPeerAddresses,
   }) async {
     debugPrint('[研迹配对] 配对监听已启动');
     final tls = await TlsIdentityService(storage)
@@ -200,6 +203,14 @@ final class DevicePairingCoordinator {
           ? storage as PersistentSyncEndpointStorage
           : null,
       discovery ?? BonjourPeerDiscovery(),
+      debugPeerAddresses ??
+          (kDebugMode
+              ? DebugPeerAddresses.parse(
+                  const String.fromEnvironment(
+                    DebugPeerAddresses.environmentKey,
+                  ),
+                )
+              : const <String, String>{}),
     );
     await coordinator._loadEndpoints();
     await coordinator.refreshDiscovery();
@@ -226,14 +237,26 @@ final class DevicePairingCoordinator {
           _endpoints[peer.deviceId]?.confirmed != false &&
           (_endpoints[peer.deviceId] != null ||
               peer.tlsCertificateSha256.any((b) => b != 0)))
-        {
-          'id': peer.deviceId,
-          'fingerprint': base64Encode(
-            _endpoints[peer.deviceId]?.tlsCertificateSha256 ??
-                peer.tlsCertificateSha256,
-          ),
-        },
+        _transportPeer(peer),
   ];
+
+  Map<String, Object?> _transportPeer(TrustedPeer peer) {
+    final resolved = DebugPeerAddresses.resolve(
+      debugPeerAddresses,
+      peer.deviceId,
+    );
+    final address = resolved == null
+        ? null
+        : DebugPeerAddresses.normalize(resolved);
+    return {
+      'id': peer.deviceId,
+      'fingerprint': base64Encode(
+        _endpoints[peer.deviceId]?.tlsCertificateSha256 ??
+            peer.tlsCertificateSha256,
+      ),
+      if (address != null && address.isNotEmpty) 'addresses': [address],
+    };
+  }
 
   Future<PairingInvite> createInvitation() async {
     final workspace = app.workspace ?? (throw StateError('请先创建学习空间'));

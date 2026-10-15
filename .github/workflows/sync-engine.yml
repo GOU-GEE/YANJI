@@ -19,7 +19,9 @@ on:
       - 'tool/test_syncthing_nodes.py'
       - 'test/application/operation_file_exchange_test.dart'
       - 'test/application/device_sync_reconnect_test.dart'
+      - 'test/protocol/debug_peer_addresses_test.dart'
       - 'test/protocol/lan_peer_discovery_test.dart'
+      - 'windows/CMakeLists.txt'
       - 'pubspec.yaml'
       - 'pubspec.lock'
       - '.github/workflows/sync-engine.yml'
@@ -29,6 +31,8 @@ on:
       - 'packages/yanji_syncthing/**'
       - 'tool/build_syncthing.py'
       - 'tool/test_syncthing_nodes.py'
+      - 'test/protocol/debug_peer_addresses_test.dart'
+      - 'windows/CMakeLists.txt'
       - 'pubspec.yaml'
       - '.github/workflows/sync-engine.yml'
   workflow_dispatch:
@@ -70,19 +74,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache-dependency-path: packages/yanji_syncthing/native/go.sum
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      # yanji_syncthing declares the Windows harness as a platform asset, but
-      # Flutter validates asset existence for every test target. Build it first.
-      - name: Build the Windows harness asset
-        run: python3 tool/build_syncthing.py windows
       - name: Resolve packages
         run: flutter pub get
       - name: Static analysis of the sync layer
@@ -98,6 +94,7 @@ jobs:
           flutter test
           test/application/operation_file_exchange_test.dart
           test/application/device_sync_reconnect_test.dart
+          test/protocol/debug_peer_addresses_test.dart
           test/protocol/lan_peer_discovery_test.dart
           test/protocol/pinned_tls_transport_test.dart
           test/protocol/tls_identity_test.dart

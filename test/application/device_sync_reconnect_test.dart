@@ -86,6 +86,7 @@ void main() {
           bindAddress: InternetAddress.loopbackIPv4,
           advertisedAddresses: ['127.0.0.1'],
           discovery: _Discovery(network, '127.0.0.1'),
+          debugPeerAddresses: {b.identity.deviceId: '127.0.0.1:22000'},
         );
         joining = await DevicePairingCoordinator.open(
           b,
@@ -150,6 +151,10 @@ void main() {
           isTrue,
         );
         expect(root.isPairConfirmed(b.identity.deviceId), isTrue);
+        final transportPeer = root.transportPeers.singleWhere(
+          (peer) => peer['id'] == b.identity.deviceId,
+        );
+        expect(transportPeer['addresses'], ['tcp://127.0.0.1:22000']);
         expect(
           jsonDecode(aStorage.endpoints!)[b.identity.deviceId]['confirmed'],
           isTrue,
