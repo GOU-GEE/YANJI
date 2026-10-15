@@ -9,9 +9,6 @@ dependencies:
   flutter:
     sdk: flutter
 flutter:
-  assets:
-    - path: native/build/sync-harness-windows-amd64.exe
-      platforms: [windows]
   plugin:
     platforms:
       android:

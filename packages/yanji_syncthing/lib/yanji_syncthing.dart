@@ -25,14 +25,17 @@ class YanjiSyncthing {
         if (request['command'] == 'stop') return {};
         final directory = Directory(request['directory']! as String);
         await directory.create(recursive: true);
-        final executable = File('${directory.path}/yanji-sync.exe');
-        final bytes = await rootBundle.load(
-          'packages/yanji_syncthing/native/build/sync-harness-windows-amd64.exe',
+        // windows/CMakeLists.txt installs the engine next to the application
+        // binary. It is deliberately not a platform-scoped Flutter asset,
+        // because Flutter validates declared assets on every target, including
+        // hosts that never run the Windows engine.
+        final executable = File(
+          '${File(Platform.resolvedExecutable).parent.path}'
+          '${Platform.pathSeparator}yanji-sync.exe',
         );
-        await executable.writeAsBytes(
-          bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-          flush: true,
-        );
+        if (!await executable.exists()) {
+          throw StateError('未找到同步引擎组件，请安装包含同步功能的完整版本');
+        }
         _process = await Process.start(executable.path, const []);
         // Native diagnostic output must not block its pipe or expose secrets.
         unawaited(_process!.stderr.drain<void>());

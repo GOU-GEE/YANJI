@@ -87,6 +87,22 @@ if(PLUGIN_BUNDLED_LIBRARIES)
     COMPONENT Runtime)
 endif()
 
+# Bundle the embedded Syncthing transport next to the application executable.
+# Build it first with: python3 tool/build_syncthing.py windows
+set(SYNCTHING_HARNESS
+  "${CMAKE_CURRENT_SOURCE_DIR}/../packages/yanji_syncthing/native/build/sync-harness-windows-amd64.exe")
+if(EXISTS "${SYNCTHING_HARNESS}")
+  install(FILES "${SYNCTHING_HARNESS}"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}"
+    RENAME "yanji-sync.exe"
+    COMPONENT Runtime)
+else()
+  message(WARNING
+    "Embedded Syncthing engine not found at ${SYNCTHING_HARNESS}. "
+    "Run 'python3 tool/build_syncthing.py windows' before building; "
+    "device synchronization will be unavailable in this build.")
+endif()
+
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/windows/")
 install(DIRECTORY "${NATIVE_ASSETS_DIR}"
