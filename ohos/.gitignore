@@ -18,3 +18,8 @@
 **/libs/**/libapp.so
 **/libs/**/libflutter.so
 **/libs/**/libvmservice_snapshot.so
+
+# Generated native assets and Flutter renderer build metadata.
+**/libs/**/libyanji_sqlite3.so
+**/src/main/resources/rawfile/buildinfo.json5
+**/src/main/resources/base/profile/buildinfo.json5

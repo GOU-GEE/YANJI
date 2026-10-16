@@ -3,6 +3,7 @@ import cryptoFramework from '@ohos.security.cryptoFramework';
 import preferences from '@ohos.data.preferences';
 import common from '@ohos.app.ability.common';
 import util from '@ohos.util';
+import { BusinessError } from '@ohos.base';
 
 // Preferences holds only authenticated ciphertext. The wrapping key is generated
 // and retained by HUKS; it is never exported or written to app storage.
@@ -31,7 +32,13 @@ export class HuksSecretStore {
   }
 
   private async hasWrappingKey(): Promise<boolean> {
-    return huks.isKeyItemExist(this.alias, { properties: [] });
+    try {
+      return await huks.isKeyItemExist(this.alias, { properties: [] });
+    } catch (error) {
+      // HUKS reports an absent key by rejecting, rather than returning false.
+      if ((error as BusinessError).code === 12000011) return false;
+      throw new Error('HUKS key lookup failed: ' + (error as BusinessError).code);
+    }
   }
 
   private async ensureWrappingKey(): Promise<void> {

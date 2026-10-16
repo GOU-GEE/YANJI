@@ -7,13 +7,13 @@
 | 阶段 | 状态 | 剩余验收 |
 | --- | --- | --- |
 | SDK 与依赖 | Flutter OHOS 3.41.9+ohos-1.0.2 / Dart 3.11.5、官方 API 26 工具可用；锁定依赖安装、代码生成、静态检查、231 项测试通过；通用工程产出未签名 HAP | 调试签名、设备运行 |
-| SQLite | 官方 OHOS 编译器从源码构建 SQLite 3.53.4，已打入完整 App 未签名 HAP；Drift 及 sqlite3 Dart API、schema v5 保持；46 项主机数据库/学习回归通过 | 设备原生加载、WAL、迁移、终止恢复 |
-| 安全存储 | 已接入 HUKS AES-256-GCM；4 项通道/身份回归及静态检查通过，完整 App 未签名 HAP 编译通过 | 设备加解密、身份及 TLS 重启一致性、密文损坏验证 |
-| 单机学习闭环 | 未开始鸿蒙验收 | 创建任务、计时、复盘、统计、后台恢复 |
+| SQLite | 官方 OHOS 编译器从源码构建 SQLite 3.53.4，已打入完整 App 未签名 HAP；Drift 及 sqlite3 Dart API、schema v5 保持；46 项主机数据库/学习回归通过 | 最低支持版本与真机验收 |
+| 安全存储 | 已接入 HUKS AES-256-GCM；4 项通道/身份回归及静态检查通过，完整 App 未签名 HAP 编译通过 | 真机与密文损坏故障注入 |
+| 单机学习闭环 | API 26 ARM64 模拟器通过任务、计时、暂停、复盘、统计、迁移、重启及进程强制终止恢复 | 正式界面、真机和系统后台策略 |
 | Dart 跨端同步 | 未开始鸿蒙接线 | 传输选择、状态确认、扫码/mDNS、双向跨端同步 |
 | Syncthing 内嵌 | 独立验证项 | 不作为上述首版路径的前置条件 |
 
-已接入用户提供的官方 Command Line Tools 26.0.0.851（macOS ARM64），内含 SDK 26.0.0.105 / API 26、ohpm 26.0.0.630、Hvigor 6.26.8、Node 24.14.1。无业务依赖的通用工程已产出 `entry-default-unsigned.hap`；Flutter 在产物生成后的签名检查退出，因为尚未配置调试签名。当前没有鸿蒙设备或已下载的模拟器镜像；未完成设备运行验收。
+已接入用户提供的官方 Command Line Tools 26.0.0.851（macOS ARM64），内含 SDK 26.0.0.105 / API 26、ohpm 26.0.0.630、Hvigor 6.26.8、Node 24.14.1。无业务依赖的通用工程已产出 `entry-default-unsigned.hap`；Flutter 在产物生成后的签名检查退出，因为尚未配置调试签名。已安装并启动官方 API 26 ARM64 手机模拟器，完成原生存储和本机数据流程验收；详细结果见 `device-validation.md`。
 
 ## 工具链
 
@@ -72,4 +72,4 @@ tool/flutter_ohos.sh test --no-pub
 
 读写在原生端串行执行。已有密文但 HUKS key 不存在、认证失败、版本不支持或数据损坏时均报错；不清除记录、不生成替代身份、不降级明文。写入已有记录前先验证其可解密，随后等待 Preferences flush。平台不提供导出包装密钥或删除身份的通道。
 
-实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译和主机边界测试通过，设备上的 HUKS 行为仍需单独验收。
+实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译、主机边界测试、模拟器实际加解密及身份/TLS 跨进程重启一致性均通过；密文损坏故障注入仍待验收。
