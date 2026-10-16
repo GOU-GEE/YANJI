@@ -74,6 +74,12 @@ schema v5，180 秒有效学习，迁移及 integrity_check 通过）。
 Flutter 异常或凭据错误。截图见
 [screenshots/05-today-after-security-validation.jpeg](screenshots/05-today-after-security-validation.jpeg)。
 
+## 导航玻璃兼容修复
+
+模拟器的 Skia 兼容路径已补齐边缘高光、实时背景模糊和按压透镜；浅色、深色、
+拖动及背景更新的设备像素验收通过。原因、效果边界和复现见
+[导航玻璃验收](navigation-glass-validation.md)。
+
 ## 重现
 
 先在一次性模拟器中解锁屏幕。模拟器实例使用 6 GB 存储、4 GB 内存，

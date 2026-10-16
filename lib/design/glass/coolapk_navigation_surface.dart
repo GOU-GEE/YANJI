@@ -170,6 +170,8 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
                   press: press,
                   barScale: widget.barScale,
                   blur: effective != NavigationGlassCapability.translucent,
+                  decorations: widget.decorations,
+                  optics: widget.optics,
                 ),
               ),
             ),
@@ -230,14 +232,19 @@ class _FallbackBackground extends StatelessWidget {
     required this.press,
     required this.barScale,
     required this.blur,
+    required this.decorations,
+    required this.optics,
   });
   final Rect thumb;
-  final bool dark, blur;
+  final bool dark, blur, decorations, optics;
   final double press;
   final double barScale;
   @override
   Widget build(BuildContext context) {
-    final material = Stack(
+    // Skia cannot use ImageFilter.shader. Keep two ordered backdrop samples:
+    // the bar blurs the page, and the pressed lens magnifies the bar beneath it.
+    // Both captures precede shadows and glyphs, just like the shader path.
+    return Stack(
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(
@@ -245,24 +252,46 @@ class _FallbackBackground extends StatelessWidget {
             scale: barScale,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(1000),
-              child: ColoredBox(
-                color: CoolapkNavigationStyle.container(dark, fallback: !blur),
+              child: BackdropFilter(
+                enabled: blur,
+                filter: ui.ImageFilter.blur(
+                  sigmaX: CoolapkNavigationStyle.blur,
+                  sigmaY: CoolapkNavigationStyle.blur,
+                ),
+                child: CustomPaint(
+                  foregroundPainter: decorations
+                      ? _CompatibilityGlassRim(dark: dark, activity: .45)
+                      : null,
+                  child: ColoredBox(
+                    color: CoolapkNavigationStyle.container(
+                      dark,
+                      fallback: !blur,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
         Positioned.fromRect(
           rect: thumb,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1000),
-              color: Color.alphaBlend(
-                CoolapkNavigationStyle.selection(dark)
-                    .withValues(alpha: .1 * (1 - press)),
-                CoolapkNavigationStyle.thumbContainer(
-                  dark,
-                  press,
-                  fallback: !blur,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(1000),
+            child: _CompatibilityLens(
+              magnification: blur && optics ? 1 + .12 * press : 1,
+              blur: blur ? CoolapkNavigationStyle.blur * (1 - press) : 0,
+              sampleBackdrop: blur,
+              child: CustomPaint(
+                foregroundPainter: decorations
+                    ? _CompatibilityGlassRim(dark: dark, activity: press)
+                    : null,
+                child: ColoredBox(
+                  color: Color.alphaBlend(
+                    CoolapkNavigationStyle.selection(
+                      dark,
+                    ).withValues(alpha: .1 * (1 - press)),
+                    Colors.white.withValues(alpha: (dark ? .04 : .10) * press),
+                  ),
                 ),
               ),
             ),
@@ -270,13 +299,108 @@ class _FallbackBackground extends StatelessWidget {
         ),
       ],
     );
-    return blur
-        ? BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: material,
-          )
-        : material;
   }
+}
+
+/// A live affine lens for engines without shader backdrop filters. This uses
+/// the current canvas coordinates, so it also follows dock translations/scales
+/// without capturing stale page images or applying the screen DPR twice.
+class _CompatibilityLens extends SingleChildRenderObjectWidget {
+  const _CompatibilityLens({
+    required this.magnification,
+    required this.blur,
+    required this.sampleBackdrop,
+    required super.child,
+  });
+  final double magnification, blur;
+  final bool sampleBackdrop;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _CompatibilityLensRender(this);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _CompatibilityLensRender render,
+  ) {
+    render.config = this;
+    render.markNeedsPaint();
+  }
+}
+
+class _CompatibilityLensRender extends RenderProxyBox {
+  _CompatibilityLensRender(this.config);
+  _CompatibilityLens config;
+  final _handle = LayerHandle<BackdropFilterLayer>();
+  @override
+  bool get alwaysNeedsCompositing => true;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (!config.sampleBackdrop) {
+      super.paint(context, offset);
+      return;
+    }
+    final center = offset + size.center(Offset.zero);
+    final transform = Matrix4.identity()
+      ..translateByDouble(center.dx, center.dy, 0, 1)
+      ..scaleByDouble(config.magnification, config.magnification, 1, 1)
+      ..translateByDouble(-center.dx, -center.dy, 0, 1);
+    final lens = ui.ImageFilter.matrix(
+      transform.storage,
+      filterQuality: FilterQuality.medium,
+    );
+    final layer = (_handle.layer ??= BackdropFilterLayer())
+      ..filter = config.blur < .001
+          ? lens
+          : ui.ImageFilter.compose(
+              outer: lens,
+              inner: ui.ImageFilter.blur(
+                sigmaX: config.blur,
+                sigmaY: config.blur,
+              ),
+            );
+    context.pushLayer(layer, super.paint, offset);
+  }
+
+  @override
+  void dispose() {
+    _handle.layer = null;
+    super.dispose();
+  }
+}
+
+class _CompatibilityGlassRim extends CustomPainter {
+  const _CompatibilityGlassRim({required this.dark, required this.activity});
+  final bool dark;
+  final double activity;
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (activity <= .0001) return;
+    final rect = (Offset.zero & size).deflate(.5);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, Radius.circular(rect.shortestSide / 2)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: (dark ? .45 : .85) * activity),
+            Colors.white.withValues(alpha: .08 * activity),
+            Colors.black.withValues(alpha: (dark ? .20 : .12) * activity),
+            Colors.white.withValues(alpha: .48 * activity),
+          ],
+          stops: const [0, .42, .7, 1],
+        ).createShader(rect),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CompatibilityGlassRim old) =>
+      old.dark != dark || old.activity != activity;
 }
 
 class _OpticalBackground extends LeafRenderObjectWidget {
