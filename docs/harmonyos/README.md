@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | SDK 与依赖 | Flutter OHOS 3.41.9+ohos-1.0.2 / Dart 3.11.5、官方 API 26 工具可用；锁定依赖安装、代码生成、静态检查、231 项测试通过；通用工程产出未签名 HAP | 调试签名、设备运行 |
 | SQLite | 官方 OHOS 编译器从源码构建 SQLite 3.53.4，已打入完整 App 未签名 HAP；Drift 及 sqlite3 Dart API、schema v5 保持；46 项主机数据库/学习回归通过 | 设备原生加载、WAL、迁移、终止恢复 |
-| 安全存储 | 未开始 | HUKS 支持的密钥存储与身份持久化 |
+| 安全存储 | 已接入 HUKS AES-256-GCM；4 项通道/身份回归及静态检查通过，完整 App 未签名 HAP 编译通过 | 设备加解密、身份及 TLS 重启一致性、密文损坏验证 |
 | 单机学习闭环 | 未开始鸿蒙验收 | 创建任务、计时、复盘、统计、后台恢复 |
 | Dart 跨端同步 | 未开始鸿蒙接线 | 传输选择、状态确认、扫码/mDNS、双向跨端同步 |
 | Syncthing 内嵌 | 独立验证项 | 不作为上述首版路径的前置条件 |
@@ -65,3 +65,11 @@ tool/flutter_ohos.sh test --no-pub
 `packages/sqlite3` 保留上游 3.5.2 生产 Dart 代码与 MIT 许可，仅增加 OHOS hook。该 hook 通过输入编译器识别官方 OHOS 工具链，显式指定 `aarch64-linux-ohos` / sysroot 编译校验过的 SQLite 3.53.4 源码；其他平台继续使用上游 hook。来源、哈希和更新要求见该包的 `YANJI_PATCHES.md`。原生输出 `libyanji_sqlite3.so` 已确认为 AArch64 ELF，依赖 OHOS `libc.so`，未链接 glibc。
 
 应用持久化目录通过鸿蒙原生通道获取 `context.filesDir`；其他平台继续使用 path_provider。数据库初始化、迁移和 WAL 配置不变。完整 Debug HAP 已生成，但缺少签名时 Flutter 命令仍会在最后一步退出。
+
+## 安全存储
+
+鸿蒙通过 `yanji/platform.v1` 调用应用内的 `HuksSecretStore`。包装密钥由 HUKS 生成并保管，Preferences 只保存带版本号、随机 nonce 和认证标签的密文；AAD 绑定具体存储键名。三个原有存储键及其 JSON 格式保持不变，Ed25519 身份和 TLS 身份使用同一抽象；其他平台继续使用 flutter_secure_storage。
+
+读写在原生端串行执行。已有密文但 HUKS key 不存在、认证失败、版本不支持或数据损坏时均报错；不清除记录、不生成替代身份、不降级明文。写入已有记录前先验证其可解密，随后等待 Preferences flush。平台不提供导出包装密钥或删除身份的通道。
+
+实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译和主机边界测试通过，设备上的 HUKS 行为仍需单独验收。
