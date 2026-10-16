@@ -24,21 +24,21 @@ layout(location = 0) out vec4 fragColor;
 
 void main() {
     vec2 fragCoord = FlutterFragCoord().xy;
-    
+
     #ifdef IMPELLER_TARGET_OPENGLES
         vec2 screenUV = vec2(fragCoord.x / uSize.x, 1.0 - (fragCoord.y / uSize.y));
     #else
         vec2 screenUV = vec2(fragCoord.x / uSize.x, fragCoord.y / uSize.y);
     #endif
-    
+
     float sd = sceneSDF(fragCoord, int(uNumShapes), uBlend);
-    
+
     float foregroundAlpha = 1.0 - smoothstep(-2.0, 0.0, sd);
     if (foregroundAlpha < 0.01) {
         fragColor = vec4(0.0);
         return;
     }
-    
+
     #ifdef YANJI_CAPTURED_BACKEND
         // Skia runtime effects do not expose screen-space derivatives. Measure
         // the same SDF gradient symmetrically across one physical pixel.
@@ -51,26 +51,26 @@ void main() {
         float dx = dFdx(sd);
         float dy = dFdy(sd);
     #endif
-    
+
     float n_cos = max(uThickness + sd, 0.0) / uThickness;
     float n_sin = sqrt(max(0.0, 1.0 - n_cos * n_cos));
-    
+
     vec3 normal = normalize(vec3(dx * n_cos, dy * n_cos, n_sin));
-    
+
     if (sd >= 0.0 || uThickness <= 0.0) {
         fragColor = vec4(0.0);
         return;
     }
-    
+
     float x = uThickness + sd;
     float sqrtTerm = sqrt(max(0.0, uThickness * uThickness - x * x));
     float height = mix(sqrtTerm, uThickness, float(sd < -uThickness));
-    
+
     // Keep the optical path local to the rim, rather than sampling distant
     // content eight thicknesses away. Thickness is in physical pixels.
     float baseHeight = uThickness * 0.75;
     vec3 incident = vec3(0.0, 0.0, -1.0);
-    
+
     float invRefractiveIndex = 1.0 / uRefractiveIndex;
     vec3 baseRefract = refract(incident, normal, invRefractiveIndex);
     float baseRefractLength = (height + baseHeight) / max(0.001, abs(baseRefract.z));
@@ -104,10 +104,10 @@ void main() {
         #endif
         displacement = -outward * shift;
     }
-    
+
     // The edge profile never exceeds .44 thicknesses. A tighter encoding
     // range gives its small glyph distortions four times the precision.
     float maxDisplacement = uThickness * (uOpticalProps.y > 0.5 ? 0.5 : 2.0);
-    
+
     fragColor = encodeDisplacementData(displacement, maxDisplacement, height, uThickness, foregroundAlpha);
 }

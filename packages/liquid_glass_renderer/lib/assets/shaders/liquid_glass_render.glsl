@@ -97,9 +97,9 @@ void main() {
     // FlutterFragCoord() returns logical pixels, but our geometry texture is in physical pixels
     // So we need to scale by devicePixelRatio to work in physical pixel space
     vec2 fragCoord = FlutterFragCoord().xy;
-    
-    vec2 screenUV = vec2(fragCoord.x / uSize.x, fragCoord.y / uSize.y);        
-        
+
+    vec2 screenUV = vec2(fragCoord.x / uSize.x, fragCoord.y / uSize.y);
+
     // ImageFilter.shader supplies its backdrop in Flutter's screen coordinate
     // orientation on Impeller OpenGLES too. Flipping this UV mirrored the whole
     // screen vertically, so a dock at the bottom refracted content at the top.
@@ -112,12 +112,12 @@ void main() {
     vec4 geometryData = uHighQualitySampling > 0.5
         ? sampleGeometryBilinear(geometryUV)
         : texture(uGeometryTexture, geometryUV);
-    
+
     #if DEBUG_GEOMETRY
         fragColor = geometryData;
         return;
     #endif
-    
+
     if (geometryData.a < 0.01) {
         fragColor = vec4(0);
         return;
@@ -127,12 +127,12 @@ void main() {
     // picture. Decode the optical channels in straight color space so the
     // partially covered edge cannot turn into a large false displacement.
     geometryData.rgb /= geometryData.a;
-    
+
     float maxDisplacement = uThickness * (uEdgeMagnification > 0.5 ? 0.5 : 2.0);
     vec2 displacement = decodeDisplacement(geometryData, maxDisplacement);
-    
+
     vec2 invUSize = 1.0 / uSize;
-    
+
     vec4 refractColor;
     if (uChromaticAberration < 0.01) {
         vec2 refractedUV = screenUV + displacement * invUSize;
@@ -147,52 +147,52 @@ void main() {
         );
         vec2 redOffset = displacement + dispersion;
         vec2 blueOffset = displacement - dispersion;
-        
+
         vec2 redUV = screenUV + redOffset * invUSize;
         vec2 greenUV = screenUV + displacement * invUSize;
         vec2 blueUV = screenUV + blueOffset * invUSize;
-        
+
         float red = sampleBackground(redUV).r;
         vec4 greenSample = sampleBackground(greenUV);
         float blue = sampleBackground(blueUV).b;
-        
+
         refractColor = vec4(red, greenSample.g, blue, greenSample.a);
     }
-    
+
     vec4 finalColor = applyGlassColor(refractColor, uGlassColor);
     finalColor.rgb = applySaturation(finalColor.rgb, uSaturation);
 
     // Compute edge lighting
     float normalizedHeight = geometryData.b;
-    
+
     float thicknessScale = clamp(40.0 / max(uThickness, 1.0), 1.0, 4.0);
     float edgeThreshold = mix(0.8, 0.5, 1.0 / thicknessScale);
     float edgeFactor = 1.0 - smoothstep(0.0, edgeThreshold, normalizedHeight);
-    
+
     if (edgeFactor > 0.01) {
         vec2 normalXY = normalize(displacement);
-        
+
         float mainLight = max(0.0, dot(normalXY, uLightDirection));
         float oppositeLight = max(0.0, dot(normalXY, -uLightDirection));
-        
+
         float totalInfluence = mainLight + oppositeLight * 0.8;
-        
+
         float directional = pow(totalInfluence, 1.5) * uLightIntensity * 3.0;
         float ambient = uAmbientStrength * 0.5;
-        
+
         float brightness = (directional + ambient) * edgeFactor * thicknessScale * 0.8;
-        
+
         vec3 bgColor = refractColor.rgb;
         float bgLuminance = dot(bgColor, LUMA_WEIGHTS);
         vec3 highlightColor;
-        
+
         vec3 saturatedBg = bgColor / max(bgLuminance, 0.001);
         saturatedBg = mix(bgColor, saturatedBg, 0.8);
         float colorfulness = length(bgColor - vec3(bgLuminance));
         float colorMix = clamp(colorfulness * 1.0 + 0.5, 0.5, 1.0);
         highlightColor = mix(vec3(1.0), saturatedBg, colorMix);
-       
-        
+
+
         finalColor.rgb = mix(finalColor.rgb, highlightColor, brightness);
     }
 
