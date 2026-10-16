@@ -35,9 +35,9 @@ HUKS 加解密、签名验证、数据库背景 isolate 原生库加载、WAL/FU
 后重新启动直接进入今日页（重启前后截图 hash 一致），说明工作区与科目已落库。
 设备日志中无 `EXCEPTION CAUGHT`。
 
-主机侧：`flutter analyze --no-pub` 无问题，`flutter test --no-pub` 235 项全部通过。
+主机侧：本次重新运行 `flutter analyze --no-pub` 无问题，`flutter test --no-pub` **237 项全部通过**（包含新增的 2 项启动错误界面测试）。
 
-界面证据（同一台 API 26 ARM64 模拟器）：
+初轮界面证据（旧实例，测试模块清理事故之前）：
 
 | 截图 | 说明 |
 | --- | --- |
@@ -45,6 +45,34 @@ HUKS 加解密、签名验证、数据库背景 isolate 原生库加载、WAL/FU
 | `screenshots/02-onboarding-subjects.png` | 第 2 步科目选择，状态随步骤保留 |
 | `screenshots/03-today-after-restart.png` | `aa force-stop` 后重新启动，直接进入今日页 |
 | `screenshots/04-profile-sync.png` | 我的页面：设备与同步在本机未配对时的状态 |
+
+## 安全存储故障注入（续接验证）
+
+原生 Hypium 测试 `YanjiHuksSecretStore` 在 API 26 ARM64 新实例
+`Yanji_API26_Validation` 通过：
+`Tests run: 8, Failure: 0, Error: 0, Pass: 8, Ignore: 0`。直接运行生产
+`HuksSecretStore` 的真实 HUKS/Preferences 调用，使用独立应用包名
+`com.example.yanji.securitytests`、测试命名空间和合成凭据；没有给正式 Flutter 通道增加故障注入接口。覆盖范围、复现方法和边界见
+[安全存储验收](security-validation.md)，结构化结果见
+[原生故障注入报告](validation/huks-fault-injection.json)。
+
+本次续接重新运行 237 项全量主机测试、静态检查及构建脚本语法检查，均通过；
+原生 8 项不混入主机计数。
+
+早期同包名 `entry_test` 模块卸载后，旧实例 `Yanji_API26_6G` 的包装密钥
+不可用，旧实例已停机保留，没有清除密文和学习记录。
+`harmonyos_key_loss_startup_test.dart` 验证正式组合入口返回
+`CREDENTIAL_KEY_MISSING`，身份不被替换，数据库文件校验值不变；
+详见安全存储验收中的事故与修正记录。旧实例的密钥没有恢复。
+
+全新实例使用显式验收开关创建合成工作区，再安装、运行并卸载独立测试应用。
+`harmonyos_startup_test.dart` 首次和强杀后均通过（runs=2），设备 ID、
+公钥、TLS 指纹与工作区 ID 不变。本机学习冒烟也重新通过两轮（runs=2，
+schema v5，180 秒有效学习，迁移及 integrity_check 通过）。
+这验证了隔离测试包的生命周期不会影响正式应用凭据。随后重新构建正式
+`lib/main.dart` HAP，安装后及强杀重启后均直接进入今日页，当前进程日志无
+Flutter 异常或凭据错误。截图见
+[screenshots/05-today-after-security-validation.jpeg](screenshots/05-today-after-security-validation.jpeg)。
 
 ## 重现
 
@@ -78,9 +106,16 @@ tool/build_harmonyos_unsigned.sh integration_test/harmonyos_dart_sync_test.dart
 额外端口转发。扫码用例只需
 `tool/build_harmonyos_unsigned.sh integration_test/harmonyos_scanner_test.dart`。
 
+安全故障注入使用 `tool/run_harmonyos_native_tests.sh <device>`。
+正式组合入口验收使用 `integration_test/harmonyos_startup_test.dart`；只在全新
+一次性模拟器首次创建工作区时设置 `YANJI_SEED_STARTUP=true`（经 base64
+编码后作为 `YANJI_DART_DEFINES`），后续不开此开关即可验收原有工作区。
+`harmonyos_key_loss_startup_test.dart` 只用于已有包装密钥不可用且保留数据库的
+一次性实例，不应在正常实例作为成功用例运行。
+
 ## 待验收
 
 真机签名、最低支持系统 5.0.5(17)、系统后台与功耗策略、真机摄像头扫码、
-跨机型局域网发现与长时间双向同步、系统实时通知，以及密文损坏/密钥不可用的
-设备故障注入。主机错误传播测试不能替代设备故障注入。当前结果不代表已经达到
-上架条件。
+跨机型局域网发现与长时间双向同步、系统实时通知、真实硬件密钥故障及底层磁盘写入失败。
+模拟器中篡改密文和删除测试包装密钥的原生故障注入已通过；这不代替真机和硬件故障验收。
+当前结果不代表已经达到上架条件。

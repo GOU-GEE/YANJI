@@ -13,8 +13,20 @@ interface SealedValue {
   ciphertext: string;
 }
 
+// Separate logical stores can own independent aliases and Preferences files.
+// The application uses the default location; native acceptance tests use their
+// own location without exposing any mutation/debug methods over Flutter.
+export interface SecretStoreLocation {
+  preferencesName: string;
+  keyAlias: string;
+}
+
+export class MissingWrappingKeyError extends Error {
+  constructor() { super('Wrapping key is missing'); }
+}
+
 export class HuksSecretStore {
-  private readonly alias: string = 'yanji.secrets.aes256.v1';
+  private readonly alias: string;
   private readonly keys: string[] = [
     'yanji.identity.v1', 'yanji.tls.identity.v1', 'yanji.sync.endpoints.v1'
   ];
@@ -23,8 +35,11 @@ export class HuksSecretStore {
   private readonly base64 = new util.Base64Helper();
   private readonly prefs: preferences.Preferences;
 
-  constructor(context: common.Context) {
-    this.prefs = preferences.getPreferencesSync(context, { name: 'yanji_secrets_v1' });
+  constructor(context: common.Context, location?: SecretStoreLocation) {
+    this.alias = location?.keyAlias ?? 'yanji.secrets.aes256.v1';
+    this.prefs = preferences.getPreferencesSync(context, {
+      name: location?.preferencesName ?? 'yanji_secrets_v1'
+    });
   }
 
   private checkKey(key: string): void {
@@ -44,7 +59,7 @@ export class HuksSecretStore {
   private async ensureWrappingKey(): Promise<void> {
     if (await this.hasWrappingKey()) return;
     for (const key of this.keys) {
-      if (await this.prefs.has(key)) throw new Error('Wrapping key is missing');
+      if (await this.prefs.has(key)) throw new MissingWrappingKeyError();
     }
     const properties: huks.HuksParam[] = [
       { tag: huks.HuksTag.HUKS_TAG_ALGORITHM, value: huks.HuksKeyAlg.HUKS_ALG_AES },
@@ -86,7 +101,7 @@ export class HuksSecretStore {
   async read(key: string): Promise<string | null> {
     this.checkKey(key);
     if (!await this.prefs.has(key)) return null;
-    if (!await this.hasWrappingKey()) throw new Error('Wrapping key is missing');
+    if (!await this.hasWrappingKey()) throw new MissingWrappingKeyError();
     const raw = await this.prefs.get(key, '');
     if (typeof raw !== 'string' || raw.length === 0) throw new Error('Invalid secret record');
     const record = JSON.parse(raw) as SealedValue;

@@ -8,6 +8,7 @@ import '../core/platform/app_support_directory.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../design/yanji_motion.dart';
 
@@ -96,7 +97,12 @@ class YanJiApp extends ConsumerWidget {
                       style: YanJiTypography.textTheme.headlineMedium,
                     ),
                     const SizedBox(height: YanJiSpacing.md),
-                    const Text('请确认设备已解锁后重试。已有学习记录不会被清除。'),
+                    Text(
+                      error is PlatformException &&
+                              error.code == 'CREDENTIAL_KEY_MISSING'
+                          ? '设备的安全身份已不可用。已有学习记录仍保留，请不要清除应用数据。'
+                          : '请确认设备已解锁后重试。已有学习记录不会被清除。',
+                    ),
                     const SizedBox(height: YanJiSpacing.lg),
                     FilledButton(
                       onPressed: () => ref.invalidate(appControllerProvider),

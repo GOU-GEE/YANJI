@@ -1,7 +1,7 @@
 import { FlutterPlugin, FlutterPluginBinding, MethodCall, MethodChannel, MethodResult,
   MethodCallHandler } from '@ohos/flutter_ohos';
 import common from '@ohos.app.ability.common';
-import { HuksSecretStore } from './HuksSecretStore';
+import { HuksSecretStore, MissingWrappingKeyError } from './HuksSecretStore';
 
 export class YanjiPlatformPlugin implements FlutterPlugin, MethodCallHandler {
   private secrets: HuksSecretStore | null = null;
@@ -36,9 +36,9 @@ export class YanjiPlatformPlugin implements FlutterPlugin, MethodCallHandler {
       } else {
         result.notImplemented();
       }
-    }).catch(() => {
+    }).catch((error: Error) => {
       // Do not include credential contents or native exception details in logs.
-      result.error('CREDENTIAL_UNAVAILABLE', '无法读取或保存设备安全身份，请保留应用数据后重试。', null);
+      result.error(error instanceof MissingWrappingKeyError ? 'CREDENTIAL_KEY_MISSING' : 'CREDENTIAL_UNAVAILABLE', '无法读取或保存设备安全身份，请保留应用数据后重试。', null);
     });
   }
 }

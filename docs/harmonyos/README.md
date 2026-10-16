@@ -6,9 +6,9 @@
 
 | 阶段 | 状态 | 剩余验收 |
 | --- | --- | --- |
-| SDK 与依赖 | Flutter OHOS 3.41.9+ohos-1.0.2 / Dart 3.11.5、官方 API 26 工具可用；锁定依赖安装、代码生成、静态检查、231 项测试通过；通用工程产出未签名 HAP | 调试签名、设备运行 |
+| SDK 与依赖 | Flutter OHOS 3.41.9+ohos-1.0.2 / Dart 3.11.5、官方 API 26 工具可用；锁定依赖安装、代码生成、静态检查、237 项主机测试通过；通用工程和完整 App 产出未签名 HAP，模拟器运行通过 | 真机调试签名 |
 | SQLite | 官方 OHOS 编译器从源码构建 SQLite 3.53.4，已打入完整 App 未签名 HAP；Drift 及 sqlite3 Dart API、schema v5 保持；46 项主机数据库/学习回归通过 | 最低支持版本与真机验收 |
-| 安全存储 | 已接入 HUKS AES-256-GCM；4 项通道/身份回归及静态检查通过，完整 App 未签名 HAP 编译通过 | 真机与密文损坏故障注入 |
+| 安全存储 | 已接入 HUKS AES-256-GCM；4 项主机存储及 2 项错误界面测试、8 项原生故障测试通过；独立测试包清理后身份/TLS 不变，新实例学习与重启通过 | 真机及真实硬件密钥故障验收 |
 | 单机学习闭环 | API 26 ARM64 模拟器通过任务、计时、暂停、复盘、统计、迁移、重启及进程强制终止恢复；正式界面走完 Onboarding→今日页，强杀重启后直接进入今日页 | 真机和系统后台策略 |
 | Dart 跨端同步 | 已作为鸿蒙同步后端接入；API 26 模拟器与 macOS 主机完成认证配对、双向传输与回执确认 | 真机、多机型、长时间稳定性 |
 | 扫码与设备发现 | 设备内二维码解码用例通过；mDNS 鸿蒙实现已接入 | 真机摄像头与跨设备发现 |
@@ -53,7 +53,7 @@ tool/flutter_ohos.sh test --no-pub
 - 重新生成 Drift 输出，schema 文件和 schemaVersion 保持不变。生成器还调整了视图依赖元数据，后续由现有数据库、统计和收敛测试验证。
 - `.metadata` 保留原平台的创建/迁移记录，仅增加 ohos 记录。
 
-接入官方工具后，`flutter pub get --enforce-lockfile` 已完整通过。主机回归结果：`flutter analyze --no-pub` 无问题，`flutter test --no-pub` 231 项全部通过。原始日志保存在忽略的 `work/harmonyos/` 目录。
+接入官方工具后，`flutter pub get --enforce-lockfile` 已完整通过。主机回归结果：`flutter analyze --no-pub` 无问题，`flutter test --no-pub` 237 项全部通过（含新增存储回归）。原始日志保存在忽略的 `work/harmonyos/` 目录。
 
 ## 验收边界
 
@@ -73,7 +73,7 @@ tool/flutter_ohos.sh test --no-pub
 
 读写在原生端串行执行。已有密文但 HUKS key 不存在、认证失败、版本不支持或数据损坏时均报错；不清除记录、不生成替代身份、不降级明文。写入已有记录前先验证其可解密，随后等待 Preferences flush。平台不提供导出包装密钥或删除身份的通道。
 
-实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译、主机边界测试、模拟器实际加解密及身份/TLS 跨进程重启一致性均通过；密文损坏故障注入仍待验收。
+实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译、主机边界测试、模拟器实际加解密及身份/TLS 跨进程重启一致性均通过；新增 8 项模拟器原生故障注入通过，覆盖损坏密文、记录串换和包装密钥丢失；见 [安全存储验收](security-validation.md)。早期同包名测试模块卸载导致旧模拟器包装密钥不可用，旧数据与实例已保留；现已改为独立测试应用，并在新实例验证其安装、运行和卸载均不影响正式凭据。
 
 ## Dart 局域网同步
 
