@@ -1,4 +1,4 @@
-.tooling/
+.tooling
 work/
 .dart_tool/
 .packages

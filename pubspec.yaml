@@ -4,7 +4,7 @@ publish_to: none
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.13.2
+  sdk: '>=3.11.5 <4.0.0'
 
 dependencies:
   flutter:
@@ -14,7 +14,7 @@ dependencies:
   path_provider: ^2.1.6
   uuid: ^4.6.0
   flutter_riverpod: ^2.6.1
-  go_router: ^18.0.1
+  go_router: 17.5.0
   cryptography: ^2.9.0
   crypto: ^3.0.7
   timezone: ^0.11.1
@@ -26,11 +26,10 @@ dependencies:
     git:
       url: https://github.com/juliansteenbakker/mobile_scanner.git
       ref: v7.4.0
-  webview_flutter: ^4.10.0
   http: ^1.2.2
   liquid_glass_renderer:
     path: packages/liquid_glass_renderer
-  bonsoir: ^7.1.5
+  bonsoir: 7.1.4
   yanji_syncthing:
     path: packages/yanji_syncthing
 
@@ -38,8 +37,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  drift_dev: ^2.34.6
-  build_runner: ^2.16.1
+  drift_dev: 2.34.0
+  build_runner: 2.15.0
   integration_test:
     sdk: flutter
 

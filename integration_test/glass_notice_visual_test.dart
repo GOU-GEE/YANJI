@@ -40,6 +40,7 @@ void main() {
         ),
       ),
     );
+    if (!page.mounted) return;
     GlassNotice.show(page, '暂无已绑定设备');
     await tester.pumpAndSettle();
     await binding.takeScreenshot('glass-notice-opaque');

@@ -39,9 +39,10 @@ final class IncomingPairRequest {
     required this.identityPublicKey,
     required this.tlsCertificateSha256,
     required this.safetyCode,
-    required this._decision,
-    required this._completion,
-  });
+    required Completer<bool> decision,
+    required Completer<bool> completion,
+  }) : _decision = decision,
+       _completion = completion;
   final String deviceId;
   final String deviceName;
   final String platform;

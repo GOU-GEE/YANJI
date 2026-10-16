@@ -1,0 +1,14 @@
+{
+  "flutter": {
+    "repository": "https://gitcode.com/CPF-Flutter/flutter_flutter.git",
+    "tag": "3.41.9+ohos-1.0.2",
+    "commit": "62357a93d653bf844f730bb1f4b7cc9e2139d14e",
+    "dart": "3.11.5"
+  },
+  "harmonyos": {
+    "commandLineTools": "26.0.0 Release",
+    "compileSdkVersion": "26.0.0",
+    "compatibleSdkVersion": "5.0.5(17)",
+    "targetArchitecture": "ohos-arm64"
+  }
+}

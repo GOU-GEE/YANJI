@@ -147,6 +147,7 @@ void main() {
         await shot('week-enter-$suffix');
         await settle();
         expect(find.byKey(const Key('week-tooltip')), findsOneWidget);
+        if (!pageContext.mounted) return;
         GlassNotice.show(pageContext, '已完成同步');
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));

@@ -178,7 +178,8 @@ class Oplog extends Table with TableInfo<Oplog, OplogData> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL DEFAULT \'pending_entity_create\' CHECK (apply_state IN (\'applied\', \'pending_entity_create\', \'pending_dependency\', \'pending_authorization\', \'pending_schema\', \'unauthorized_revoked\', \'invalid_domain\'))',
+    $customConstraints:
+        'NOT NULL DEFAULT \'pending_entity_create\' CHECK (apply_state IN (\'applied\', \'pending_entity_create\', \'pending_dependency\', \'pending_authorization\', \'pending_schema\', \'unauthorized_revoked\', \'invalid_domain\'))',
     defaultValue: const CustomExpression('\'pending_entity_create\''),
   );
   static const VerificationMeta _retryCountMeta = const VerificationMeta(
@@ -2493,7 +2494,8 @@ class TrustedDevices extends Table
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL CHECK (trust_state IN (\'active\', \'pending\', \'revoked\'))',
+    $customConstraints:
+        'NOT NULL CHECK (trust_state IN (\'active\', \'pending\', \'revoked\'))',
   );
   static const VerificationMeta _maxAllowedOriginSeqMeta =
       const VerificationMeta('maxAllowedOriginSeq');
@@ -4071,7 +4073,8 @@ class Tasks extends Table with TableInfo<Tasks, Task> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL CHECK (status IN (\'todo\', \'doing\', \'completed\', \'cancelled\'))',
+    $customConstraints:
+        'NOT NULL CHECK (status IN (\'todo\', \'doing\', \'completed\', \'cancelled\'))',
   );
   static const VerificationMeta _completedAtMsMeta = const VerificationMeta(
     'completedAtMs',
@@ -6532,7 +6535,8 @@ class SessionDurations extends ViewInfo<SessionDurations, SessionDuration>
   String get entityName => 'session_durations';
   @override
   Map<SqlDialect, String> get createViewStatements => {
-    SqlDialect.sqlite: 'CREATE VIEW session_durations AS SELECT workspace_id, session_id, SUM(COALESCE(ended_at_ms - started_at_ms, 0)) AS duration_ms FROM study_session_segments GROUP BY workspace_id, session_id',
+    SqlDialect.sqlite:
+        'CREATE VIEW session_durations AS SELECT workspace_id, session_id, SUM(COALESCE(ended_at_ms - started_at_ms, 0)) AS duration_ms FROM study_session_segments GROUP BY workspace_id, session_id',
   };
   @override
   SessionDurations get asDslTable => this;
@@ -6581,14 +6585,7 @@ class SessionDurations extends ViewInfo<SessionDurations, SessionDuration>
   @override
   Query? get query => null;
   @override
-  Set<String> get readTables => const {
-    'study_session_segments',
-    'study_sessions',
-    'workspaces',
-    'subjects',
-    'tasks',
-    'trusted_devices',
-  };
+  Set<String> get readTables => const {'study_session_segments'};
 }
 
 class EntityFieldClock extends Table
@@ -8413,7 +8410,8 @@ class MaterializationState extends Table
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL CHECK (state IN (\'pending_create\', \'pending_dependency\', \'materialized\', \'deleted\'))',
+    $customConstraints:
+        'NOT NULL CHECK (state IN (\'pending_create\', \'pending_dependency\', \'materialized\', \'deleted\'))',
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -9338,48 +9336,50 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
-typedef $OplogCreateCompanionBuilder = OplogCompanion Function({
-  required String opId,
-  required String workspaceId,
-  required String originDeviceId,
-  required int originSeq,
-  required int wireVersion,
-  required int hlcWallMs,
-  required int hlcCounter,
-  required String entityType,
-  required String entityId,
-  required String action,
-  required int payloadSchemaVersion,
-  required Uint8List envelopeBytes,
-  required Uint8List signature,
-  Value<String?> receivedFromDeviceId,
-  Value<int?> receivedAtMs,
-  Value<String> applyState,
-  Value<int> retryCount,
-  Value<String?> localError,
-  Value<int> rowid,
-});
-typedef $OplogUpdateCompanionBuilder = OplogCompanion Function({
-  Value<String> opId,
-  Value<String> workspaceId,
-  Value<String> originDeviceId,
-  Value<int> originSeq,
-  Value<int> wireVersion,
-  Value<int> hlcWallMs,
-  Value<int> hlcCounter,
-  Value<String> entityType,
-  Value<String> entityId,
-  Value<String> action,
-  Value<int> payloadSchemaVersion,
-  Value<Uint8List> envelopeBytes,
-  Value<Uint8List> signature,
-  Value<String?> receivedFromDeviceId,
-  Value<int?> receivedAtMs,
-  Value<String> applyState,
-  Value<int> retryCount,
-  Value<String?> localError,
-  Value<int> rowid,
-});
+typedef $OplogCreateCompanionBuilder =
+    OplogCompanion Function({
+      required String opId,
+      required String workspaceId,
+      required String originDeviceId,
+      required int originSeq,
+      required int wireVersion,
+      required int hlcWallMs,
+      required int hlcCounter,
+      required String entityType,
+      required String entityId,
+      required String action,
+      required int payloadSchemaVersion,
+      required Uint8List envelopeBytes,
+      required Uint8List signature,
+      Value<String?> receivedFromDeviceId,
+      Value<int?> receivedAtMs,
+      Value<String> applyState,
+      Value<int> retryCount,
+      Value<String?> localError,
+      Value<int> rowid,
+    });
+typedef $OplogUpdateCompanionBuilder =
+    OplogCompanion Function({
+      Value<String> opId,
+      Value<String> workspaceId,
+      Value<String> originDeviceId,
+      Value<int> originSeq,
+      Value<int> wireVersion,
+      Value<int> hlcWallMs,
+      Value<int> hlcCounter,
+      Value<String> entityType,
+      Value<String> entityId,
+      Value<String> action,
+      Value<int> payloadSchemaVersion,
+      Value<Uint8List> envelopeBytes,
+      Value<Uint8List> signature,
+      Value<String?> receivedFromDeviceId,
+      Value<int?> receivedAtMs,
+      Value<String> applyState,
+      Value<int> retryCount,
+      Value<String?> localError,
+      Value<int> rowid,
+    });
 
 final class $OplogReferences
     extends BaseReferences<_$AppDatabase, Oplog, OplogData> {
@@ -9995,12 +9995,7 @@ class $OplogTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<Oplog, OplogData>(table),
-                  $OplogReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), $OplogReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback:
               ({
@@ -10285,18 +10280,7 @@ class $WorkspaceClockStateTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<WorkspaceClockState, WorkspaceClockStateData>(
-                    table,
-                  ),
-                  BaseReferences<
-                    _$AppDatabase,
-                    WorkspaceClockState,
-                    WorkspaceClockStateData
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -10487,16 +10471,7 @@ class $ObservedOriginsTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<ObservedOrigins, ObservedOrigin>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    ObservedOrigins,
-                    ObservedOrigin
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -10654,16 +10629,7 @@ class $SyncQuarantineTableManager
                 receivedAtMs: receivedAtMs,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<SyncQuarantine, SyncQuarantineData>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    SyncQuarantine,
-                    SyncQuarantineData
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -10687,22 +10653,24 @@ typedef $SyncQuarantineProcessedTableManager =
       SyncQuarantineData,
       PrefetchHooks Function()
     >;
-typedef $WorkspacesCreateCompanionBuilder = WorkspacesCompanion Function({
-  required String id,
-  required String name,
-  required String statsTimezone,
-  required int createdAtMs,
-  required String createdByDeviceId,
-  Value<int> rowid,
-});
-typedef $WorkspacesUpdateCompanionBuilder = WorkspacesCompanion Function({
-  Value<String> id,
-  Value<String> name,
-  Value<String> statsTimezone,
-  Value<int> createdAtMs,
-  Value<String> createdByDeviceId,
-  Value<int> rowid,
-});
+typedef $WorkspacesCreateCompanionBuilder =
+    WorkspacesCompanion Function({
+      required String id,
+      required String name,
+      required String statsTimezone,
+      required int createdAtMs,
+      required String createdByDeviceId,
+      Value<int> rowid,
+    });
+typedef $WorkspacesUpdateCompanionBuilder =
+    WorkspacesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> statsTimezone,
+      Value<int> createdAtMs,
+      Value<String> createdByDeviceId,
+      Value<int> rowid,
+    });
 
 final class $WorkspacesReferences
     extends BaseReferences<_$AppDatabase, Workspaces, Workspace> {
@@ -11216,10 +11184,8 @@ class $WorkspacesTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable<Workspaces, Workspace>(table),
-                  $WorkspacesReferences(db, table, e),
-                ),
+                (e) =>
+                    (e.readTable(table), $WorkspacesReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback:
@@ -11544,16 +11510,7 @@ class $TrustedDevicesTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<TrustedDevices, TrustedDevice>(table),
-                  BaseReferences<_$AppDatabase, TrustedDevices, TrustedDevice>(
-                    db,
-                    table,
-                    e,
-                  ),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -11577,26 +11534,28 @@ typedef $TrustedDevicesProcessedTableManager =
       TrustedDevice,
       PrefetchHooks Function()
     >;
-typedef $ExamProfilesCreateCompanionBuilder = ExamProfilesCompanion Function({
-  required String id,
-  required String workspaceId,
-  Value<String?> examName,
-  Value<String?> examDate,
-  Value<String?> targetSchool,
-  Value<String?> targetMajor,
-  Value<int?> targetTotalScoreX100,
-  Value<int> rowid,
-});
-typedef $ExamProfilesUpdateCompanionBuilder = ExamProfilesCompanion Function({
-  Value<String> id,
-  Value<String> workspaceId,
-  Value<String?> examName,
-  Value<String?> examDate,
-  Value<String?> targetSchool,
-  Value<String?> targetMajor,
-  Value<int?> targetTotalScoreX100,
-  Value<int> rowid,
-});
+typedef $ExamProfilesCreateCompanionBuilder =
+    ExamProfilesCompanion Function({
+      required String id,
+      required String workspaceId,
+      Value<String?> examName,
+      Value<String?> examDate,
+      Value<String?> targetSchool,
+      Value<String?> targetMajor,
+      Value<int?> targetTotalScoreX100,
+      Value<int> rowid,
+    });
+typedef $ExamProfilesUpdateCompanionBuilder =
+    ExamProfilesCompanion Function({
+      Value<String> id,
+      Value<String> workspaceId,
+      Value<String?> examName,
+      Value<String?> examDate,
+      Value<String?> targetSchool,
+      Value<String?> targetMajor,
+      Value<int?> targetTotalScoreX100,
+      Value<int> rowid,
+    });
 
 final class $ExamProfilesReferences
     extends BaseReferences<_$AppDatabase, ExamProfiles, ExamProfile> {
@@ -11871,10 +11830,8 @@ class $ExamProfilesTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable<ExamProfiles, ExamProfile>(table),
-                  $ExamProfilesReferences(db, table, e),
-                ),
+                (e) =>
+                    (e.readTable(table), $ExamProfilesReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback: ({workspaceId = false}) {
@@ -11898,15 +11855,17 @@ class $ExamProfilesTableManager
                     >
                   >(state) {
                     if (workspaceId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.workspaceId,
-                        referencedTable: $ExamProfilesReferences
-                            ._workspaceIdTable(db),
-                        referencedColumn: $ExamProfilesReferences
-                            ._workspaceIdTable(db)
-                            .id,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $ExamProfilesReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $ExamProfilesReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -11934,30 +11893,32 @@ typedef $ExamProfilesProcessedTableManager =
       ExamProfile,
       PrefetchHooks Function({bool workspaceId})
     >;
-typedef $SubjectsCreateCompanionBuilder = SubjectsCompanion Function({
-  required String id,
-  required String workspaceId,
-  required String name,
-  Value<String?> category,
-  Value<String?> parentSubjectId,
-  Value<int?> targetScoreX100,
-  Value<int?> maxScoreX100,
-  Value<int> sortOrder,
-  Value<int> archived,
-  Value<int> rowid,
-});
-typedef $SubjectsUpdateCompanionBuilder = SubjectsCompanion Function({
-  Value<String> id,
-  Value<String> workspaceId,
-  Value<String> name,
-  Value<String?> category,
-  Value<String?> parentSubjectId,
-  Value<int?> targetScoreX100,
-  Value<int?> maxScoreX100,
-  Value<int> sortOrder,
-  Value<int> archived,
-  Value<int> rowid,
-});
+typedef $SubjectsCreateCompanionBuilder =
+    SubjectsCompanion Function({
+      required String id,
+      required String workspaceId,
+      required String name,
+      Value<String?> category,
+      Value<String?> parentSubjectId,
+      Value<int?> targetScoreX100,
+      Value<int?> maxScoreX100,
+      Value<int> sortOrder,
+      Value<int> archived,
+      Value<int> rowid,
+    });
+typedef $SubjectsUpdateCompanionBuilder =
+    SubjectsCompanion Function({
+      Value<String> id,
+      Value<String> workspaceId,
+      Value<String> name,
+      Value<String?> category,
+      Value<String?> parentSubjectId,
+      Value<int?> targetScoreX100,
+      Value<int?> maxScoreX100,
+      Value<int> sortOrder,
+      Value<int> archived,
+      Value<int> rowid,
+    });
 
 final class $SubjectsReferences
     extends BaseReferences<_$AppDatabase, Subjects, Subject> {
@@ -12263,10 +12224,7 @@ class $SubjectsTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable<Subjects, Subject>(table),
-                  $SubjectsReferences(db, table, e),
-                ),
+                (e) => (e.readTable(table), $SubjectsReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback: ({workspaceId = false}) {
@@ -12290,16 +12248,17 @@ class $SubjectsTableManager
                     >
                   >(state) {
                     if (workspaceId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.workspaceId,
-                        referencedTable: $SubjectsReferences._workspaceIdTable(
-                          db,
-                        ),
-                        referencedColumn: $SubjectsReferences
-                            ._workspaceIdTable(db)
-                            .id,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $SubjectsReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $SubjectsReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -12327,40 +12286,42 @@ typedef $SubjectsProcessedTableManager =
       Subject,
       PrefetchHooks Function({bool workspaceId})
     >;
-typedef $TasksCreateCompanionBuilder = TasksCompanion Function({
-  required String id,
-  required String workspaceId,
-  required String title,
-  Value<String?> subjectId,
-  Value<String?> knowledgeNodeId,
-  Value<String?> scheduledDate,
-  Value<int> repeatDaily,
-  Value<int?> dueAtMs,
-  Value<int?> estimatedSeconds,
-  Value<int> priority,
-  Value<int> sortOrder,
-  required String status,
-  Value<int?> completedAtMs,
-  Value<String?> note,
-  Value<int> rowid,
-});
-typedef $TasksUpdateCompanionBuilder = TasksCompanion Function({
-  Value<String> id,
-  Value<String> workspaceId,
-  Value<String> title,
-  Value<String?> subjectId,
-  Value<String?> knowledgeNodeId,
-  Value<String?> scheduledDate,
-  Value<int> repeatDaily,
-  Value<int?> dueAtMs,
-  Value<int?> estimatedSeconds,
-  Value<int> priority,
-  Value<int> sortOrder,
-  Value<String> status,
-  Value<int?> completedAtMs,
-  Value<String?> note,
-  Value<int> rowid,
-});
+typedef $TasksCreateCompanionBuilder =
+    TasksCompanion Function({
+      required String id,
+      required String workspaceId,
+      required String title,
+      Value<String?> subjectId,
+      Value<String?> knowledgeNodeId,
+      Value<String?> scheduledDate,
+      Value<int> repeatDaily,
+      Value<int?> dueAtMs,
+      Value<int?> estimatedSeconds,
+      Value<int> priority,
+      Value<int> sortOrder,
+      required String status,
+      Value<int?> completedAtMs,
+      Value<String?> note,
+      Value<int> rowid,
+    });
+typedef $TasksUpdateCompanionBuilder =
+    TasksCompanion Function({
+      Value<String> id,
+      Value<String> workspaceId,
+      Value<String> title,
+      Value<String?> subjectId,
+      Value<String?> knowledgeNodeId,
+      Value<String?> scheduledDate,
+      Value<int> repeatDaily,
+      Value<int?> dueAtMs,
+      Value<int?> estimatedSeconds,
+      Value<int> priority,
+      Value<int> sortOrder,
+      Value<String> status,
+      Value<int?> completedAtMs,
+      Value<String?> note,
+      Value<int> rowid,
+    });
 
 final class $TasksReferences
     extends BaseReferences<_$AppDatabase, Tasks, Task> {
@@ -12754,12 +12715,7 @@ class $TasksTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<Tasks, Task>(table),
-                  $TasksReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), $TasksReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: ({workspaceId = false}) {
             return PrefetchHooks(
@@ -12782,14 +12738,17 @@ class $TasksTableManager
                     >
                   >(state) {
                     if (workspaceId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.workspaceId,
-                        referencedTable: $TasksReferences._workspaceIdTable(db),
-                        referencedColumn: $TasksReferences
-                            ._workspaceIdTable(db)
-                            .id,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $TasksReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $TasksReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -12817,20 +12776,22 @@ typedef $TasksProcessedTableManager =
       Task,
       PrefetchHooks Function({bool workspaceId})
     >;
-typedef $DailyReviewsCreateCompanionBuilder = DailyReviewsCompanion Function({
-  required String id,
-  required String workspaceId,
-  required String reviewDate,
-  required String content,
-  Value<int> rowid,
-});
-typedef $DailyReviewsUpdateCompanionBuilder = DailyReviewsCompanion Function({
-  Value<String> id,
-  Value<String> workspaceId,
-  Value<String> reviewDate,
-  Value<String> content,
-  Value<int> rowid,
-});
+typedef $DailyReviewsCreateCompanionBuilder =
+    DailyReviewsCompanion Function({
+      required String id,
+      required String workspaceId,
+      required String reviewDate,
+      required String content,
+      Value<int> rowid,
+    });
+typedef $DailyReviewsUpdateCompanionBuilder =
+    DailyReviewsCompanion Function({
+      Value<String> id,
+      Value<String> workspaceId,
+      Value<String> reviewDate,
+      Value<String> content,
+      Value<int> rowid,
+    });
 
 final class $DailyReviewsReferences
     extends BaseReferences<_$AppDatabase, DailyReviews, DailyReview> {
@@ -13050,10 +13011,8 @@ class $DailyReviewsTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable<DailyReviews, DailyReview>(table),
-                  $DailyReviewsReferences(db, table, e),
-                ),
+                (e) =>
+                    (e.readTable(table), $DailyReviewsReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback: ({workspaceId = false}) {
@@ -13077,15 +13036,17 @@ class $DailyReviewsTableManager
                     >
                   >(state) {
                     if (workspaceId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.workspaceId,
-                        referencedTable: $DailyReviewsReferences
-                            ._workspaceIdTable(db),
-                        referencedColumn: $DailyReviewsReferences
-                            ._workspaceIdTable(db)
-                            .id,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $DailyReviewsReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $DailyReviewsReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -13259,18 +13220,7 @@ class $LocalStudyCheckpointsTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<LocalStudyCheckpoints, LocalStudyCheckpoint>(
-                    table,
-                  ),
-                  BaseReferences<
-                    _$AppDatabase,
-                    LocalStudyCheckpoints,
-                    LocalStudyCheckpoint
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -13298,34 +13248,36 @@ typedef $LocalStudyCheckpointsProcessedTableManager =
       LocalStudyCheckpoint,
       PrefetchHooks Function()
     >;
-typedef $StudySessionsCreateCompanionBuilder = StudySessionsCompanion Function({
-  required String id,
-  required String workspaceId,
-  required String subjectId,
-  Value<String?> taskId,
-  Value<String?> knowledgeNodeId,
-  required String ownerDeviceId,
-  required String status,
-  required int startedAtMs,
-  Value<int?> endedAtMs,
-  required String mode,
-  Value<String?> note,
-  Value<int> rowid,
-});
-typedef $StudySessionsUpdateCompanionBuilder = StudySessionsCompanion Function({
-  Value<String> id,
-  Value<String> workspaceId,
-  Value<String> subjectId,
-  Value<String?> taskId,
-  Value<String?> knowledgeNodeId,
-  Value<String> ownerDeviceId,
-  Value<String> status,
-  Value<int> startedAtMs,
-  Value<int?> endedAtMs,
-  Value<String> mode,
-  Value<String?> note,
-  Value<int> rowid,
-});
+typedef $StudySessionsCreateCompanionBuilder =
+    StudySessionsCompanion Function({
+      required String id,
+      required String workspaceId,
+      required String subjectId,
+      Value<String?> taskId,
+      Value<String?> knowledgeNodeId,
+      required String ownerDeviceId,
+      required String status,
+      required int startedAtMs,
+      Value<int?> endedAtMs,
+      required String mode,
+      Value<String?> note,
+      Value<int> rowid,
+    });
+typedef $StudySessionsUpdateCompanionBuilder =
+    StudySessionsCompanion Function({
+      Value<String> id,
+      Value<String> workspaceId,
+      Value<String> subjectId,
+      Value<String?> taskId,
+      Value<String?> knowledgeNodeId,
+      Value<String> ownerDeviceId,
+      Value<String> status,
+      Value<int> startedAtMs,
+      Value<int?> endedAtMs,
+      Value<String> mode,
+      Value<String?> note,
+      Value<int> rowid,
+    });
 
 final class $StudySessionsReferences
     extends BaseReferences<_$AppDatabase, StudySessions, StudySession> {
@@ -13669,7 +13621,7 @@ class $StudySessionsTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<StudySessions, StudySession>(table),
+                  e.readTable(table),
                   $StudySessionsReferences(db, table, e),
                 ),
               )
@@ -13695,15 +13647,17 @@ class $StudySessionsTableManager
                     >
                   >(state) {
                     if (workspaceId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.workspaceId,
-                        referencedTable: $StudySessionsReferences
-                            ._workspaceIdTable(db),
-                        referencedColumn: $StudySessionsReferences
-                            ._workspaceIdTable(db)
-                            .id,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.workspaceId,
+                                referencedTable: $StudySessionsReferences
+                                    ._workspaceIdTable(db),
+                                referencedColumn: $StudySessionsReferences
+                                    ._workspaceIdTable(db)
+                                    .id,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -13917,16 +13871,7 @@ class $StudySessionSegmentsTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<StudySessionSegments, StudySessionSegment>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    StudySessionSegments,
-                    StudySessionSegment
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -14313,7 +14258,7 @@ class $EntityFieldClockTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<EntityFieldClock, EntityFieldClockData>(table),
+                  e.readTable(table),
                   $EntityFieldClockReferences(db, table, e),
                 ),
               )
@@ -14339,15 +14284,17 @@ class $EntityFieldClockTableManager
                     >
                   >(state) {
                     if (winnerOpId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.winnerOpId,
-                        referencedTable: $EntityFieldClockReferences
-                            ._winnerOpIdTable(db),
-                        referencedColumn: $EntityFieldClockReferences
-                            ._winnerOpIdTable(db)
-                            .opId,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.winnerOpId,
+                                referencedTable: $EntityFieldClockReferences
+                                    ._winnerOpIdTable(db),
+                                referencedColumn: $EntityFieldClockReferences
+                                    ._winnerOpIdTable(db)
+                                    .opId,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -14375,28 +14322,30 @@ typedef $EntityFieldClockProcessedTableManager =
       EntityFieldClockData,
       PrefetchHooks Function({bool winnerOpId})
     >;
-typedef $TombstonesCreateCompanionBuilder = TombstonesCompanion Function({
-  required String workspaceId,
-  required String entityType,
-  required String entityId,
-  required String deleteOpId,
-  required int hlcWallMs,
-  required int hlcCounter,
-  required String originDeviceId,
-  required int originSeq,
-  Value<int> rowid,
-});
-typedef $TombstonesUpdateCompanionBuilder = TombstonesCompanion Function({
-  Value<String> workspaceId,
-  Value<String> entityType,
-  Value<String> entityId,
-  Value<String> deleteOpId,
-  Value<int> hlcWallMs,
-  Value<int> hlcCounter,
-  Value<String> originDeviceId,
-  Value<int> originSeq,
-  Value<int> rowid,
-});
+typedef $TombstonesCreateCompanionBuilder =
+    TombstonesCompanion Function({
+      required String workspaceId,
+      required String entityType,
+      required String entityId,
+      required String deleteOpId,
+      required int hlcWallMs,
+      required int hlcCounter,
+      required String originDeviceId,
+      required int originSeq,
+      Value<int> rowid,
+    });
+typedef $TombstonesUpdateCompanionBuilder =
+    TombstonesCompanion Function({
+      Value<String> workspaceId,
+      Value<String> entityType,
+      Value<String> entityId,
+      Value<String> deleteOpId,
+      Value<int> hlcWallMs,
+      Value<int> hlcCounter,
+      Value<String> originDeviceId,
+      Value<int> originSeq,
+      Value<int> rowid,
+    });
 
 final class $TombstonesReferences
     extends BaseReferences<_$AppDatabase, Tombstones, Tombstone> {
@@ -14688,10 +14637,8 @@ class $TombstonesTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable<Tombstones, Tombstone>(table),
-                  $TombstonesReferences(db, table, e),
-                ),
+                (e) =>
+                    (e.readTable(table), $TombstonesReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback: ({deleteOpId = false}) {
@@ -14715,16 +14662,17 @@ class $TombstonesTableManager
                     >
                   >(state) {
                     if (deleteOpId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.deleteOpId,
-                        referencedTable: $TombstonesReferences._deleteOpIdTable(
-                          db,
-                        ),
-                        referencedColumn: $TombstonesReferences
-                            ._deleteOpIdTable(db)
-                            .opId,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.deleteOpId,
+                                referencedTable: $TombstonesReferences
+                                    ._deleteOpIdTable(db),
+                                referencedColumn: $TombstonesReferences
+                                    ._deleteOpIdTable(db)
+                                    .opId,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -15087,7 +15035,7 @@ class $TextFieldVersionsTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<TextFieldVersions, TextFieldVersion>(table),
+                  e.readTable(table),
                   $TextFieldVersionsReferences(db, table, e),
                 ),
               )
@@ -15113,15 +15061,17 @@ class $TextFieldVersionsTableManager
                     >
                   >(state) {
                     if (opId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.opId,
-                        referencedTable: $TextFieldVersionsReferences
-                            ._opIdTable(db),
-                        referencedColumn: $TextFieldVersionsReferences
-                            ._opIdTable(db)
-                            .opId,
-                      ) as T;
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.opId,
+                                referencedTable: $TextFieldVersionsReferences
+                                    ._opIdTable(db),
+                                referencedColumn: $TextFieldVersionsReferences
+                                    ._opIdTable(db)
+                                    .opId,
+                              )
+                              as T;
                     }
 
                     return state;
@@ -15316,18 +15266,7 @@ class $MaterializationStateTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<MaterializationState, MaterializationStateData>(
-                    table,
-                  ),
-                  BaseReferences<
-                    _$AppDatabase,
-                    MaterializationState,
-                    MaterializationStateData
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -15499,16 +15438,7 @@ class $OriginProgressTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<OriginProgress, OriginProgressData>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    OriginProgress,
-                    OriginProgressData
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -15656,19 +15586,7 @@ class $LocalWorkspaceSelectionTableManager
                 workspaceId: workspaceId,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<
-                    LocalWorkspaceSelection,
-                    LocalWorkspaceSelectionData
-                  >(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    LocalWorkspaceSelection,
-                    LocalWorkspaceSelectionData
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
