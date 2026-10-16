@@ -1,0 +1,38 @@
+{
+  "platform": "ohos",
+  "shaderFiltersSupported": false,
+  "quality": "reduced",
+  "fullRefractionVerified": false,
+  "compatibilityControlsPassed": true,
+  "themes": [
+    "dark",
+    "light"
+  ],
+  "components": [
+    "shared surface",
+    "dropdown",
+    "segmented control",
+    "dialog",
+    "button",
+    "floating surface",
+    "notice"
+  ],
+  "executedAt": "2026-10-16T17:17:20+08:00",
+  "shaderCompilationErrors": 0,
+  "nativeAdvancedBlendErrors": 0,
+  "success": true,
+  "focusedHostTestsPassed": 29,
+  "staticAnalysisIssues": 0,
+  "beforeFixNativeShaderCompilationErrorsObserved": true,
+  "sourceSha256": {
+    "lib/design/glass/liquid_glass_quality.dart": "ba113f5c1f55598f69896c439a34bb2f97df0ffaf3f60a0b49b9b9ab3b53fef9",
+    "packages/liquid_glass_renderer/lib/src/fake_glass.dart": "89365e8416b095c1766bbbfbbd33d843d6c97088d6d89ca073da3b9ec7824546"
+  },
+  "mainApplication": {
+    "rebuiltAndInstalled": true,
+    "studyDialogOpened": true,
+    "nativeShaderCompilationErrors": 0,
+    "flutterExceptionMarkers": false,
+    "screenshot": "screenshots/shared-glass/app-study-dialog.jpeg"
+  }
+}

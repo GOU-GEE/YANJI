@@ -88,3 +88,10 @@ tool/flutter_ohos.sh test --no-pub
 ## Syncthing 内嵌验证
 
 `tool/probe_syncthing_ohos.py` 是与应用隔离的 ABI 探针，不参与构建和运行：它分别尝试用上游 Go 工具链编译 `c-shared` 的 OHOS 目标，以及编译 Linux shim 后在设备上 `dlopen`。当前结果（Go 1.27.1）是原生 OHOS 目标编译失败，Linux shim 虽能编译但设备加载报 `initial-exec TLS resolves to dynamic definition`。结论：内嵌 Syncthing 需要 `ohos_golang_go` 一类 fork 的专项移植，因此不作为首版路径的前置条件。
+
+## 共用玻璃渲染
+
+已修正鸿蒙即使支持 shader 滤镜也被全局降为 reduced 的质量选择问题。
+共用 FakeGlass 在 Skia 下的染色/高光改用受支持的混合模式，修复模拟器底层着色器编译失败导致的绘制丢失。
+当前官方模拟器的 shader 滤镜能力仍为 false，只能显示兼容材质；全局完整折射尚未在鸿蒙设备验证。
+相关 29 项主机测试及模拟器共用控件交互通过，见[共用玻璃排查](shared-glass-validation.md)。

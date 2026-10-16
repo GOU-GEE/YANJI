@@ -6,7 +6,7 @@ Source: liquid_glass_renderer 0.2.0-dev.4, https://github.com/whynotmake-it/flut
 - `liquid_glass_geometry_blended.frag`: reduce the extra optical path from 8 thicknesses to .75, fade displacement in over the outer 12% of the rim, and encode with a 2-thickness range instead of 10 for better precision.
 - `liquid_glass_final_render.frag`: decode with the matching 2-thickness range. UV sampling and per-channel offsets remain live backdrop sampling.
 
-The patched path is LiquidGlassLayer + LiquidGlass/BlendGroup used by YanjiGlassSurface. Legacy Glassify/arbitrary shaders are unchanged and should not be assumed to have these fixes. FakeGlass fallback is unchanged. Upgrade by comparing these four files explicitly; do not replace the local package without re-running optical validation.
+The patched path is LiquidGlassLayer + LiquidGlass/BlendGroup used by YanjiGlassSurface. Legacy Glassify/arbitrary shaders are unchanged and should not be assumed to have these fixes. FakeGlass fallback changes are recorded separately below. Upgrade by comparing these four files explicitly; do not replace the local package without re-running optical validation.
 
 ## 2026-10-01 navigation edge magnification
 
@@ -29,3 +29,16 @@ Shared indicator-role segmented controls also opt into this profile and receive
 the same GLES direction correction; default glass surfaces keep their profile.
 Revalidated with the original edge thresholds, backdrop alignment and shared
 glass controls; evidence is in the 2026-10-11 navigation validation directory.
+
+## 2026-10-16 Skia GLES compatibility
+
+`fake_glass.dart`: on engines without shader-filter support, replace the tint's
+multiply/screen and highlights' hardLight/overlay blending with source-over.
+The API 26 ARM64 HarmonyOS emulator advertises advanced blending but rejects
+`GL_KHR_blend_equation_advanced` during shader compilation. Those paint commands
+were dropped even while Flutter interaction tests reported success. Full glass
+rendering and forced FakeGlass on shader-capable engines retain their original
+blends; this fallback still does not perform optical refraction.
+
+Revalidate with `tool/run_harmonyos_shared_glass.sh <emulator-target>`, which
+requires both completed Flutter tests and zero native shader compilation errors.
