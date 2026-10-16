@@ -137,6 +137,11 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
           final support = await getAppSupportDirectory();
           final sync = AutomaticSyncController(
             app: widget.app,
+            backend:
+                isHarmonyOS ||
+                    const String.fromEnvironment('YANJI_SYNC_BACKEND') == 'dart'
+                ? AutomaticSyncBackend.dartTls
+                : AutomaticSyncBackend.embeddedSyncthing,
             pairing: coordinator,
             directory: Directory(
               p.join(support.path, 'sync', widget.app.identity.deviceId),

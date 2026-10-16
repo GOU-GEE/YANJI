@@ -9,9 +9,10 @@
 | SDK 与依赖 | Flutter OHOS 3.41.9+ohos-1.0.2 / Dart 3.11.5、官方 API 26 工具可用；锁定依赖安装、代码生成、静态检查、231 项测试通过；通用工程产出未签名 HAP | 调试签名、设备运行 |
 | SQLite | 官方 OHOS 编译器从源码构建 SQLite 3.53.4，已打入完整 App 未签名 HAP；Drift 及 sqlite3 Dart API、schema v5 保持；46 项主机数据库/学习回归通过 | 最低支持版本与真机验收 |
 | 安全存储 | 已接入 HUKS AES-256-GCM；4 项通道/身份回归及静态检查通过，完整 App 未签名 HAP 编译通过 | 真机与密文损坏故障注入 |
-| 单机学习闭环 | API 26 ARM64 模拟器通过任务、计时、暂停、复盘、统计、迁移、重启及进程强制终止恢复 | 正式界面、真机和系统后台策略 |
-| Dart 跨端同步 | 未开始鸿蒙接线 | 传输选择、状态确认、扫码/mDNS、双向跨端同步 |
-| Syncthing 内嵌 | 独立验证项 | 不作为上述首版路径的前置条件 |
+| 单机学习闭环 | API 26 ARM64 模拟器通过任务、计时、暂停、复盘、统计、迁移、重启及进程强制终止恢复；正式界面走完 Onboarding→今日页，强杀重启后直接进入今日页 | 真机和系统后台策略 |
+| Dart 跨端同步 | 已作为鸿蒙同步后端接入；API 26 模拟器与 macOS 主机完成认证配对、双向传输与回执确认 | 真机、多机型、长时间稳定性 |
+| 扫码与设备发现 | 设备内二维码解码用例通过；mDNS 鸿蒙实现已接入 | 真机摄像头与跨设备发现 |
+| Syncthing 内嵌 | 独立验证：上游 Go 工具链无法编译 OHOS 目标；Linux shim 在设备上因 initial-exec TLS 重定位加载失败 | 需要 `ohos_golang_go` fork 的专项移植 |
 
 已接入用户提供的官方 Command Line Tools 26.0.0.851（macOS ARM64），内含 SDK 26.0.0.105 / API 26、ohpm 26.0.0.630、Hvigor 6.26.8、Node 24.14.1。无业务依赖的通用工程已产出 `entry-default-unsigned.hap`；Flutter 在产物生成后的签名检查退出，因为尚未配置调试签名。已安装并启动官方 API 26 ARM64 手机模拟器，完成原生存储和本机数据流程验收；详细结果见 `device-validation.md`。
 
@@ -73,3 +74,17 @@ tool/flutter_ohos.sh test --no-pub
 读写在原生端串行执行。已有密文但 HUKS key 不存在、认证失败、版本不支持或数据损坏时均报错；不清除记录、不生成替代身份、不降级明文。写入已有记录前先验证其可解密，随后等待 Preferences flush。平台不提供导出包装密钥或删除身份的通道。
 
 实现参考：[HUKS 加解密](https://github.com/openharmony/docs/blob/master/en/application-dev/security/UniversalKeystoreKit/huks-encryption-decryption-arkts.md)。目前编译、主机边界测试、模拟器实际加解密及身份/TLS 跨进程重启一致性均通过；密文损坏故障注入仍待验收。
+
+## Dart 局域网同步
+
+鸿蒙首版不内嵌 Syncthing，改用项目已有的 Dart TLS 局域网增量同步（设备认证、签名校验、缺失记录交换），跨端协议不变。`AutomaticSyncController` 新增 `AutomaticSyncBackend`：鸿蒙默认 `dartTls`，其他平台保持 `embeddedSyncthing`；也可用 `--dart-define=YANJI_SYNC_BACKEND=dart` 在主机上显式选择，便于测试。
+
+为按设备显示真实状态，`DevicePairingCoordinator.syncPairedDeviceResults()` 返回逐设备结果，`sync.complete` 携带响应方的 frontier 作为回执；Dart 后端据此计算待同步条数和确认状态。旧协议的响应方不带 frontier 时，UI 显示"等待设备确认"而不是伪造"已同步"。离线未确认、重连补传和工作区切换都有主机测试覆盖，且该路径不会调用原生引擎。
+
+## 扫码与设备发现
+
+`mobile_scanner` 改用 CPF-Flutter 的鸿蒙适配源（`fluttertpc_mobile_scanner`，固定提交 `f5a4ff5`），鸿蒙侧由华为 ScanKit 实现，替代上游 ML Kit；`module.json5` 声明 `ohos.permission.CAMERA` 及使用场景说明。`bonsoir` 的鸿蒙实现（`oh-flutter/bonsoir` 的 `BonsoirPlugin.ets`）已接入插件注册，使用 `@kit.NetworkKit` 的 mDNS。
+
+## Syncthing 内嵌验证
+
+`tool/probe_syncthing_ohos.py` 是与应用隔离的 ABI 探针，不参与构建和运行：它分别尝试用上游 Go 工具链编译 `c-shared` 的 OHOS 目标，以及编译 Linux shim 后在设备上 `dlopen`。当前结果（Go 1.27.1）是原生 OHOS 目标编译失败，Linux shim 虽能编译但设备加载报 `initial-exec TLS resolves to dynamic definition`。结论：内嵌 Syncthing 需要 `ohos_golang_go` 一类 fork 的专项移植，因此不作为首版路径的前置条件。

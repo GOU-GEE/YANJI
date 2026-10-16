@@ -458,8 +458,9 @@ class _ProfilePageState extends State<ProfilePage> {
           Expanded(
             child: Text(
               '设备与同步',
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontSize: 18),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontSize: 18),
             ),
           ),
           SizedBox(
@@ -535,9 +536,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ),
                               ),
@@ -580,7 +581,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (progress == null) return '等待同步';
     final state = progress.confirmed && progress.pending == 0
         ? '已同步'
-        : progress.pending > 0
+        : progress.pendingKnown && progress.pending > 0
         ? '待同步 ${progress.pending} 条'
         : '等待设备确认';
     return '$state · ${progress.connected ? "已连接" : "等待连接"}';

@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "YanJi"
+    },
+    {
+      "name": "camera_permission",
+      "value": "Scan the pairing QR code to connect your devices"
     }
   ]
 }

@@ -10,6 +10,8 @@ import '../pairing/device_pairing_coordinator.dart';
 import 'file_sync_engine.dart';
 import 'operation_file_exchange.dart';
 
+enum AutomaticSyncBackend { embeddedSyncthing, dartTls }
+
 /// One serialized worker handles automatic and manual attempts. Its durable
 /// source is the app's committed operation log, not timers or RAM queues.
 class AutomaticSyncController extends ChangeNotifier {
@@ -18,9 +20,12 @@ class AutomaticSyncController extends ChangeNotifier {
     required this.directory,
     required this.pairing,
     FileSyncEngine? engine,
+    this.backend = AutomaticSyncBackend.embeddedSyncthing,
   }) : engine = engine ?? EmbeddedSyncthingEngine() {
     exchange = OperationFileExchange(app, directory);
   }
+  final AutomaticSyncBackend backend;
+  final _dartReceipts = <String, Map<String, int>>{};
   final StudyAppController app;
   final Directory directory;
   final DevicePairingCoordinator pairing;
@@ -69,6 +74,21 @@ class AutomaticSyncController extends ChangeNotifier {
       return;
     }
     _lastRevision = app.applier.revision;
+    if (backend == AutomaticSyncBackend.dartTls) {
+      // A previous receipt does not confirm a newly committed local revision.
+      peers = [
+        for (final peer in peers)
+          PeerSyncProgress(
+            deviceId: peer.deviceId,
+            name: peer.name,
+            pending: 0,
+            confirmed: false,
+            pendingKnown: false,
+            connected: peer.connected,
+          ),
+      ];
+      _notifyIfChanged();
+    }
     _debounce = Timer(const Duration(milliseconds: 700), () {
       _debounce = null;
       unawaited(tick());
@@ -92,11 +112,16 @@ class AutomaticSyncController extends ChangeNotifier {
         }
         _configurationKey = null;
         _backupAt = null;
+        _dartReceipts.clear();
         _workspaceKey = workspace;
         exchange = OperationFileExchange(
           app,
           Directory(p.join(directory.path, 'workspaces', workspace)),
         );
+      }
+      if (backend == AutomaticSyncBackend.dartTls) {
+        await _runDartSync();
+        return;
       }
       final rawPeers = pairing.transportPeers;
       // Unpaired installations stay fully local. No public discovery traffic.
@@ -141,12 +166,77 @@ class AutomaticSyncController extends ChangeNotifier {
       error = exchange.lastImportError;
     } catch (e) {
       error = '同步暂未完成：$e';
-      peers = await exchange.progress();
+      if (backend == AutomaticSyncBackend.embeddedSyncthing) {
+        peers = await exchange.progress();
+      }
     } finally {
       syncing = false;
       _lastRevision = app.applier.revision;
       _notifyIfChanged();
     }
+  }
+
+  Future<void> _runDartSync() async {
+    var trusted = app.trustedPeers
+        .where((peer) => peer.active && peer.deviceId != app.identity.deviceId)
+        .toList();
+    _dartReceipts.removeWhere(
+      (id, _) => !trusted.any((peer) => peer.deviceId == id),
+    );
+    if (trusted.isEmpty) {
+      peers = [];
+      error = null;
+      await _backupIfNeeded();
+      return;
+    }
+    final workspaceId = app.workspace!.id;
+    await app.ensureWorkspaceGenesis();
+    final results = await pairing.syncPairedDeviceResults();
+    if (app.workspace?.id != workspaceId) {
+      _dartReceipts.clear();
+      peers = [];
+      throw StateError('工作区已切换，请重试同步');
+    }
+    // Sync can import membership changes. Newly authorized peers still need
+    // their own receipt, even when another peer succeeded in this cycle.
+    trusted = app.trustedPeers
+        .where((peer) => peer.active && peer.deviceId != app.identity.deviceId)
+        .toList();
+    for (final result in results) {
+      if (result.succeeded && result.remoteFrontier != null) {
+        _dartReceipts[result.deviceId] = Map.unmodifiable(
+          result.remoteFrontier!,
+        );
+      }
+    }
+    final operations = await app.applier.export(app.workspace!.id);
+    peers = [
+      for (final peer in trusted)
+        PeerSyncProgress(
+          deviceId: peer.deviceId,
+          name: peer.deviceName,
+          pendingKnown: _dartReceipts.containsKey(peer.deviceId),
+          pending: _dartReceipts.containsKey(peer.deviceId)
+              ? operations.where((operation) {
+                  final envelope = operation.parse();
+                  return envelope.originSeq >
+                      (_dartReceipts[peer.deviceId]![envelope.originDeviceId] ??
+                          0);
+                }).length
+              : 0,
+          confirmed: _dartReceipts.containsKey(peer.deviceId),
+          connected: results.any(
+            (result) => result.deviceId == peer.deviceId && result.succeeded,
+          ),
+        ),
+    ];
+    error = complete
+        ? null
+        : results
+              .where((result) => result.error != null)
+              .map((result) => '部分设备暂时无法连接')
+              .firstOrNull;
+    await _backupIfNeeded();
   }
 
   Future<void> _backupIfNeeded() async {
@@ -199,6 +289,7 @@ class AutomaticSyncController extends ChangeNotifier {
           peer.pending,
           peer.confirmed,
           peer.connected,
+          peer.pendingKnown,
         ],
     ]);
     if (_closed || state == _visibleState) return;

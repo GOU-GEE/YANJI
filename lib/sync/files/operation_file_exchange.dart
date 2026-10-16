@@ -18,10 +18,11 @@ class PeerSyncProgress {
     required this.pending,
     required this.confirmed,
     this.connected = false,
+    this.pendingKnown = true,
   });
   final String deviceId, name;
   final int pending;
-  final bool confirmed, connected;
+  final bool confirmed, connected, pendingKnown;
 }
 
 /// Syncthing owns only the exchange directory. Its file deletions never delete

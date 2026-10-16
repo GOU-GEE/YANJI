@@ -31,6 +31,22 @@ final class SyncPeerEndpoint {
   final Uint8List tlsCertificateSha256;
 }
 
+/// A result belongs to one authenticated peer, never to an aggregate transfer.
+final class PeerSyncResult {
+  const PeerSyncResult({
+    required this.deviceId,
+    this.sent = 0,
+    this.received = 0,
+    this.remoteFrontier,
+    this.error,
+  });
+  final String deviceId;
+  final int sent, received;
+  final Map<String, int>? remoteFrontier;
+  final Object? error;
+  bool get succeeded => error == null;
+}
+
 final class IncomingPairRequest {
   IncomingPairRequest._({
     required this.deviceId,
@@ -191,8 +207,9 @@ final class DevicePairingCoordinator {
     Map<String, String>? debugPeerAddresses,
   }) async {
     debugPrint('[研迹配对] 配对监听已启动');
-    final tls = await TlsIdentityService(storage)
-        .loadOrCreate(app.identity.deviceId);
+    final tls = await TlsIdentityService(
+      storage,
+    ).loadOrCreate(app.identity.deviceId);
     final listener = await TlsPeerListener.bind(tls, address: bindAddress);
     final hints = advertisedAddresses ?? await _localAddresses();
     final coordinator = DevicePairingCoordinator._(
@@ -482,6 +499,16 @@ final class DevicePairingCoordinator {
   }
 
   Future<int> syncPairedDevices() async {
+    final results = await syncPairedDeviceResults();
+    final successful = results.where((result) => result.succeeded);
+    if (successful.isEmpty) throw StateError('同步失败：${results.first.error}');
+    return successful.fold<int>(
+      0,
+      (total, result) => total + max(1, result.sent + result.received),
+    );
+  }
+
+  Future<List<PeerSyncResult>> syncPairedDeviceResults() async {
     final workspace = app.workspace ?? (throw StateError('工作区尚未初始化'));
     final peers = app.trustedPeers
         .where((peer) => peer.deviceId != app.identity.deviceId && peer.active)
@@ -515,34 +542,33 @@ final class DevicePairingCoordinator {
     } catch (_) {
       // Fall back to the last authenticated address when discovery is blocked.
     }
-    var transferred = 0;
-    Object? lastError;
+    final results = <PeerSyncResult>[];
     for (final peer in peers) {
+      PeerSyncResult? result;
+      Object lastError = StateError('暂未发现已绑定设备，请在同一局域网打开另一台设备。');
       final candidates = [
         ?discovered[peer.deviceId],
         ?_endpoints[peer.deviceId],
       ];
       for (final endpoint in candidates) {
         try {
-          transferred += await _syncPeer(workspace.id, peer, endpoint);
+          result = await _syncPeer(workspace.id, peer, endpoint);
           _endpoints[peer.deviceId] = endpoint;
           await _persistEndpoints();
           break;
         } catch (error) {
+          result = null;
           lastError = error;
         }
       }
+      results.add(
+        result ?? PeerSyncResult(deviceId: peer.deviceId, error: lastError),
+      );
     }
-    if (transferred == 0 && lastError != null) {
-      throw StateError('同步失败：$lastError');
-    }
-    if (transferred == 0) {
-      throw StateError('暂未发现已绑定设备，请先在同一局域网打开另一台设备。');
-    }
-    return transferred;
+    return results;
   }
 
-  Future<int> _syncPeer(
+  Future<PeerSyncResult> _syncPeer(
     String workspaceId,
     TrustedPeer peer,
     SyncPeerEndpoint endpoint,
@@ -600,13 +626,16 @@ final class DevicePairingCoordinator {
       final remoteHello = await channel.receive().timeout(
         const Duration(seconds: 10),
       );
+      if (remoteHello['type'] != 'sync.peer-hello') {
+        throw const FormatException('同步响应类型错误');
+      }
       final remoteFrontier = _frontier(remoteHello['frontier']);
-      var transferred = await _receiveBatches(
+      final received = await _receiveBatches(
         channel,
         workspaceId,
         peer.deviceId,
       );
-      transferred += await _sendMissing(channel, workspaceId, remoteFrontier);
+      final sent = await _sendMissing(channel, workspaceId, remoteFrontier);
       await channel.send({'type': 'sync.done'});
       final complete = await channel.receive().timeout(
         const Duration(seconds: 10),
@@ -615,8 +644,16 @@ final class DevicePairingCoordinator {
         throw StateError('同步未完成');
       }
       await app.refresh();
-      // Count a successful peer even when both sides were already current.
-      return max(1, transferred);
+      return PeerSyncResult(
+        deviceId: peer.deviceId,
+        sent: sent,
+        received: received,
+        // Older protocol-v2 peers may omit this optional receipt. The exchange
+        // remains compatible, but the UI must not invent confirmation counts.
+        remoteFrontier: complete['frontier'] == null
+            ? null
+            : _frontier(complete['frontier']),
+      );
     } finally {
       await channel.close();
     }
@@ -689,7 +726,10 @@ final class DevicePairingCoordinator {
     await channel.send({'type': 'sync.done'});
     await _receiveBatches(channel, current.id, deviceId);
     await app.refresh();
-    await channel.send({'type': 'sync.complete'});
+    await channel.send({
+      'type': 'sync.complete',
+      'frontier': await app.applier.frontier(current.id),
+    });
   }
 
   Future<int> _sendMissing(

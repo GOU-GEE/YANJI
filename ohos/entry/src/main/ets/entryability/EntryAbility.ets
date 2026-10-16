@@ -1,5 +1,6 @@
 
 import { FlutterAbility, FlutterEngine } from '@ohos/flutter_ohos';
+import BonsoirPlugin from '../platform/BonsoirPlugin';
 import { YanjiPlatformPlugin } from '../platform/YanjiPlatformPlugin';
 import { GeneratedPluginRegistrant } from '../plugins/GeneratedPluginRegistrant';
 
@@ -10,5 +11,6 @@ export default class EntryAbility extends FlutterAbility {
     const registry = flutterEngine.getPlugins()
     if (registry === null) throw new Error('Flutter plugin registry is unavailable')
     registry.add(new YanjiPlatformPlugin())
+    registry.add(new BonsoirPlugin())
   }
 }

@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "研迹"
+    },
+    {
+      "name": "camera_permission",
+      "value": "用于扫描配对二维码，连接你的其他设备"
     }
   ]
 }
