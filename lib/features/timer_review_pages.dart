@@ -1,6 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../design/yanji_motion.dart';
+
+import '../design/glass/glass_controls.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../application/study_app_controller.dart';
@@ -29,6 +34,9 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) setState(() {});
+    if (state == AppLifecycleState.detached) {
+      unawaited(widget.app.finishStudyForProcessExit());
+    }
   }
 
   @override
@@ -39,19 +47,27 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => MotionSwap(
+    identity: widget.app.runningSession == null,
+    fill: true,
+    alignment: Alignment.topCenter,
+    child: _content(context),
+  );
+
+  Widget _content(BuildContext context) {
     final app = widget.app, s = app.runningSession;
     if (s == null) {
+      final elapsed = completedDuration ?? app.lastCompletedStudyDuration;
       return Scaffold(
-        appBar: AppBar(title: const Text('学习计时')),
+        appBar: GlassAppBar(title: const Text('学习计时')),
         body: SafeArea(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(YanJiSpacing.lg),
               child: EmptyMessage(
                 '这段学习已完成',
-                '此次时间${completedDuration == null ? '' : ' ${durationLabel(completedDuration!)}'}',
-                action: FilledButton(
+                '此次时间${elapsed == null ? '' : ' ${durationLabel(elapsed)}'}',
+                action: GlassFilledButton(
                   onPressed: () => context.go('/'),
                   child: const Text('回到今天'),
                 ),
@@ -101,23 +117,27 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
         Center(
           child: Semantics(
             liveRegion: true,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: YanJiSpacing.xs,
-              children: [
-                Icon(
-                  s.status == 'paused'
-                      ? Icons.pause_circle_outline
-                      : Icons.timelapse_rounded,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                Text(
-                  s.status == 'paused' ? '已暂停 · 休息一下' : '正在学习',
-                  key: const Key('timer-state'),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+            child: MotionSwap(
+              identity: s.status,
+              alignment: Alignment.center,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: YanJiSpacing.xs,
+                children: [
+                  Icon(
+                    s.status == 'paused'
+                        ? Icons.pause_circle_outline
+                        : Icons.timelapse_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  Text(
+                    s.status == 'paused' ? '已暂停 · 休息一下' : '正在学习',
+                    key: const Key('timer-state'),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -128,7 +148,7 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                FilledButton.icon(
+                GlassFilledButton.icon(
                   key: const Key('pause-resume'),
                   onPressed: app.busy
                       ? null
@@ -138,13 +158,19 @@ class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
                               ? app.resumeStudy
                               : app.pauseStudy,
                         ),
-                  icon: Icon(
-                    s.status == 'paused' ? Icons.play_arrow : Icons.pause,
+                  icon: MotionSwap(
+                    identity: s.status,
+                    child: Icon(
+                      s.status == 'paused' ? Icons.play_arrow : Icons.pause,
+                    ),
                   ),
-                  label: Text(s.status == 'paused' ? '继续学习' : '暂停'),
+                  label: MotionSwap(
+                    identity: s.status,
+                    child: Text(s.status == 'paused' ? '继续学习' : '暂停'),
+                  ),
                 ),
                 const SizedBox(height: YanJiSpacing.md),
-                OutlinedButton(
+                GlassOutlinedButton(
                   key: const Key('stop-study'),
                   onPressed: app.busy
                       ? null
@@ -202,7 +228,7 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget build(BuildContext context) => PageBody(
     title: '每日复盘',
     children: [
-      OutlinedButton.icon(
+      GlassOutlinedButton.icon(
         onPressed: () async {
           final chosen = await showDatePicker(
             context: context,
@@ -236,7 +262,7 @@ class _ReviewPageState extends State<ReviewPage> {
         ),
       ),
       const SizedBox(height: 24),
-      FilledButton(
+      GlassFilledButton(
         key: const Key('save-review'),
         onPressed: widget.app.busy
             ? null
@@ -251,21 +277,21 @@ class _ReviewPageState extends State<ReviewPage> {
               },
         child: Text(saved ? '已保存' : '保存复盘'),
       ),
-      TextButton(
+      GlassTextButton(
         onPressed: widget.app.busy
             ? null
             : () async {
                 final clear = await showDialog<bool>(
                   context: context,
-                  builder: (context) => AlertDialog(
+                  builder: (context) => GlassAlertDialog(
                     title: const Text('清空这天的复盘？'),
                     content: const Text('清空后仍可重新填写。'),
                     actions: [
-                      TextButton(
+                      GlassTextButton(
                         onPressed: () => Navigator.pop(context, false),
                         child: const Text('保留'),
                       ),
-                      TextButton(
+                      GlassTextButton(
                         onPressed: () => Navigator.pop(context, true),
                         child: const Text('清空'),
                       ),

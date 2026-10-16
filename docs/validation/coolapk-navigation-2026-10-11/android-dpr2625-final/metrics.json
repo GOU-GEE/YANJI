@@ -1,0 +1,10 @@
+{
+  "frame_count": 20,
+  "build_ms_p50": 0.586,
+  "build_ms_p95": 6.714,
+  "raster_ms_p50": 7.377,
+  "raster_ms_p95": 23.668,
+  "dpr": 2.625,
+  "mode": "profile",
+  "note": "Whole validation run includes screenshot readbacks; this is diagnostic data, not a steady-state FPS measurement."
+}

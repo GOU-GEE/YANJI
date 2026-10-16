@@ -1,0 +1,43 @@
+{
+  "version_code": 8,
+  "emulator": "emulator-5554",
+  "phone_operated_this_round": false,
+  "certificate_sha256": "81e122f65a8cd86c0ef691edcc62f52f24bdf825752cba21276e742717c7cc04",
+  "sha256": {
+    "lib/design/glass/coolapk_navigation_style.dart": "15743752000373c872bb6e7f3d92a7e6e884b0e5df83aff26e0a50a8206db5c6",
+    "lib/design/glass/coolapk_navigation_surface.dart": "b76ea4334373c09ffaa10888a018f1f709acc1dbf22bf6f9c43bc8d023270bba",
+    "lib/design/glass/liquid_navigation_dock.dart": "c6290053f9331a3b82f3b349e2956a81ef2305d1eeb5577e8b3b322065d53ae2",
+    "assets/shaders/coolapk_navigation.frag": "e20e2f1d1a978fd081b417fec2113464062266711638a8470720c7e2db71c151",
+    "assets/shaders/coolapk_content.frag": "84bf9197cf5b4a7d53577ce3ebc46848beefc2c27b3b68e3aa883ff674a9b520",
+    "assets/shaders/coolapk_optics.glsl": "fc3bf84c7f9c0aa791b3c351299277809744ba6041ac4ed9865a1c4bf384c181",
+    "assets/shaders/coolapk_accent.frag": "5595a68b57554dae5267a5a96a98e09a7111896f7893d74ac7f5398252571893",
+    "packages/yanji_syncthing/android/build.gradle": "7cfa7f810b8e5e5f211a85466b69349c47d48dbdb7ef8b0a89737ff7b4e4b725",
+    "packages/yanji_syncthing/android/consumer-rules.pro": "af155f16ba71577cd6afd761a74b54a1d12b41e7984fffdbdbc599c5a587a8c7",
+    "pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1",
+    "integration_test/navigation_lens_visual_test.dart": "ca49e464a56375d0f3df74ad2b332cadf38d1b912653429021ffe868c07c1936",
+    "test/widget/liquid_navigation_dock_test.dart": "5cfe7818623656797f4c66729c9871a967b512f210ead79a065ebc9551eed890",
+    "tool/validate_coolapk_navigation.sh": "11bfc54898bd74ca54ef3b9348cc1d38b6b86cd54e7831724d3df1c7c8921016"
+  },
+  "apks": {
+    "normal": {
+      "path": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-12/yanji-normal-build8.apk",
+      "YANJI_PREVIEW": false,
+      "sha256": "5d7c9cb4015c7aadc5766afffe13584a21fe5f07ee973685763eefd83f833efd",
+      "bytes": 110668531
+    },
+    "preview": {
+      "path": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-12/yanji-preview-build8.apk",
+      "YANJI_PREVIEW": true,
+      "sha256": "f699fe001e3eaae70d16537fe41b8fd66fe526d11ffafd3cecd94ca848c5296e",
+      "bytes": 110668531
+    }
+  },
+  "original_android_configs_restored": {
+    "android/settings.gradle.kts": true,
+    "android/build.gradle.kts": true,
+    "android/app/build.gradle.kts": true,
+    "android/gradle/wrapper/gradle-wrapper.properties": true
+  },
+  "temporary_hooks_absent": true,
+  "source_version": true
+}

@@ -103,8 +103,6 @@ void main() {
           tester.widget<Text>(find.byKey(const Key('donut-total'))).data,
           '12h 30m',
         );
-        await reveal(find.byKey(const ValueKey('stat-学习天数')), 180);
-        await shot('data-$tag-accumulation');
         await reveal(find.byKey(const Key('heatmap-group-0')), 180);
         await tester.tap(find.byKey(const Key('heatmap-day-2026-09-02')));
         await tester.pumpAndSettle();

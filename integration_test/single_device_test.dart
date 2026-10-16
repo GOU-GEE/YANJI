@@ -54,7 +54,7 @@ void main() {
       expect(app.totalDuration, greaterThanOrEqualTo(60000));
       await tap(find.byKey(const ValueKey('nav-/statistics')));
       expect(
-        tester.widget<Text>(find.byKey(const ValueKey('stat-连续学习'))).data,
+        tester.widget<Text>(find.byKey(const ValueKey('stat-学习天数'))).data,
         '1 天',
       );
       // ignore: avoid_print
@@ -135,7 +135,7 @@ void main() {
     expect(app.todayTasks.single.status, 'completed');
     await tap(find.byKey(const ValueKey('nav-/statistics')));
     expect(
-      tester.widget<Text>(find.byKey(const ValueKey('stat-连续学习'))).data,
+      tester.widget<Text>(find.byKey(const ValueKey('stat-学习天数'))).data,
       '1 天',
     );
     // ignore: avoid_print

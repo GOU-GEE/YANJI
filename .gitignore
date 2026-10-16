@@ -1,4 +1,5 @@
 .tooling/
+work/
 .dart_tool/
 .packages
 .pub-cache/

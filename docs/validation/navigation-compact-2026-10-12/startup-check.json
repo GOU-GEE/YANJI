@@ -1,0 +1,19 @@
+{
+  "mode": "release",
+  "preview": true,
+  "engine": "Impeller OpenGLES",
+  "dpr": 2.625,
+  "resolution": "1080x2400",
+  "pid": "4090",
+  "startup_crash_detected": false,
+  "partial_icon_frames": [
+    [
+      "drag-1",
+      "profile",
+      {
+        "black": 518,
+        "green": 58
+      }
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "frame_count": 238,
+  "build_ms_p50": 19.191,
+  "build_ms_p95": 77.137,
+  "raster_ms_p50": 87.055,
+  "raster_ms_p95": 200.949,
+  "raster_ms_max": 387.204,
+  "wall_clock_ms": 26203,
+  "dpr": 2.625,
+  "mode": "profile",
+  "note": "180 scripted reversed drag updates over a changing coordinate page; GPU warmup excluded. No screenshot, ImageView conversion, PNG decode or CPU texture readback in this test. Emulator diagnostic, not a device FPS guarantee."
+}

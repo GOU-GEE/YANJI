@@ -1,0 +1,36 @@
+{
+  "version_code": 11,
+  "sha256": {
+    "lib/design/glass/liquid_navigation_dock.dart": "1553a2dd0c4eed855a1c569d5135e4fdd9d46d78829c2566c61cebd8812ed529",
+    "lib/design/glass/coolapk_navigation_style.dart": "dd57da808ee61b269a8a8cd79947b5e1193ed95700c91a744c355b726882c788",
+    "lib/design/glass/coolapk_navigation_surface.dart": "66450d785a2546e13c74fdfbc50069f255a6894c5812c6937e6baa0c5ef2844f",
+    "assets/shaders/coolapk_navigation.frag": "6966e10f7ca465acdeabd9800adaf9cb951fe0f628d65720cdab65b57831d9bc",
+    "assets/shaders/coolapk_content.frag": "2d71d2f43d9b37d59fc2d6dc44263f34f8d12713cd09753edf3d7e146b120891",
+    "assets/shaders/coolapk_optics.glsl": "3abdea087b64acd163bd94a74b155f75236769678a8b35144fc76743d52977f8",
+    "assets/shaders/coolapk_accent.frag": "761a9c3109af2c9240f5d8a4d8cae401166f7defa3870649a98b26d1d4939d6e",
+    "integration_test/navigation_convex_lens_test.dart": "3c0eab5388e2bddf5f5d817f0d1619cb9cd6ae8a714e0746a4e6bcbeca0f374e",
+    "test/widget/liquid_navigation_dock_test.dart": "59e308246f663e763f8190e6b1a8976b2fffd09b63d0d7b0e9073030dba01740",
+    "tool/validate_coolapk_navigation.sh": "abb3dfc64b2168873385d01141a35772a5db23ac0b2e885c1317d1e96b74fb54",
+    "pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1"
+  },
+  "phone_operated": false,
+  "apks": {
+    "normal": {
+      "YANJI_PREVIEW": false,
+      "sha256": "ad41103f69d29746dd0435761475a56da6894df6135df0059e3fc8e4dd63ace5",
+      "path": "/Users/goulijun/Documents/project/YANJI/work/navigation-lens-recovery/yanji-normal-build11.apk"
+    },
+    "preview": {
+      "YANJI_PREVIEW": true,
+      "sha256": "2f4598ccbb66e43c1992edb295bc889bac532d8e24952639d11a3b6047cdad4a",
+      "path": "/Users/goulijun/Documents/project/YANJI/work/navigation-lens-recovery/yanji-preview-build11.apk"
+    }
+  },
+  "android_settings_restored": {
+    "settings.gradle.kts": true,
+    "build.gradle.kts": true,
+    "app/build.gradle.kts": true,
+    "gradle/wrapper/gradle-wrapper.properties": true
+  },
+  "no_temporary_hooks": true
+}

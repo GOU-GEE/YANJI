@@ -12,5 +12,15 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    StudyLiveActivityBridge.register(with: engineBridge.pluginRegistry)
+  }
+
+  override func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+    if StudyLiveActivityBridge.handle(url: url) { return true }
+    return super.application(app, open: url, options: options)
   }
 }

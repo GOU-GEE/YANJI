@@ -1,0 +1,12 @@
+{
+  "device": "emulator-5554",
+  "mode": "release",
+  "version_code": 11,
+  "YANJI_PREVIEW": true,
+  "page_loaded": true,
+  "pid": "5288",
+  "startup_note": "Preview initial generation exceeded 60s wait; completed without business-source changes",
+  "fatal_detected": false,
+  "phone_operated": false,
+  "time_utc": "2026-10-12T09:27:08.330277+00:00"
+}

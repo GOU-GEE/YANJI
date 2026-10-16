@@ -6,6 +6,7 @@ import 'package:yanji/app/dependencies.dart';
 import 'package:yanji/app/yanji_app.dart';
 import 'package:yanji/application/study_app_controller.dart';
 import 'package:yanji/core/database/app_database.dart';
+import 'package:yanji/design/glass/glass_controls.dart';
 
 import '../support/identities.dart';
 
@@ -60,6 +61,20 @@ void main() {
         expect(app.isReady, isTrue);
         expect(app.subjects, hasLength(4));
         expect(find.byKey(const Key('today-start')), findsOneWidget);
+        expect(find.text('2026/09/03'), findsOneWidget);
+        expect(
+          tester.getRect(find.byKey(const Key('today-date'))).left,
+          lessThan(
+            tester.getRect(find.byKey(const Key('choose-exam-year'))).left,
+          ),
+        );
+        expect(
+          tester.getRect(find.byKey(const Key('today-date'))).center.dy,
+          closeTo(
+            tester.getRect(find.byKey(const Key('choose-exam-year'))).center.dy,
+            1,
+          ),
+        );
         await tap(find.byKey(const Key('choose-exam-year')));
         await tap(find.byKey(const Key('exam-year')));
         await tap(find.text('2028 考研').last);
@@ -78,6 +93,20 @@ void main() {
         await tap(find.byTooltip('返回'));
         await tap(find.byKey(const ValueKey('nav-/')));
         await tap(find.text('添加任务'));
+        Color? optionSurface(String key) => tester
+            .widget<YanjiGlassControl>(
+              find.descendant(
+                of: find.byKey(ValueKey(key)),
+                matching: find.byType(YanjiGlassControl),
+              ),
+            )
+            .surfaceColor;
+        expect(optionSurface('task-once')!.a, greaterThan(0));
+        expect(optionSurface('task-daily'), Colors.transparent);
+        await tap(find.byKey(const ValueKey('task-daily')));
+        expect(optionSurface('task-once'), Colors.transparent);
+        expect(optionSurface('task-daily')!.a, greaterThan(0));
+        await tap(find.byKey(const ValueKey('task-once')));
         await tester.enterText(find.byKey(const Key('task-title')), '学习英语一个小时');
         await tester.pumpAndSettle();
         expect(find.textContaining('识别到时长：60 分钟'), findsOneWidget);
@@ -99,7 +128,42 @@ void main() {
         expect(app.todayTasks, hasLength(1));
         expect(app.todayTasks.single.estimatedSeconds, 1800);
         expect(app.subject(app.todayTasks.single.subjectId)?.name, '英语一');
-        await tap(find.byTooltip('学习 学习英语'));
+        final taskId = app.todayTasks.single.id;
+        final taskSubjectId = app.todayTasks.single.subjectId;
+        await tap(find.text('学习英语'));
+        expect(find.byType(GlassDialog), findsOneWidget);
+        expect(find.text('编辑任务'), findsOneWidget);
+        expect(find.byKey(const Key('today-start')), findsOneWidget);
+        expect(
+          tester
+              .widget<TextField>(find.byKey(const Key('task-title')))
+              .controller!
+              .text,
+          '学习英语',
+        );
+        expect(
+          tester
+              .widget<TextField>(find.byKey(const Key('task-minutes')))
+              .controller!
+              .text,
+          '30',
+        );
+        await tester.enterText(find.byKey(const Key('task-title')), '尚未保存');
+        await tap(find.byTooltip('关闭'));
+        expect(find.byType(GlassDialog), findsNothing);
+        expect(app.todayTasks.single.title, '学习英语');
+        await tap(find.text('学习英语'));
+        await tester.enterText(find.byKey(const Key('task-title')), '英语复习');
+        await tap(find.byKey(const Key('save-task')));
+        expect(find.byType(GlassDialog), findsNothing);
+        expect(find.byKey(const Key('today-start')), findsOneWidget);
+        expect(find.text('英语复习'), findsOneWidget);
+        expect(app.todayTasks, hasLength(1));
+        expect(app.todayTasks.single.id, taskId);
+        expect(app.todayTasks.single.title, '英语复习');
+        expect(app.todayTasks.single.subjectId, taskSubjectId);
+        expect(app.todayTasks.single.estimatedSeconds, 1800);
+        await tap(find.byTooltip('学习 英语复习'));
         await tap(find.byKey(const Key('confirm-start')));
         expect(find.text('正在学习'), findsOneWidget);
         expect(app.runningSession?.status, 'active');
@@ -131,7 +195,7 @@ void main() {
         await tap(find.byKey(const ValueKey('nav-/statistics')));
         expect(find.text('0h 15m'), findsWidgets);
         expect(
-          tester.widget<Text>(find.byKey(const ValueKey('stat-连续学习'))).data,
+          tester.widget<Text>(find.byKey(const ValueKey('stat-学习天数'))).data,
           '1 天',
         );
         expect(tester.takeException(), isNull);

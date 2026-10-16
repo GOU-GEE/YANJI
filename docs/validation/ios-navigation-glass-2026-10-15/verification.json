@@ -1,0 +1,16 @@
+{
+  "build": "17",
+  "device": "iPhone17Pro iOS26.5 simulator",
+  "preview": true,
+  "source_sha256": {
+    "lib/design/glass/coolapk_navigation_surface.dart": "fa823df450501b4a8c1b36294296eae16452cbd2831ae1a93b356748b471a21d",
+    "lib/design/glass/navigation_backdrop_layer.dart": "608d9591deab7c15fa7ce60e00aee5b9aab489e7815b004fc776145a8f83f8fc",
+    "lib/design/glass/liquid_navigation_dock.dart": "86d582401e3654ff4eec76a8f0840471933046bbdb705aa13d898f631a5772f0",
+    "assets/shaders/coolapk_navigation.frag": "4ce74673d3efc9b374307451972884d9f50a88d7b8fc0ce2bd0ca650d9cdf77e",
+    "test/widget/navigation_backdrop_layer_test.dart": "7c865ea9338af9b0a22d87d735e07637b2b13f0d13aa2ca7bb0e72488a12ddd8"
+  },
+  "original_shader_restored": true,
+  "dock_geometry_and_glyphs_unchanged": true,
+  "installed_kernel_matches_built": true,
+  "tests_passed": 9
+}

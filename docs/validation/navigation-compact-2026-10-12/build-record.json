@@ -1,0 +1,17 @@
+{
+  "normal_apk": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-12/yanji-normal-build4.apk",
+  "normal_apk_sha256": "426c418f9ffa2936461c404e645d9a9688b41890713afccef873cee0cfc021bc",
+  "normal_preview_enabled": false,
+  "normal_build_number": 4,
+  "phone_final_update_installed": false,
+  "sha256": {
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/liquid_navigation_dock.dart": "f6e70f2ec6dd9454fbb8ac466b9d6fed2f477fbd18a90f5cb8a6a43c30960b86",
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/coolapk_navigation_style.dart": "c00b19bf48c5b873f912e6e7be04abb52c5a4c3a135e97d2f5d0c93e360aab5a",
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/coolapk_navigation_surface.dart": "dc35ce933e3a0c85a7c5561622bfa8aead7181a7e432192811b90a4a3537e9eb",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_accent.frag": "5595a68b57554dae5267a5a96a98e09a7111896f7893d74ac7f5398252571893",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_navigation.frag": "580118bc95bbdda0465e39f3db9832ac6fb93b81b89544fbf6c67f52ede03988",
+    "/Users/goulijun/Documents/project/YANJI/packages/yanji_syncthing/android/build.gradle": "7cfa7f810b8e5e5f211a85466b69349c47d48dbdb7ef8b0a89737ff7b4e4b725",
+    "/Users/goulijun/Documents/project/YANJI/packages/yanji_syncthing/android/consumer-rules.pro": "af155f16ba71577cd6afd761a74b54a1d12b41e7984fffdbdbc599c5a587a8c7",
+    "/Users/goulijun/Documents/project/YANJI/pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1"
+  }
+}

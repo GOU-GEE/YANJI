@@ -1,0 +1,35 @@
+{
+  "bar_outside_height_px": 146,
+  "bar_inside_height_px": 129,
+  "dpr": 2.625,
+  "vertical_symmetry": [
+    {
+      "x_dp": -15.0,
+      "top_inset_px": 8,
+      "bottom_inset_px": 9
+    },
+    {
+      "x_dp": 0.0,
+      "top_inset_px": 8,
+      "bottom_inset_px": 9
+    },
+    {
+      "x_dp": 15.0,
+      "top_inset_px": 8,
+      "bottom_inset_px": 9
+    }
+  ],
+  "endpoint_caps": [
+    {
+      "side": 0,
+      "cap_inset_px": 9.749999999999972,
+      "lens_to_cap_gap_px": 35.99999999999997
+    },
+    {
+      "side": 1,
+      "cap_inset_px": 10.75,
+      "lens_to_cap_gap_px": 37.0
+    }
+  ],
+  "refracted_ink_pixels": 12232
+}

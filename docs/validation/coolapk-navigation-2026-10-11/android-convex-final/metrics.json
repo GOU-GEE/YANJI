@@ -1,0 +1,22 @@
+{
+  "geometry": [
+    {
+      "slot_center_dp": 48.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 136.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 224.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    }
+  ],
+  "dpr": 2.625,
+  "capture_ink_width_ratio": 1.1904761904761905,
+  "edge_displacement_dp": 0.9523809523809523
+}

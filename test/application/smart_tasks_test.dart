@@ -98,13 +98,12 @@ void main() {
       app.dispose();
       now = now.add(const Duration(minutes: 1));
       app = await StudyAppController.open(db, identity, now: () => now);
-      expect(app.task(task)!.status, 'completed');
-      expect(app.taskDuration(task), 60 * 60000);
-      expect(app.runningSession, isNotNull);
+      expect(app.task(task)!.status, 'todo');
+      expect(app.taskDuration(task), 59 * 60000);
+      expect(app.runningSession, isNull);
       final count = (await db.select(db.oplog).get()).length;
       await app.tickTaskProgress();
       expect((await db.select(db.oplog).get()).length, count);
-      await app.stopStudy();
     } finally {
       app.dispose();
       await db.close();

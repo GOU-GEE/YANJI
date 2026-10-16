@@ -1,0 +1,21 @@
+{
+  "version_code": 13,
+  "YANJI_PREVIEW": true,
+  "phone_operated": false,
+  "sha256": {
+    "lib/design/glass/liquid_navigation_dock.dart": "1553a2dd0c4eed855a1c569d5135e4fdd9d46d78829c2566c61cebd8812ed529",
+    "lib/design/glass/coolapk_navigation_surface.dart": "46b68a134f1679aff8093edc0f0f4c349f57fc5b79217703c0d0f2e624fea096",
+    "lib/design/glass/coolapk_navigation_style.dart": "b7827513fc41e7212785b646f4f850560a2e6ebd16c938a45ec34dba98783778",
+    "assets/shaders/coolapk_navigation.frag": "4ce74673d3efc9b374307451972884d9f50a88d7b8fc0ce2bd0ca650d9cdf77e",
+    "assets/shaders/coolapk_content.frag": "2d71d2f43d9b37d59fc2d6dc44263f34f8d12713cd09753edf3d7e146b120891",
+    "assets/shaders/coolapk_optics.glsl": "375e4c75c33bcfd61233dfd3bc4afc5b4be3283b277c63a47c5ccdbd6c422215",
+    "pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1"
+  },
+  "apk_path": "/Users/goulijun/Documents/project/YANJI/work/navigation-bar-reduction/yanji-preview-build13.apk",
+  "apk_sha256": "3aef818a54ad1c6bd7adf81d7eb370856c28af833ca3d5cd65949c9e847613b2",
+  "pubspec_matches_before": true,
+  "unchanged_navigation_sources": {
+    "lib/design/glass/liquid_navigation_dock.dart": true,
+    "assets/shaders/coolapk_content.frag": true
+  }
+}

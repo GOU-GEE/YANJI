@@ -26,6 +26,19 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.example.yanji.live-activity</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>yanji</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -70,5 +83,9 @@
 	<string>用于扫描其他设备的 YanJi 配对二维码</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>用于在同一局域网内安全添加研迹设备并传输学习记录</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_yanji-sync._tcp</string>
+	</array>
 </dict>
 </plist>

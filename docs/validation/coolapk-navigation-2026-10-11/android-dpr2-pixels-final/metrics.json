@@ -1,0 +1,14 @@
+{
+  "edge_green_shift": 6.0,
+  "center_green_shift": 0.0,
+  "changed_ink_pixels": 1414,
+  "changed_image_dock_pixels": 43827,
+  "frame_count": 43,
+  "build_ms_p50": 1.157,
+  "build_ms_p95": 28.018,
+  "raster_ms_p50": 33.336,
+  "raster_ms_p95": 120.893,
+  "dpr": 2.0,
+  "mode": "profile",
+  "note": "Whole validation run includes screenshot readbacks; this is diagnostic data, not a steady-state FPS measurement."
+}

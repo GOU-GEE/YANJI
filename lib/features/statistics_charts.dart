@@ -1,6 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
+import '../design/yanji_motion.dart';
+import '../design/glass/glass_floating_surface.dart';
+import '../design/glass/glass_information_popup.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
 
@@ -22,7 +27,11 @@ class WeekTrendChart extends StatefulWidget {
 
 class _WeekTrendChartState extends State<WeekTrendChart> {
   int selected = -1;
-  void select(int index) => setState(() => selected = index.clamp(0, 6));
+  void select(int index, {bool toggle = false}) {
+    final next = index.clamp(0, 6);
+    setState(() => selected = toggle && selected == next ? -1 : next);
+  }
+
   @override
   void didUpdateWidget(WeekTrendChart oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -69,7 +78,10 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
               Focus(
                 onKeyEvent: (node, event) {
                   if (event is! KeyDownEvent) return KeyEventResult.ignored;
-                  if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                  if (event.logicalKey == LogicalKeyboardKey.escape) {
+                    setState(() => selected = -1);
+                  } else if (event.logicalKey ==
+                      LogicalKeyboardKey.arrowRight) {
                     select(selected + 1);
                   } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
                     select(selected - 1);
@@ -80,17 +92,19 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                 },
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    void touch(Offset position) {
+                    void touch(Offset position, {bool toggle = false}) {
                       final width = constraints.maxWidth - YanJiSpacing.xxl;
                       select(
                         ((position.dx - YanJiSpacing.lg) / width * 6).round(),
+                        toggle: toggle,
                       );
                     }
 
                     return GestureDetector(
                       key: const Key('week-trend-touch'),
                       behavior: HitTestBehavior.opaque,
-                      onTapDown: (details) => touch(details.localPosition),
+                      onTapUp: (details) =>
+                          touch(details.localPosition, toggle: true),
                       onHorizontalDragUpdate: (details) =>
                           touch(details.localPosition),
                       child: SizedBox(
@@ -111,16 +125,15 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                                   primary: colors.primary,
                                   border: colors.outlineVariant,
                                   surface: colors.surface,
-                                  onSelect: select,
+                                  onSelect: (index) =>
+                                      select(index, toggle: true),
                                 ),
                               ),
                             ),
-                            if (selected >= 0)
-                              Positioned.fill(
-                                child: IgnorePointer(
-                                  child: CustomSingleChildLayout(
-                                    delegate: ChartBubbleLayout(
-                                      Offset(
+                            Positioned.fill(
+                              child: GlassInformationPopup(
+                                point: selected >= 0
+                                    ? Offset(
                                         24 +
                                             (constraints.maxWidth - 48) *
                                                 selected /
@@ -132,16 +145,17 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                                                     (widget.values[selected] ??
                                                             0) /
                                                         ceiling),
-                                      ),
-                                    ),
-                                    child: ChartBubble(
-                                      text:
-                                          '${weekLabels[selected]} · ${calendarDate(widget.days[selected])}\n${widget.values[selected] == null ? '尚未到来' : exactStudyDuration(widget.values[selected]!)}',
-                                      textKey: const Key('week-tooltip'),
-                                    ),
-                                  ),
-                                ),
+                                      )
+                                    : null,
+                                child: selected >= 0
+                                    ? ChartBubble(
+                                        text:
+                                            '${weekLabels[selected]} · ${calendarDate(widget.days[selected])}\n${widget.values[selected] == null ? '尚未到来' : exactStudyDuration(widget.values[selected]!)}',
+                                        textKey: const Key('week-tooltip'),
+                                      )
+                                    : null,
                               ),
+                            ),
                           ],
                         ),
                       ),
@@ -302,11 +316,10 @@ class ChartBubble extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
     child: Material(
-      elevation: 3,
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
+      type: MaterialType.transparency,
+      child: GlassFloatingSurface(
+        radius: 12,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Text(
           text,
           key: textKey,
@@ -317,38 +330,58 @@ class ChartBubble extends StatelessWidget {
   );
 }
 
-class ChartBubbleLayout extends SingleChildLayoutDelegate {
-  ChartBubbleLayout(this.point);
-  final Offset point;
-  @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
-      BoxConstraints(
-        maxWidth: constraints.maxWidth - 8,
-        maxHeight: constraints.maxHeight,
-      );
-  @override
-  Offset getPositionForChild(Size size, Size childSize) => Offset(
-    (point.dx + 10).clamp(4, math.max(4, size.width - childSize.width - 4)),
-    (point.dy - childSize.height - 10).clamp(
-      0,
-      math.max(0, size.height - childSize.height),
-    ),
-  );
-  @override
-  bool shouldRelayout(covariant ChartBubbleLayout oldDelegate) =>
-      point != oldDelegate.point;
-}
-
 class SubjectDonut extends StatefulWidget {
-  const SubjectDonut({super.key, required this.slices, required this.total});
+  const SubjectDonut({
+    super.key,
+    required this.slices,
+    required this.total,
+    this.emptyLabel = '暂无数据',
+  });
   final List<SubjectSlice> slices;
   final int total;
+  final String emptyLabel;
 
   @override
   State<SubjectDonut> createState() => _SubjectDonutState();
 }
 
-class _SubjectDonutState extends State<SubjectDonut> {
+class _SubjectDonutState extends State<SubjectDonut>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _selection = AnimationController(
+    vsync: this,
+    duration: YanJiMotion.duration,
+    value: 1,
+  );
+  Map<String, double> _from = {};
+  String? _target;
+
+  Map<String, double> get _weights {
+    final progress = YanJiMotion.curve.transform(_selection.value);
+    return {
+      for (final id in {..._from.keys, ?_target})
+        id: (_from[id] ?? 0) * (1 - progress) + (id == _target ? progress : 0),
+    };
+  }
+
+  void _animateSelection() {
+    final next = hoveredId ?? tappedId;
+    if (_target == next) return;
+    _from = _weights;
+    _target = next;
+    if (YanJiMotion.reduced(context)) {
+      _selection.stop();
+      _selection.value = 1;
+    } else {
+      _selection.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _selection.dispose();
+    super.dispose();
+  }
+
   String? hoveredId;
   String? tappedId;
   Offset? hoveredPosition;
@@ -359,6 +392,7 @@ class _SubjectDonutState extends State<SubjectDonut> {
     setState(() {
       hoveredId = id;
       hoveredPosition = id == null ? null : position;
+      _animateSelection();
     });
   }
 
@@ -366,6 +400,7 @@ class _SubjectDonutState extends State<SubjectDonut> {
     setState(() {
       tappedId = id;
       tappedPosition = id == null ? null : position;
+      _animateSelection();
     });
   }
 
@@ -427,7 +462,7 @@ class _SubjectDonutState extends State<SubjectDonut> {
       // A fixed-height plot cannot satisfy non-overlap when many subjects are
       // visible or accessibility text scaling is enabled.
       final height = math.max(
-        diameter + 96,
+        diameter + 32,
         math.max(labelsHeight(true), labelsHeight(false)),
       );
       final center = Offset(width / 2, height / 2);
@@ -554,12 +589,18 @@ class _SubjectDonutState extends State<SubjectDonut> {
               height: diameter,
               child: SizedBox(
                 key: const Key('subject-donut'),
-                child: CustomPaint(
-                  painter: _DonutPainter(
-                    slices,
-                    total,
-                    selectedSlice?.id,
-                    Theme.of(context).colorScheme.outlineVariant,
+                child: AnimatedBuilder(
+                  animation: _selection,
+                  builder: (context, child) => CustomPaint(
+                    painter: _DonutPainter(
+                      slices,
+                      total,
+                      YanJiMotion.reduced(context)
+                          ? {if (selectedSlice != null) selectedSlice.id: 1.0}
+                          : _weights,
+                      Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    child: child,
                   ),
                   child: Center(
                     child: SizedBox(
@@ -568,15 +609,28 @@ class _SubjectDonutState extends State<SubjectDonut> {
                         fit: BoxFit.scaleDown,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const YanJiCaption('总学习时间'),
-                            const SizedBox(height: 4),
-                            Text(
-                              durationLabel(total),
-                              key: const Key('donut-total'),
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
+                          children: total == 0
+                              ? [
+                                  Text(
+                                    widget.emptyLabel,
+                                    key: const Key('donut-empty'),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium,
+                                  ),
+                                ]
+                              : [
+                                  const YanJiCaption('总学习时间'),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    durationLabel(total),
+                                    key: const Key('donut-total'),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
+                                  ),
+                                ],
                         ),
                       ),
                     ),
@@ -585,21 +639,20 @@ class _SubjectDonutState extends State<SubjectDonut> {
               ),
             ),
             ...labels,
-            if (selectedSlice != null && selectedPosition != null)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomSingleChildLayout(
-                    delegate: ChartBubbleLayout(selectedPosition),
-                    child: ChartBubble(
-                      textKey: const Key('subject-tooltip'),
-                      text:
-                          '${selectedSlice.name}\n'
-                          '学习时间 ${durationLabel(selectedSlice.duration)}\n'
-                          '占比 ${studyPercentage(selectedSlice.duration, total)}',
-                    ),
-                  ),
-                ),
+            Positioned.fill(
+              child: GlassInformationPopup(
+                point: selectedSlice != null ? selectedPosition : null,
+                child: selectedSlice != null && selectedPosition != null
+                    ? ChartBubble(
+                        textKey: const Key('subject-tooltip'),
+                        text:
+                            '${selectedSlice.name}\n'
+                            '学习时间 ${durationLabel(selectedSlice.duration)}\n'
+                            '占比 ${studyPercentage(selectedSlice.duration, total)}',
+                      )
+                    : null,
               ),
+            ),
           ],
         ),
       );
@@ -612,7 +665,8 @@ class _SubjectDonutState extends State<SubjectDonut> {
           behavior: HitTestBehavior.opaque,
           onTapUp: (details) {
             final id = sliceAt(details.localPosition);
-            setTapped(id, id == null ? null : details.localPosition);
+            final next = id == tappedId ? null : id;
+            setTapped(next, next == null ? null : details.localPosition);
           },
           child: chart,
         ),
@@ -655,10 +709,10 @@ class _LeaderPainter extends CustomPainter {
 }
 
 class _DonutPainter extends CustomPainter {
-  _DonutPainter(this.slices, this.total, this.selected, this.track);
+  _DonutPainter(this.slices, this.total, this.highlights, this.track);
   final List<SubjectSlice> slices;
   final int total;
-  final String? selected;
+  final Map<String, double> highlights;
   final Color track;
   @override
   void paint(Canvas canvas, Size size) {
@@ -679,19 +733,18 @@ class _DonutPainter extends CustomPainter {
       canvas.drawArc(ring, start, sweep, false, paint..color = slice.color);
       start += sweep;
     }
-    final selectedArc = arcs
-        .where((arc) => arc.slice.id == selected)
-        .firstOrNull;
-    if (selectedArc != null) {
+    for (final arc in arcs) {
+      final emphasis = highlights[arc.slice.id] ?? 0;
+      if (emphasis <= 0) continue;
       canvas.drawArc(
-        ring.inflate(3),
-        selectedArc.start,
-        selectedArc.sweep,
+        ring.inflate(3 * emphasis),
+        arc.start,
+        arc.sweep,
         false,
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = YanJiChartTokens.ringWidth + 4
-          ..color = selectedArc.slice.color,
+          ..strokeWidth = YanJiChartTokens.ringWidth + 4 * emphasis
+          ..color = arc.slice.color,
       );
     }
   }

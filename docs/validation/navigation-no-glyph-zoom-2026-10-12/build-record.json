@@ -1,0 +1,23 @@
+{
+  "version_code": 14,
+  "YANJI_PREVIEW": true,
+  "phone_operated": false,
+  "sha256": {
+    "lib/design/glass/liquid_navigation_dock.dart": "86d582401e3654ff4eec76a8f0840471933046bbdb705aa13d898f631a5772f0",
+    "lib/design/glass/coolapk_navigation_surface.dart": "46b68a134f1679aff8093edc0f0f4c349f57fc5b79217703c0d0f2e624fea096",
+    "lib/design/glass/coolapk_navigation_style.dart": "2fe8ba4af348ae467f9dbfe093cc96b601bfee40083f9d239c30145b31a98b9c",
+    "assets/shaders/coolapk_navigation.frag": "4ce74673d3efc9b374307451972884d9f50a88d7b8fc0ce2bd0ca650d9cdf77e",
+    "assets/shaders/coolapk_content.frag": "2d71d2f43d9b37d59fc2d6dc44263f34f8d12713cd09753edf3d7e146b120891",
+    "assets/shaders/coolapk_optics.glsl": "375e4c75c33bcfd61233dfd3bc4afc5b4be3283b277c63a47c5ccdbd6c422215",
+    "pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1"
+  },
+  "unchanged_optical_inputs": {
+    "lib/design/glass/coolapk_navigation_surface.dart": true,
+    "assets/shaders/coolapk_navigation.frag": true,
+    "assets/shaders/coolapk_content.frag": true,
+    "assets/shaders/coolapk_optics.glsl": true
+  },
+  "pubspec_restored": true,
+  "apk_path": "/Users/goulijun/Documents/project/YANJI/work/navigation-no-glyph-zoom/yanji-preview-build14.apk",
+  "apk_sha256": "d883532661cbc81971a2f8d84c471a117d614795837e3e1d0ee0ad9a15af5962"
+}

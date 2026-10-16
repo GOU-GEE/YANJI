@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../design/glass/glass_controls.dart';
+import '../design/glass/glass_dropdown_form_field.dart';
+
 import '../application/exam_schedule.dart';
 import '../application/study_app_controller.dart';
 import '../design/yanji_theme.dart';
@@ -16,7 +19,7 @@ Future<void> chooseExamYear(
   await showDialog<void>(
     context: context,
     builder: (context) => StatefulBuilder(
-      builder: (context, setState) => AlertDialog(
+      builder: (context, setState) => GlassAlertDialog(
         title: const Text('选择考研年份'),
         scrollable: true,
         content: SizedBox(
@@ -25,7 +28,7 @@ Future<void> chooseExamYear(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField<int>(
+              GlassDropdownFormField<int>(
                 key: const Key('exam-year'),
                 initialValue: year,
                 isExpanded: true,
@@ -52,7 +55,7 @@ Future<void> chooseExamYear(
                 const SizedBox(height: YanJiSpacing.xs),
                 const YanJiCaption('具体日期以教育部公告为准，公布后可在此修改。'),
               ],
-              TextButton(
+              GlassTextButton(
                 onPressed: saving
                     ? null
                     : () async {
@@ -72,11 +75,11 @@ Future<void> chooseExamYear(
           ),
         ),
         actions: [
-          TextButton(
+          GlassTextButton(
             onPressed: saving ? null : () => Navigator.pop(context),
             child: const Text('取消'),
           ),
-          FilledButton(
+          GlassFilledButton(
             key: const Key('save-exam-year'),
             onPressed: saving
                 ? null

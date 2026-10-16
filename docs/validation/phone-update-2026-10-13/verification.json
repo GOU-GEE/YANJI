@@ -1,0 +1,46 @@
+{
+  "old_version": 3,
+  "new_version": 15,
+  "normal_build": true,
+  "app_uid_unchanged": true,
+  "data_directory_inode_unchanged": true,
+  "first_install_time_unchanged": true,
+  "alive_pid": "26278",
+  "old_crash": "SIGABRT: failed to find method Seq.getRef",
+  "new_crash_records": [],
+  "new_fatal_records": [],
+  "fatal_record_count": 0,
+  "frame_timestamp_clamping_records": 0,
+  "cold_starts": 3,
+  "route_check": [
+    {
+      "page": "profile",
+      "pid": "23342"
+    },
+    {
+      "page": "statistics",
+      "pid": "23342"
+    },
+    {
+      "page": "today",
+      "pid": "23342"
+    }
+  ],
+  "runtime_check": [
+    {
+      "test": "cold_start_2",
+      "pid": "25953",
+      "alive_after_seconds": 10
+    },
+    {
+      "test": "cold_start_3",
+      "pid": "26278",
+      "alive_after_seconds": 10
+    },
+    {
+      "test": "background_resume",
+      "pid": "26278",
+      "same_process": true
+    }
+  ]
+}

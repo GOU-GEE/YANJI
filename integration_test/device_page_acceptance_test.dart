@@ -77,6 +77,23 @@ void main() {
     expect(find.text('添加另一台设备'), findsOneWidget);
     expect(find.textContaining('仅可使用一次'), findsOneWidget);
     expect(find.text('暂无其他设备。'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('enter-pairing-code')),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    final refresh = tester.getRect(
+      find.byKey(const Key('refresh-pairing-code')),
+    );
+    final scan = tester.getRect(find.byKey(const Key('scan-pairing-qr-ready')));
+    final copy = tester.getRect(find.byKey(const Key('copy-pairing-code')));
+    final enter = tester.getRect(find.byKey(const Key('enter-pairing-code')));
+    expect(refresh.top, closeTo(scan.top, 1));
+    expect(copy.top, closeTo(enter.top, 1));
+    expect(copy.top, greaterThan(refresh.bottom));
+    expect(refresh.right, lessThan(scan.left));
+    expect(copy.right, lessThan(enter.left));
     final first = tester.widget<QrImageView>(find.byType(QrImageView)).key;
     expect(first, isA<ValueKey<String>>());
     await tap(find.text('刷新配对口令'));
@@ -86,6 +103,11 @@ void main() {
     for (var index = 0; index < 6; index++) {
       await tap(find.byKey(const Key('enter-pairing-code')));
       expect(find.byKey(const Key('pairing-code-input')), findsOneWidget);
+      final paste = tester.getRect(find.text('粘贴'));
+      final cancel = tester.getRect(find.text('取消'));
+      final connect = tester.getRect(find.text('连接'));
+      expect(paste.center.dy, closeTo(cancel.center.dy, 1));
+      expect(cancel.center.dy, closeTo(connect.center.dy, 1));
       if (index.isEven) {
         await tap(find.text('取消'));
       } else {

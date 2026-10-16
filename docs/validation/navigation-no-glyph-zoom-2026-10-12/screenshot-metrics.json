@@ -1,0 +1,24 @@
+{
+  "green_icon_scan_region": [
+    220,
+    2220,
+    400,
+    2310
+  ],
+  "bounds": {
+    "before": {
+      "width_px": 56,
+      "height_px": 62
+    },
+    "after": {
+      "width_px": 46,
+      "height_px": 52
+    }
+  },
+  "recording_capture_rate": 0.4931464670823455,
+  "max_capture_gap": 3.517569082963746,
+  "current_rest_icon": {
+    "width_px": 46,
+    "height_px": 52
+  }
+}

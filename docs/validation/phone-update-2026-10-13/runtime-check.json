@@ -1,0 +1,17 @@
+[
+  {
+    "test": "cold_start_2",
+    "pid": "25953",
+    "alive_after_seconds": 10
+  },
+  {
+    "test": "cold_start_3",
+    "pid": "26278",
+    "alive_after_seconds": 10
+  },
+  {
+    "test": "background_resume",
+    "pid": "26278",
+    "same_process": true
+  }
+]

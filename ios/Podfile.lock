@@ -1,15 +1,21 @@
 PODS:
   - Flutter (1.0.0)
+  - yanji_syncthing (0.1.0):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - yanji_syncthing (from `.symlinks/plugins/yanji_syncthing/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  yanji_syncthing:
+    :path: ".symlinks/plugins/yanji_syncthing/ios"
 
 SPEC CHECKSUMS:
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  yanji_syncthing: cd3e955dddf6a9372a620d612adac74af2ead64d
 
 PODFILE CHECKSUM: c09f1c39ba7bd25e25f9ff7dc9511121372650a0
 

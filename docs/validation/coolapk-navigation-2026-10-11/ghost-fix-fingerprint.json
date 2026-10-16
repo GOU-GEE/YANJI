@@ -1,0 +1,20 @@
+{
+  "revision": "2026-10-12 sparse blur ghost correction",
+  "sha256": {
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/coolapk_navigation_surface.dart": "56c63294044d330163fa710b4c295049ef94c98f9a5fc48754845b3cf4f92c4d",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_navigation.frag": "c8caeb8222c4d649647b911b289676d8a4f016a1303301f4bd69c2845f3ff3b1",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_optics.glsl": "e2892098992ac459d59b4b284c30fc5df8f584c72bcc02d3df8108819193c2e4",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_content.frag": "15b09c8ea3146b3a7479646b3be187045aca92d47a538b0a4e6a711da20900cc",
+    "/Users/goulijun/Documents/project/YANJI/integration_test/navigation_blur_regression_test.dart": "06f82affed67d5c03953ea87a759218104fcd7bbcabf00432c2f5e7814bfe14f",
+    "/Users/goulijun/Documents/project/YANJI/tool/validate_coolapk_navigation.sh": "b5bac0a4f9092ba12fe6e42cb2566020ff2d92bf29e3f7ddcac5c6cc8e439a48",
+    "/Users/goulijun/Documents/project/YANJI/pubspec.yaml": "a2cd6ef493ab80183326e15212638d311cad4226400e73117da3a48c421e5bfd",
+    "/Users/goulijun/Documents/project/YANJI/build/app/outputs/flutter-apk/app-profile.apk": "9d57bb87bec3ff722f58b6ed696a2fe094fce39b72c1cc59246c394385ecf130"
+  },
+  "configuration_byte_restore": {
+    "android/settings.gradle.kts": true,
+    "android/build.gradle.kts": true,
+    "android/app/build.gradle.kts": true,
+    "android/gradle/wrapper/gradle-wrapper.properties": true,
+    "pubspec.yaml": true
+  }
+}

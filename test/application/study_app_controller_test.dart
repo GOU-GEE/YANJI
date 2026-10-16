@@ -26,16 +26,14 @@ void main() {
     now = DateTime.utc(2026, 9, 3, 16, 20);
     await app.resumeStudy();
     await app.saveReview('2026-09-04', '保留正文');
-    final digest = await app.applier.projectionDigest(app.workspace!.id);
+    now = DateTime.utc(2026, 9, 3, 16, 50);
+    await app.tickTaskProgress();
     app.dispose();
     await db.close();
     db = AppDatabase(openDatabaseFile(File('${dir.path}/app.sqlite')));
     app = await StudyAppController.open(db, identity, now: () => now);
-    expect(await app.applier.projectionDigest(app.workspace!.id), digest);
-    expect(app.runningSession?.status, 'active');
+    expect(app.runningSession, isNull);
     expect(app.review('2026-09-04')?.content, '保留正文');
-    now = DateTime.utc(2026, 9, 3, 16, 50);
-    await app.stopStudy();
     expect(app.dayDuration(DateTime(2026, 9, 3)), 10 * 60000);
     expect(app.dayDuration(DateTime(2026, 9, 4)), 40 * 60000);
     expect(app.totalDuration, 50 * 60000);
@@ -69,8 +67,11 @@ void main() {
       );
       await app.refresh();
       await app.startStudy(app.subjects.single.id);
-      now = DateTime.utc(2026, 3, 9, 4, 30);
-      await app.stopStudy();
+      for (var i = 0; i < 3; i++) {
+        now = now.add(const Duration(hours: 8));
+        await app.stopStudy();
+        if (i < 2) await app.startStudy(app.subjects.single.id);
+      }
       expect(app.dayDuration(DateTime(2026, 3, 7)), 30 * 60000);
       expect(app.dayDuration(DateTime(2026, 3, 8)), 23 * 3600000);
       expect(app.dayDuration(DateTime(2026, 3, 9)), 30 * 60000);

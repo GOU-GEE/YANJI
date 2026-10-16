@@ -87,6 +87,18 @@ void main() {
       scale: 1.0,
       brightness: Brightness.dark,
     ),
+    (
+      name: 'Android tablet portrait',
+      size: const Size(800, 1280),
+      scale: 1.0,
+      brightness: Brightness.light,
+    ),
+    (
+      name: 'Android tablet landscape',
+      size: const Size(1280, 800),
+      scale: 1.0,
+      brightness: Brightness.light,
+    ),
   ]) {
     testWidgets('${scenario.name}: four samples, keyboard and system theme', (
       tester,
@@ -159,6 +171,13 @@ void main() {
           greaterThanOrEqualTo(48),
         );
         await page(TodayPage(app));
+        expect(
+          tester.getRect(find.byKey(const Key('today-date'))).center.dy,
+          closeTo(
+            tester.getRect(find.byKey(const Key('choose-exam-year'))).center.dy,
+            1,
+          ),
+        );
         await reveal(find.byKey(const Key('today-start')));
         await tester.tap(find.byKey(const Key('today-start')));
         await tester.pumpAndSettle();
@@ -207,12 +226,12 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.bySemanticsLabel('快速记录'), findsNothing);
         expect(find.text('计划'), findsNothing);
-        expect(
-          find.byType(NavigationRail),
-          scenario.size.width >= 720 && scenario.size.height >= 480
-              ? findsOneWidget
-              : findsNothing,
-        );
+        final dock = tester.getRect(find.byKey(const Key('navigation-dock')));
+        if (scenario.size.width > scenario.size.height) {
+          expect(dock.center.dx, lessThan(scenario.size.width / 2));
+        } else {
+          expect(dock.center.dy, greaterThan(scenario.size.height / 2));
+        }
         expect(tester.takeException(), isNull);
       } finally {
         await tester.pumpWidget(const SizedBox());

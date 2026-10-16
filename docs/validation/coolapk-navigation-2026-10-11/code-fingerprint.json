@@ -1,0 +1,22 @@
+{
+  "sha256": {
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/liquid_navigation_dock.dart": "532b1f9f0bcca373ed7a2f15dce01a6943fa7cf6f69ff3ea8d2209971b50fcc8",
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/coolapk_navigation_style.dart": "64dc2fb4c66d2b9fa8be811d036dda3473879913574d1c965d4dc0f7b819183b",
+    "/Users/goulijun/Documents/project/YANJI/lib/design/glass/coolapk_navigation_surface.dart": "1bc2e85d49b9f3f7f20f39131dbcf0f3b90cf27fd3a95c58bf10748c1350f3f7",
+    "/Users/goulijun/Documents/project/YANJI/lib/app/yanji_app.dart": "ce57d14e03cfc745491a4cd224c4086330566c1b15f837580991866ba42ce3d5",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_optics.glsl": "068bfac91999fd1cd620654f3f807cb7f2cf41a1b53d4bcbfd6d8693df8f8136",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_navigation.frag": "c9d3a7daf8d93b5e98d4ec09998be8c01bf51886d6ded9a57d5e6c25e5ad8107",
+    "/Users/goulijun/Documents/project/YANJI/assets/shaders/coolapk_content.frag": "f1783a8de830ae05efe7a240447f260b72328b1039bde6289b369d1d8284a4a2",
+    "/Users/goulijun/Documents/project/YANJI/packages/liquid_glass_renderer/lib/assets/shaders/liquid_glass_geometry_blended.frag": "fede8b5a9985bc4d489fb00e68424c8b32aac4bb9152ab1765f7336578e87eb1",
+    "/Users/goulijun/Documents/project/YANJI/packages/liquid_glass_renderer/YANJI_PATCHES.md": "f125fcf02c14618caede280e7dc75628cabe08adb7d6174f53be99b4a7ed6e12",
+    "/Users/goulijun/Documents/project/YANJI/pubspec.yaml": "a2cd6ef493ab80183326e15212638d311cad4226400e73117da3a48c421e5bfd",
+    "/Users/goulijun/Documents/project/YANJI/build/app/outputs/flutter-apk/app-profile.apk": "979bc9909b91befd2042df249c5afcdc357da429348f3e0394c15e12f9f5ae66"
+  },
+  "configuration_byte_restore": {
+    "android/settings.gradle.kts": true,
+    "android/build.gradle.kts": true,
+    "android/app/build.gradle.kts": true,
+    "android/gradle/wrapper/gradle-wrapper.properties": true,
+    "pubspec.yaml": true
+  }
+}

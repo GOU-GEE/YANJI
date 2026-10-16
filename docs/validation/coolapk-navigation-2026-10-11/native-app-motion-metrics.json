@@ -1,0 +1,1017 @@
+{
+  "frame_count": 125,
+  "window_start_micros": 7267249066,
+  "window_end_micros": 7302262809,
+  "window_seconds": 35.013743,
+  "history_filter": "VM monotonic startTime bounds and unique frame numbers; excludes DDS replay history.",
+  "build_ms_p50": 9.689,
+  "build_ms_p95": 62.884,
+  "raster_ms_p50": 58.169,
+  "raster_ms_p95": 211.739,
+  "raster_ms_max": 439.083,
+  "mode": "profile",
+  "dpr": 2.625,
+  "note": "Real main.dart preview app, native adb pointer and route input. Flutter.Frame engine timing events; no WidgetTester, coordinate page, recording video, screenshot or texture readback during the measurement. Emulator data, not a phone FPS guarantee.",
+  "frames": [
+    {
+      "number": 12802,
+      "startTime": 7275693002,
+      "elapsed": 89005,
+      "build": 5475,
+      "raster": 41373,
+      "vsyncOverhead": 35116
+    },
+    {
+      "number": 12803,
+      "startTime": 7275717801,
+      "elapsed": 108457,
+      "build": 6368,
+      "raster": 51352,
+      "vsyncOverhead": 26582
+    },
+    {
+      "number": 12806,
+      "startTime": 7275776753,
+      "elapsed": 131700,
+      "build": 8619,
+      "raster": 87934,
+      "vsyncOverhead": 18867
+    },
+    {
+      "number": 12807,
+      "startTime": 7275825033,
+      "elapsed": 443423,
+      "build": 15265,
+      "raster": 361404,
+      "vsyncOverhead": 17147
+    },
+    {
+      "number": 12809,
+      "startTime": 7275941076,
+      "elapsed": 534645,
+      "build": 50117,
+      "raster": 134461,
+      "vsyncOverhead": 49857
+    },
+    {
+      "number": 12810,
+      "startTime": 7276262957,
+      "elapsed": 692034,
+      "build": 4952,
+      "raster": 220618,
+      "vsyncOverhead": 255071
+    },
+    {
+      "number": 12814,
+      "startTime": 7276609069,
+      "elapsed": 331982,
+      "build": 39737,
+      "raster": 34214,
+      "vsyncOverhead": 201183
+    },
+    {
+      "number": 12816,
+      "startTime": 7276718999,
+      "elapsed": 122214,
+      "build": 6563,
+      "raster": 88127,
+      "vsyncOverhead": 11113
+    },
+    {
+      "number": 12817,
+      "startTime": 7276751663,
+      "elapsed": 218038,
+      "build": 6142,
+      "raster": 128766,
+      "vsyncOverhead": 10444
+    },
+    {
+      "number": 12819,
+      "startTime": 7276832146,
+      "elapsed": 443658,
+      "build": 26991,
+      "raster": 274540,
+      "vsyncOverhead": 40927
+    },
+    {
+      "number": 12823,
+      "startTime": 7276985173,
+      "elapsed": 423279,
+      "build": 14072,
+      "raster": 129624,
+      "vsyncOverhead": 27287
+    },
+    {
+      "number": 12825,
+      "startTime": 7277282674,
+      "elapsed": 240890,
+      "build": 91695,
+      "raster": 99737,
+      "vsyncOverhead": 41455
+    },
+    {
+      "number": 12826,
+      "startTime": 7277443598,
+      "elapsed": 100125,
+      "build": 17773,
+      "raster": 41517,
+      "vsyncOverhead": 19046
+    },
+    {
+      "number": 12827,
+      "startTime": 7277495735,
+      "elapsed": 47777,
+      "build": 1706,
+      "raster": 12419,
+      "vsyncOverhead": 4516
+    },
+    {
+      "number": 12828,
+      "startTime": 7277525807,
+      "elapsed": 50233,
+      "build": 1544,
+      "raster": 17771,
+      "vsyncOverhead": 17921
+    },
+    {
+      "number": 12829,
+      "startTime": 7277550757,
+      "elapsed": 37626,
+      "build": 3468,
+      "raster": 20272,
+      "vsyncOverhead": 9538
+    },
+    {
+      "number": 12830,
+      "startTime": 7277569818,
+      "elapsed": 56651,
+      "build": 1698,
+      "raster": 35483,
+      "vsyncOverhead": 11932
+    },
+    {
+      "number": 12831,
+      "startTime": 7277599332,
+      "elapsed": 116594,
+      "build": 2599,
+      "raster": 88929,
+      "vsyncOverhead": 8113
+    },
+    {
+      "number": 12832,
+      "startTime": 7277701890,
+      "elapsed": 178004,
+      "build": 31814,
+      "raster": 67061,
+      "vsyncOverhead": 77338
+    },
+    {
+      "number": 12833,
+      "startTime": 7277749639,
+      "elapsed": 115939,
+      "build": 15355,
+      "raster": 52293,
+      "vsyncOverhead": 8420
+    },
+    {
+      "number": 12835,
+      "startTime": 7277810111,
+      "elapsed": 93253,
+      "build": 8188,
+      "raster": 42198,
+      "vsyncOverhead": 2225
+    },
+    {
+      "number": 12837,
+      "startTime": 7277863496,
+      "elapsed": 109752,
+      "build": 10419,
+      "raster": 66005,
+      "vsyncOverhead": 5610
+    },
+    {
+      "number": 12839,
+      "startTime": 7277934620,
+      "elapsed": 102965,
+      "build": 8740,
+      "raster": 42121,
+      "vsyncOverhead": 26734
+    },
+    {
+      "number": 12840,
+      "startTime": 7277997437,
+      "elapsed": 137444,
+      "build": 35024,
+      "raster": 21994,
+      "vsyncOverhead": 56218
+    },
+    {
+      "number": 12841,
+      "startTime": 7278066114,
+      "elapsed": 61363,
+      "build": 13669,
+      "raster": 38457,
+      "vsyncOverhead": 8228
+    },
+    {
+      "number": 12842,
+      "startTime": 7278099593,
+      "elapsed": 63535,
+      "build": 11319,
+      "raster": 31890,
+      "vsyncOverhead": 8374
+    },
+    {
+      "number": 12843,
+      "startTime": 7278134004,
+      "elapsed": 81010,
+      "build": 11507,
+      "raster": 50466,
+      "vsyncOverhead": 9452
+    },
+    {
+      "number": 12844,
+      "startTime": 7278190092,
+      "elapsed": 91434,
+      "build": 3128,
+      "raster": 42686,
+      "vsyncOverhead": 32206
+    },
+    {
+      "number": 12845,
+      "startTime": 7278227879,
+      "elapsed": 84719,
+      "build": 7194,
+      "raster": 42957,
+      "vsyncOverhead": 19993
+    },
+    {
+      "number": 12846,
+      "startTime": 7278907387,
+      "elapsed": 57713,
+      "build": 9562,
+      "raster": 31271,
+      "vsyncOverhead": 16168
+    },
+    {
+      "number": 12847,
+      "startTime": 7278964129,
+      "elapsed": 82072,
+      "build": 9689,
+      "raster": 25437,
+      "vsyncOverhead": 22910
+    },
+    {
+      "number": 12848,
+      "startTime": 7279058615,
+      "elapsed": 190958,
+      "build": 17347,
+      "raster": 63524,
+      "vsyncOverhead": 84063
+    },
+    {
+      "number": 12849,
+      "startTime": 7279164824,
+      "elapsed": 215421,
+      "build": 8625,
+      "raster": 99418,
+      "vsyncOverhead": 106938
+    },
+    {
+      "number": 12850,
+      "startTime": 7279200791,
+      "elapsed": 538306,
+      "build": 21119,
+      "raster": 439083,
+      "vsyncOverhead": 26239
+    },
+    {
+      "number": 12852,
+      "startTime": 7279277948,
+      "elapsed": 491484,
+      "build": 36018,
+      "raster": 49803,
+      "vsyncOverhead": 3396
+    },
+    {
+      "number": 12854,
+      "startTime": 7279796853,
+      "elapsed": 129870,
+      "build": 29769,
+      "raster": 52460,
+      "vsyncOverhead": 38967
+    },
+    {
+      "number": 12855,
+      "startTime": 7279855946,
+      "elapsed": 140585,
+      "build": 5865,
+      "raster": 74819,
+      "vsyncOverhead": 14727
+    },
+    {
+      "number": 12856,
+      "startTime": 7279908497,
+      "elapsed": 165136,
+      "build": 33135,
+      "raster": 43181,
+      "vsyncOverhead": 33945
+    },
+    {
+      "number": 12858,
+      "startTime": 7280088751,
+      "elapsed": 113554,
+      "build": 3234,
+      "raster": 8293,
+      "vsyncOverhead": 97532
+    },
+    {
+      "number": 12859,
+      "startTime": 7280124701,
+      "elapsed": 33586,
+      "build": 2005,
+      "raster": 11111,
+      "vsyncOverhead": 16815
+    },
+    {
+      "number": 12860,
+      "startTime": 7280129657,
+      "elapsed": 58930,
+      "build": 1504,
+      "raster": 41521,
+      "vsyncOverhead": 5105
+    },
+    {
+      "number": 12861,
+      "startTime": 7280152238,
+      "elapsed": 82290,
+      "build": 3461,
+      "raster": 39619,
+      "vsyncOverhead": 11019
+    },
+    {
+      "number": 12863,
+      "startTime": 7280206775,
+      "elapsed": 73822,
+      "build": 8934,
+      "raster": 40641,
+      "vsyncOverhead": 15556
+    },
+    {
+      "number": 12864,
+      "startTime": 7280228341,
+      "elapsed": 98770,
+      "build": 1388,
+      "raster": 41418,
+      "vsyncOverhead": 20455
+    },
+    {
+      "number": 12867,
+      "startTime": 7280294166,
+      "elapsed": 89698,
+      "build": 32250,
+      "raster": 34184,
+      "vsyncOverhead": 19614
+    },
+    {
+      "number": 12868,
+      "startTime": 7280367973,
+      "elapsed": 75050,
+      "build": 11392,
+      "raster": 52371,
+      "vsyncOverhead": 10087
+    },
+    {
+      "number": 12869,
+      "startTime": 7280399735,
+      "elapsed": 68684,
+      "build": 6821,
+      "raster": 25487,
+      "vsyncOverhead": 8516
+    },
+    {
+      "number": 12870,
+      "startTime": 7280433193,
+      "elapsed": 244625,
+      "build": 1856,
+      "raster": 189963,
+      "vsyncOverhead": 25307
+    },
+    {
+      "number": 12872,
+      "startTime": 7280460481,
+      "elapsed": 260830,
+      "build": 5288,
+      "raster": 64323,
+      "vsyncOverhead": 2595
+    },
+    {
+      "number": 12874,
+      "startTime": 7280698551,
+      "elapsed": 92608,
+      "build": 15229,
+      "raster": 48088,
+      "vsyncOverhead": 7332
+    },
+    {
+      "number": 12875,
+      "startTime": 7280747702,
+      "elapsed": 123475,
+      "build": 37776,
+      "raster": 44876,
+      "vsyncOverhead": 39816
+    },
+    {
+      "number": 12876,
+      "startTime": 7280800390,
+      "elapsed": 216192,
+      "build": 22662,
+      "raster": 175612,
+      "vsyncOverhead": 9171
+    },
+    {
+      "number": 12877,
+      "startTime": 7280999475,
+      "elapsed": 214242,
+      "build": 3982,
+      "raster": 46941,
+      "vsyncOverhead": 158256
+    },
+    {
+      "number": 12878,
+      "startTime": 7281061209,
+      "elapsed": 77186,
+      "build": 5205,
+      "raster": 67289,
+      "vsyncOverhead": 3323
+    },
+    {
+      "number": 12879,
+      "startTime": 7281085129,
+      "elapsed": 125971,
+      "build": 39117,
+      "raster": 61193,
+      "vsyncOverhead": 10577
+    },
+    {
+      "number": 12880,
+      "startTime": 7281148939,
+      "elapsed": 113539,
+      "build": 31651,
+      "raster": 52372,
+      "vsyncOverhead": 7720
+    },
+    {
+      "number": 12881,
+      "startTime": 7281234392,
+      "elapsed": 93715,
+      "build": 6358,
+      "raster": 28135,
+      "vsyncOverhead": 43173
+    },
+    {
+      "number": 12882,
+      "startTime": 7281263641,
+      "elapsed": 63801,
+      "build": 3904,
+      "raster": 36519,
+      "vsyncOverhead": 5755
+    },
+    {
+      "number": 12883,
+      "startTime": 7281784407,
+      "elapsed": 36092,
+      "build": 4358,
+      "raster": 20087,
+      "vsyncOverhead": 9855
+    },
+    {
+      "number": 12884,
+      "startTime": 7281797306,
+      "elapsed": 98793,
+      "build": 1856,
+      "raster": 74612,
+      "vsyncOverhead": 6087
+    },
+    {
+      "number": 12886,
+      "startTime": 7281855781,
+      "elapsed": 106011,
+      "build": 3517,
+      "raster": 40121,
+      "vsyncOverhead": 31229
+    },
+    {
+      "number": 12888,
+      "startTime": 7281893888,
+      "elapsed": 252713,
+      "build": 3787,
+      "raster": 212569,
+      "vsyncOverhead": 2669
+    },
+    {
+      "number": 12889,
+      "startTime": 7281933548,
+      "elapsed": 453353,
+      "build": 1353,
+      "raster": 211739,
+      "vsyncOverhead": 25662
+    },
+    {
+      "number": 12891,
+      "startTime": 7282149001,
+      "elapsed": 493973,
+      "build": 11896,
+      "raster": 88998,
+      "vsyncOverhead": 191115
+    },
+    {
+      "number": 12894,
+      "startTime": 7282367571,
+      "elapsed": 216305,
+      "build": 9889,
+      "raster": 121944,
+      "vsyncOverhead": 9685
+    },
+    {
+      "number": 12897,
+      "startTime": 7282535327,
+      "elapsed": 189865,
+      "build": 14396,
+      "raster": 72536,
+      "vsyncOverhead": 77441
+    },
+    {
+      "number": 12898,
+      "startTime": 7282615281,
+      "elapsed": 243404,
+      "build": 16605,
+      "raster": 167104,
+      "vsyncOverhead": 40729
+    },
+    {
+      "number": 12899,
+      "startTime": 7282721802,
+      "elapsed": 258730,
+      "build": 4577,
+      "raster": 92182,
+      "vsyncOverhead": 63916
+    },
+    {
+      "number": 12903,
+      "startTime": 7282826610,
+      "elapsed": 232463,
+      "build": 16750,
+      "raster": 139546,
+      "vsyncOverhead": 2058
+    },
+    {
+      "number": 12905,
+      "startTime": 7282934545,
+      "elapsed": 337817,
+      "build": 15509,
+      "raster": 170646,
+      "vsyncOverhead": 43326
+    },
+    {
+      "number": 12906,
+      "startTime": 7283106782,
+      "elapsed": 228027,
+      "build": 14208,
+      "raster": 56511,
+      "vsyncOverhead": 48896
+    },
+    {
+      "number": 12908,
+      "startTime": 7283272387,
+      "elapsed": 73224,
+      "build": 18178,
+      "raster": 18456,
+      "vsyncOverhead": 31168
+    },
+    {
+      "number": 12909,
+      "startTime": 7283327063,
+      "elapsed": 22521,
+      "build": 1628,
+      "raster": 8857,
+      "vsyncOverhead": 2511
+    },
+    {
+      "number": 12910,
+      "startTime": 7283346763,
+      "elapsed": 74590,
+      "build": 2271,
+      "raster": 65077,
+      "vsyncOverhead": 5544
+    },
+    {
+      "number": 12911,
+      "startTime": 7283412364,
+      "elapsed": 87089,
+      "build": 1244,
+      "raster": 28787,
+      "vsyncOverhead": 54478
+    },
+    {
+      "number": 12912,
+      "startTime": 7283429109,
+      "elapsed": 37897,
+      "build": 1508,
+      "raster": 16915,
+      "vsyncOverhead": 4557
+    },
+    {
+      "number": 12913,
+      "startTime": 7284082816,
+      "elapsed": 117922,
+      "build": 74448,
+      "raster": 34413,
+      "vsyncOverhead": 8264
+    },
+    {
+      "number": 12914,
+      "startTime": 7284206128,
+      "elapsed": 123766,
+      "build": 20058,
+      "raster": 87466,
+      "vsyncOverhead": 14909
+    },
+    {
+      "number": 12915,
+      "startTime": 7284263242,
+      "elapsed": 123630,
+      "build": 56166,
+      "raster": 58169,
+      "vsyncOverhead": 5356
+    },
+    {
+      "number": 12916,
+      "startTime": 7284383082,
+      "elapsed": 46920,
+      "build": 7891,
+      "raster": 28247,
+      "vsyncOverhead": 8530
+    },
+    {
+      "number": 12917,
+      "startTime": 7284398864,
+      "elapsed": 118175,
+      "build": 42591,
+      "raster": 66783,
+      "vsyncOverhead": 7645
+    },
+    {
+      "number": 12918,
+      "startTime": 7284468518,
+      "elapsed": 121775,
+      "build": 30646,
+      "raster": 69321,
+      "vsyncOverhead": 10632
+    },
+    {
+      "number": 12919,
+      "startTime": 7284517013,
+      "elapsed": 158417,
+      "build": 8937,
+      "raster": 66395,
+      "vsyncOverhead": 9127
+    },
+    {
+      "number": 12920,
+      "startTime": 7285748781,
+      "elapsed": 147682,
+      "build": 62884,
+      "raster": 74121,
+      "vsyncOverhead": 7562
+    },
+    {
+      "number": 12921,
+      "startTime": 7285831729,
+      "elapsed": 151806,
+      "build": 12419,
+      "raster": 87034,
+      "vsyncOverhead": 7177
+    },
+    {
+      "number": 12923,
+      "startTime": 7285903165,
+      "elapsed": 288526,
+      "build": 57565,
+      "raster": 203132,
+      "vsyncOverhead": 11946
+    },
+    {
+      "number": 12924,
+      "startTime": 7285982481,
+      "elapsed": 283911,
+      "build": 19352,
+      "raster": 77457,
+      "vsyncOverhead": 7929
+    },
+    {
+      "number": 12927,
+      "startTime": 7286247688,
+      "elapsed": 64712,
+      "build": 10857,
+      "raster": 39054,
+      "vsyncOverhead": 6469
+    },
+    {
+      "number": 12928,
+      "startTime": 7287309841,
+      "elapsed": 65233,
+      "build": 46644,
+      "raster": 14533,
+      "vsyncOverhead": 1956
+    },
+    {
+      "number": 12929,
+      "startTime": 7287407158,
+      "elapsed": 72619,
+      "build": 19935,
+      "raster": 33824,
+      "vsyncOverhead": 15939
+    },
+    {
+      "number": 12930,
+      "startTime": 7287464294,
+      "elapsed": 69212,
+      "build": 1656,
+      "raster": 43158,
+      "vsyncOverhead": 23075
+    },
+    {
+      "number": 12931,
+      "startTime": 7287483540,
+      "elapsed": 60346,
+      "build": 23236,
+      "raster": 24135,
+      "vsyncOverhead": 8988
+    },
+    {
+      "number": 12932,
+      "startTime": 7287550919,
+      "elapsed": 32872,
+      "build": 4440,
+      "raster": 14628,
+      "vsyncOverhead": 9700
+    },
+    {
+      "number": 12933,
+      "startTime": 7287582111,
+      "elapsed": 25752,
+      "build": 1381,
+      "raster": 13757,
+      "vsyncOverhead": 7559
+    },
+    {
+      "number": 12934,
+      "startTime": 7287616333,
+      "elapsed": 27067,
+      "build": 1689,
+      "raster": 11542,
+      "vsyncOverhead": 8448
+    },
+    {
+      "number": 12935,
+      "startTime": 7287626653,
+      "elapsed": 47381,
+      "build": 6544,
+      "raster": 34171,
+      "vsyncOverhead": 2101
+    },
+    {
+      "number": 12936,
+      "startTime": 7287646665,
+      "elapsed": 84431,
+      "build": 11737,
+      "raster": 52371,
+      "vsyncOverhead": 5446
+    },
+    {
+      "number": 12937,
+      "startTime": 7287702398,
+      "elapsed": 83381,
+      "build": 19227,
+      "raster": 31468,
+      "vsyncOverhead": 27846
+    },
+    {
+      "number": 12938,
+      "startTime": 7287732472,
+      "elapsed": 80023,
+      "build": 2381,
+      "raster": 39142,
+      "vsyncOverhead": 7920
+    },
+    {
+      "number": 12940,
+      "startTime": 7287770677,
+      "elapsed": 101343,
+      "build": 2836,
+      "raster": 53662,
+      "vsyncOverhead": 12792
+    },
+    {
+      "number": 12941,
+      "startTime": 7288932834,
+      "elapsed": 67683,
+      "build": 9741,
+      "raster": 45467,
+      "vsyncOverhead": 8282
+    },
+    {
+      "number": 12942,
+      "startTime": 7288993704,
+      "elapsed": 209675,
+      "build": 23006,
+      "raster": 125148,
+      "vsyncOverhead": 35819
+    },
+    {
+      "number": 12943,
+      "startTime": 7289052920,
+      "elapsed": 225182,
+      "build": 65733,
+      "raster": 67838,
+      "vsyncOverhead": 28368
+    },
+    {
+      "number": 12946,
+      "startTime": 7289219317,
+      "elapsed": 130019,
+      "build": 16525,
+      "raster": 50859,
+      "vsyncOverhead": 44765
+    },
+    {
+      "number": 12947,
+      "startTime": 7289254059,
+      "elapsed": 149953,
+      "build": 392,
+      "raster": 86276,
+      "vsyncOverhead": 12840
+    },
+    {
+      "number": 12950,
+      "startTime": 7289377092,
+      "elapsed": 234085,
+      "build": 1223,
+      "raster": 146390,
+      "vsyncOverhead": 69207
+    },
+    {
+      "number": 12951,
+      "startTime": 7289452318,
+      "elapsed": 344472,
+      "build": 3236,
+      "raster": 226572,
+      "vsyncOverhead": 27766
+    },
+    {
+      "number": 12952,
+      "startTime": 7289600202,
+      "elapsed": 431110,
+      "build": 7564,
+      "raster": 152735,
+      "vsyncOverhead": 108983
+    },
+    {
+      "number": 12953,
+      "startTime": 7289921810,
+      "elapsed": 201041,
+      "build": 449,
+      "raster": 133465,
+      "vsyncOverhead": 63925
+    },
+    {
+      "number": 12954,
+      "startTime": 7291517520,
+      "elapsed": 117833,
+      "build": 13973,
+      "raster": 91192,
+      "vsyncOverhead": 9635
+    },
+    {
+      "number": 12955,
+      "startTime": 7291550872,
+      "elapsed": 177433,
+      "build": 8914,
+      "raster": 83877,
+      "vsyncOverhead": 9653
+    },
+    {
+      "number": 12958,
+      "startTime": 7291643862,
+      "elapsed": 255678,
+      "build": 31703,
+      "raster": 163797,
+      "vsyncOverhead": 2643
+    },
+    {
+      "number": 12960,
+      "startTime": 7291781025,
+      "elapsed": 259329,
+      "build": 5382,
+      "raster": 119356,
+      "vsyncOverhead": 23140
+    },
+    {
+      "number": 12963,
+      "startTime": 7291905278,
+      "elapsed": 214249,
+      "build": 2357,
+      "raster": 87692,
+      "vsyncOverhead": 14059
+    },
+    {
+      "number": 12965,
+      "startTime": 7292025732,
+      "elapsed": 243431,
+      "build": 6715,
+      "raster": 95585,
+      "vsyncOverhead": 67847
+    },
+    {
+      "number": 12967,
+      "startTime": 7292183618,
+      "elapsed": 184691,
+      "build": 1803,
+      "raster": 66825,
+      "vsyncOverhead": 75733
+    },
+    {
+      "number": 12968,
+      "startTime": 7292313513,
+      "elapsed": 60642,
+      "build": 2421,
+      "raster": 50658,
+      "vsyncOverhead": 5628
+    },
+    {
+      "number": 12969,
+      "startTime": 7293890208,
+      "elapsed": 177037,
+      "build": 75934,
+      "raster": 84317,
+      "vsyncOverhead": 15656
+    },
+    {
+      "number": 12970,
+      "startTime": 7294010814,
+      "elapsed": 283803,
+      "build": 49035,
+      "raster": 199500,
+      "vsyncOverhead": 19596
+    },
+    {
+      "number": 12971,
+      "startTime": 7294117031,
+      "elapsed": 326554,
+      "build": 50168,
+      "raster": 118972,
+      "vsyncOverhead": 42479
+    },
+    {
+      "number": 12972,
+      "startTime": 7294364940,
+      "elapsed": 143568,
+      "build": 17964,
+      "raster": 83358,
+      "vsyncOverhead": 23722
+    },
+    {
+      "number": 12973,
+      "startTime": 7295541739,
+      "elapsed": 298863,
+      "build": 153332,
+      "raster": 106816,
+      "vsyncOverhead": 17187
+    },
+    {
+      "number": 12974,
+      "startTime": 7295742730,
+      "elapsed": 209375,
+      "build": 82997,
+      "raster": 110118,
+      "vsyncOverhead": 1512
+    },
+    {
+      "number": 12975,
+      "startTime": 7295881918,
+      "elapsed": 135948,
+      "build": 3992,
+      "raster": 59096,
+      "vsyncOverhead": 7366
+    },
+    {
+      "number": 12977,
+      "startTime": 7295966327,
+      "elapsed": 144774,
+      "build": 16139,
+      "raster": 71093,
+      "vsyncOverhead": 25109
+    }
+  ]
+}

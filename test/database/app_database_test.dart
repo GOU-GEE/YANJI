@@ -42,7 +42,7 @@ void main() {
             .data
             .values
             .single,
-        3,
+        5,
       );
       expect(
         (await db.customSelect('PRAGMA foreign_keys').getSingle())
@@ -133,6 +133,43 @@ void main() {
       expect(row.read<int>('payload_schema_version'), 99);
       expect(row.read<String>('apply_state'), 'pending_schema');
     });
+  });
+
+  test('upgrade from version four preserves immutable history and adds local selection', () async {
+    final directory = await Directory.systemTemp.createTemp('yanji-upgrade-');
+    final file = File('${directory.path}/yanji.sqlite');
+    var disk = AppDatabase(openDatabaseFile(file));
+    try {
+      await insertFixture(disk);
+      await disk.customStatement('DROP TABLE local_workspace_selection');
+      await disk.customStatement('PRAGMA user_version = 4');
+      await disk.close();
+      disk = AppDatabase(openDatabaseFile(file));
+      expect(
+        await disk.customSelect('SELECT * FROM oplog').get(),
+        hasLength(1),
+      );
+      expect(
+        await disk
+            .customSelect('SELECT * FROM local_workspace_selection')
+            .get(),
+        isEmpty,
+      );
+      expect(
+        (await disk.customSelect('PRAGMA user_version').getSingle())
+            .data
+            .values
+            .single,
+        5,
+      );
+      await expectLater(
+        disk.customStatement('DELETE FROM oplog'),
+        throwsA(isA<Exception>()),
+      );
+    } finally {
+      await disk.close();
+      await directory.delete(recursive: true);
+    }
   });
 
   test(

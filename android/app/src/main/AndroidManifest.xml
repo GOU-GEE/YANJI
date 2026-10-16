@@ -2,11 +2,20 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+    <uses-permission android:name="com.hihonor.brain.permission.KIT_SERVICE_ACCESS" />
     <application
         android:label="研迹"
         android:allowBackup="false"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.oplus.ocs.card.AUTH_CODE"
+            android:value="${oppoSeedlingAuthCode}" />
+        <meta-data
+            android:name="com.hihonor.mcs.client.appid"
+            android:value="${honorSuggestionsAppId}" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,7 +37,33 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="yanji"
+                    android:host="live-activity"
+                    android:pathPrefix="/" />
+            </intent-filter>
         </activity>
+        <receiver
+            android:name=".StudyLiveActivityActionReceiver"
+            android:exported="false" />
+        <provider
+            android:name=".ongoing.oppo.YanjiSeedlingCardProvider"
+            android:authorities="${applicationId}.seedling.card"
+            android:enabled="${oppoSeedlingProviderEnabled}"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.oplus.seedling.action.SEEDLING_CARD" />
+            </intent-filter>
+        </provider>
+        <provider
+            android:name=".ongoing.oppo.YanjiSeedlingEventProvider"
+            android:authorities="${applicationId}.card.event.provider"
+            android:enabled="${oppoSeedlingProviderEnabled}"
+            android:exported="true" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

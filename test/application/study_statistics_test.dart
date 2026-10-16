@@ -61,6 +61,12 @@ void main() {
     expect(snapshot.previousWeekTotal, 70 * minute);
     expect(snapshot.weekChange, closeTo(57.142857, .00001));
     expect(snapshot.bySubject, {'math': 80 * minute, 'english': 100 * minute});
+    expect(snapshot.bySubjectIn(DateTime(2026, 9, 1), DateTime(2026, 9, 4)), {
+      'english': 100 * minute,
+    });
+    expect(snapshot.bySubjectIn(DateTime(2026, 8, 30), DateTime(2026, 8, 31)), {
+      'math': 20 * minute,
+    });
     expect(snapshot.weekBySubject, {
       'math': 10 * minute,
       'english': 100 * minute,
@@ -70,7 +76,7 @@ void main() {
     expect(snapshot.longestStreak, 3);
     expect(snapshot.currentStreak, 1);
     expect(snapshot.calendarDays, 12);
-    expect(snapshot.averagePerDay, 15 * minute);
+    expect(snapshot.averagePerDay, 36 * minute);
     expect(snapshot.daily.values.reduce((a, b) => a + b), snapshot.total);
   });
   for (final (month, day, hours) in [(3, 8, 23), (11, 1, 25)]) {
@@ -90,7 +96,7 @@ void main() {
       expect(stats.currentStreak, 1); // Today empty, yesterday carries streak.
       expect(stats.longestStreak, 1);
       expect(stats.calendarDays, 2);
-      expect(stats.averagePerDay, hours * 3600000 ~/ 2);
+      expect(stats.averagePerDay, hours * 3600000);
       expect(stats.previousWeekTotal, stats.total);
       expect(stats.weekChange, -100);
     });

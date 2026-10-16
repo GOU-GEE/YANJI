@@ -1,0 +1,41 @@
+{
+  "version_code": 6,
+  "emulator": "emulator-5554",
+  "phone_operated_this_round": false,
+  "certificate_sha256": "81e122f65a8cd86c0ef691edcc62f52f24bdf825752cba21276e742717c7cc04",
+  "sha256": {
+    "lib/design/glass/coolapk_navigation_style.dart": "b9adb4a33ac071180dad70fbdd0b32e25c5b405fe938779af7c9586c87b58b80",
+    "lib/design/glass/coolapk_navigation_surface.dart": "b76ea4334373c09ffaa10888a018f1f709acc1dbf22bf6f9c43bc8d023270bba",
+    "lib/design/glass/liquid_navigation_dock.dart": "4b3887b90b20070b4a8e8db77b8302e84486d0d1fc0cbfde79458866baf96248",
+    "assets/shaders/coolapk_navigation.frag": "f41115393dc95675ac6d05df057cf74a5d823ad56cd3f894f738f1d03be33e91",
+    "assets/shaders/coolapk_content.frag": "84bf9197cf5b4a7d53577ce3ebc46848beefc2c27b3b68e3aa883ff674a9b520",
+    "assets/shaders/coolapk_optics.glsl": "0120aa2c399141fbb95f41a96645f856c6250125e639ab10a5e9c05734aa6061",
+    "assets/shaders/coolapk_accent.frag": "5595a68b57554dae5267a5a96a98e09a7111896f7893d74ac7f5398252571893",
+    "packages/yanji_syncthing/android/build.gradle": "7cfa7f810b8e5e5f211a85466b69349c47d48dbdb7ef8b0a89737ff7b4e4b725",
+    "packages/yanji_syncthing/android/consumer-rules.pro": "af155f16ba71577cd6afd761a74b54a1d12b41e7984fffdbdbc599c5a587a8c7",
+    "pubspec.yaml": "7be60ef0ce747f1e751d7dd8e373fe03c2fdeab701af7f847da01ae8879108d1",
+    "tool/validate_coolapk_navigation.sh": "11bfc54898bd74ca54ef3b9348cc1d38b6b86cd54e7831724d3df1c7c8921016"
+  },
+  "apks": {
+    "normal": {
+      "path": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-12/yanji-normal-build6.apk",
+      "YANJI_PREVIEW": false,
+      "sha256": "b31ac981e97ba4180ada5db01e47c61e507dcb854109ab12f00729e95ac6b997",
+      "bytes": 110667575
+    },
+    "preview": {
+      "path": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-12/yanji-preview-build6.apk",
+      "YANJI_PREVIEW": true,
+      "sha256": "9bc5af290d2a104709451b2e4b66821646b2e0339d9b92e9e3ce8387dee534c7",
+      "bytes": 110667575
+    }
+  },
+  "original_android_configs_restored": {
+    "android/settings.gradle.kts": true,
+    "android/build.gradle.kts": true,
+    "android/app/build.gradle.kts": true,
+    "android/gradle/wrapper/gradle-wrapper.properties": true
+  },
+  "temporary_hooks_absent": true,
+  "source_version": true
+}

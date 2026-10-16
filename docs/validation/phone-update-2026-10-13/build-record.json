@@ -1,0 +1,25 @@
+{
+  "version_code": 15,
+  "YANJI_PREVIEW": false,
+  "device": "RMX3820 Android16",
+  "sha256": {
+    "lib/design/glass/liquid_navigation_dock.dart": "86d582401e3654ff4eec76a8f0840471933046bbdb705aa13d898f631a5772f0",
+    "lib/design/glass/coolapk_navigation_surface.dart": "46b68a134f1679aff8093edc0f0f4c349f57fc5b79217703c0d0f2e624fea096",
+    "lib/design/glass/coolapk_navigation_style.dart": "2fe8ba4af348ae467f9dbfe093cc96b601bfee40083f9d239c30145b31a98b9c",
+    "assets/shaders/coolapk_content.frag": "2d71d2f43d9b37d59fc2d6dc44263f34f8d12713cd09753edf3d7e146b120891",
+    "assets/shaders/coolapk_navigation.frag": "4ce74673d3efc9b374307451972884d9f50a88d7b8fc0ce2bd0ca650d9cdf77e",
+    "assets/shaders/coolapk_optics.glsl": "375e4c75c33bcfd61233dfd3bc4afc5b4be3283b277c63a47c5ccdbd6c422215",
+    "packages/yanji_syncthing/android/consumer-rules.pro": "af155f16ba71577cd6afd761a74b54a1d12b41e7984fffdbdbc599c5a587a8c7",
+    "packages/yanji_syncthing/android/build.gradle": "7cfa7f810b8e5e5f211a85466b69349c47d48dbdb7ef8b0a89737ff7b4e4b725"
+  },
+  "restored_settings": {
+    "android/settings.gradle.kts": true,
+    "android/build.gradle.kts": true,
+    "android/app/build.gradle.kts": true,
+    "android/gradle/wrapper/gradle-wrapper.properties": true,
+    "pubspec.yaml": true
+  },
+  "apk": "/Users/goulijun/Documents/project/YANJI/work/phone-update-2026-10-13/yanji-normal-build15.apk",
+  "apk_sha256": "ee4e2706a1575c16a15078710b379fef5871ac90295df1a2c35d8ad91e90c1ee",
+  "signature_sha256": "81e122f65a8cd86c0ef691edcc62f52f24bdf825752cba21276e742717c7cc04"
+}

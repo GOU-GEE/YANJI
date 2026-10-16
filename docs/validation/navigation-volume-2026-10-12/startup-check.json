@@ -1,0 +1,13 @@
+{
+  "device": "emulator-5554",
+  "mode": "release",
+  "preview": true,
+  "version_code": 8,
+  "pid": "9134",
+  "page_loaded": true,
+  "notification_permission": "granted_on_test_emulator_only",
+  "initial_wait_timeout_seconds": 60,
+  "phone_operated": false,
+  "capture_time_utc": "2026-10-12T07:25:45.504179+00:00",
+  "fatal_detected": false
+}

@@ -1,0 +1,9 @@
+{
+  "dpr": 3,
+  "outside_stddev": 120.95579908528316,
+  "bar_stddev": 14.754925141254772,
+  "bar_mean": 202.45945945945945,
+  "selected_mean": 182.21621621621622,
+  "expected_tint_only_stddev": 44.75364566155477,
+  "contrast_fraction_of_tint_only": 0.3296921384424747
+}

@@ -32,8 +32,9 @@ abstract final class YanJiLayout {
 
 abstract final class YanJiColors {
   static const primary = Color(0xFF355F4C);
-  static const canvasLight = Color(0xFFF7F8F4);
-  static const canvasDark = Color(0xFF151A18);
+  // Neutral reading surfaces; reserve the forest accent for meaningful states.
+  static const canvasLight = Color(0xFFFAFAFC);
+  static const canvasDark = Color(0xFF1C1C1E);
   static const transparent = Color(0x00000000);
 
   static Color canvas(Brightness b) =>
@@ -57,19 +58,31 @@ abstract final class YanJiColors {
       onPrimaryContainer: dark
           ? const Color(0xFFC6E8CF)
           : const Color(0xFF254532),
-      surface: dark ? const Color(0xFF1D2420) : const Color(0xFFFDFEF9),
+      surface: dark ? const Color(0xFF242426) : const Color(0xFFFFFFFF),
+      surfaceTint: transparent,
+      surfaceDim: dark ? canvasDark : const Color(0xFFE9E9EE),
+      surfaceBright: dark ? const Color(0xFF363638) : const Color(0xFFFFFFFF),
+      surfaceContainerLowest: dark
+          ? const Color(0xFF161618)
+          : const Color(0xFFFFFFFF),
       surfaceContainerLow: dark
-          ? const Color(0xFF252E28)
-          : const Color(0xFFEFF2EB),
+          ? const Color(0xFF242426)
+          : const Color(0xFFFFFFFF),
+      surfaceContainer: dark
+          ? const Color(0xFF28282A)
+          : const Color(0xFFF5F5F7),
       surfaceContainerHigh: dark
-          ? const Color(0xFF303B33)
-          : const Color(0xFFE6EBE2),
-      onSurface: dark ? const Color(0xFFE6EDE6) : const Color(0xFF222D27),
+          ? const Color(0xFF2C2C2E)
+          : const Color(0xFFEFEFF3),
+      surfaceContainerHighest: dark
+          ? const Color(0xFF363638)
+          : const Color(0xFFE9E9EE),
+      onSurface: dark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
       onSurfaceVariant: dark
-          ? const Color(0xFFADBCAF)
-          : const Color(0xFF58665C),
-      outline: dark ? const Color(0xFF819386) : const Color(0xFF748176),
-      outlineVariant: dark ? const Color(0xFF39483E) : const Color(0xFFD9E0D6),
+          ? const Color(0xFFB5B5BD)
+          : const Color(0xFF626269),
+      outline: dark ? const Color(0xFF8E8E98) : const Color(0xFF797982),
+      outlineVariant: dark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
       error: dark ? const Color(0xFFFFB4AB) : const Color(0xFFA43D39),
     );
   }
@@ -172,8 +185,9 @@ ThemeData yanjiThemeFor(Brightness brightness) {
       titleTextStyle: text.titleLarge,
     ),
     inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: colors.surface,
+      // Let text fields inherit the actual panel beneath them, including
+      // translucent glass dialogs, instead of painting an opaque white fill.
+      filled: false,
       border: inputBorder,
       enabledBorder: inputBorder,
       focusedBorder: inputBorder.copyWith(
@@ -317,5 +331,8 @@ SystemUiOverlayStyle yanjiSystemOverlayStyle(Brightness brightness) =>
 Widget yanjiSystemUiBuilder(BuildContext context, Widget? child) =>
     AnnotatedRegion<SystemUiOverlayStyle>(
       value: yanjiSystemOverlayStyle(Theme.of(context).brightness),
-      child: child ?? const SizedBox.shrink(),
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+        child: child ?? const SizedBox.shrink(),
+      ),
     );

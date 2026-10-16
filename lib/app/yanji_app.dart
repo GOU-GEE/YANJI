@@ -1,20 +1,39 @@
-import 'dart:async';
-import 'dart:ui' show ImageFilter;
+import 'package:flutter/rendering.dart' show ScrollDirection;
 
+import 'dart:async';
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../design/yanji_motion.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../application/study_app_controller.dart';
 import '../features/onboarding_page.dart';
+import '../features/shared.dart';
 import '../features/statistics_page.dart';
 import '../features/device_tree_page.dart';
 import '../features/subjects_page.dart';
 import '../features/tasks_pages.dart';
 import '../features/timer_review_pages.dart';
+import '../features/target_goal.dart';
+import '../features/oppo_fluid_cloud_debug_page.dart';
+import '../features/honor_magic_capsule_debug_page.dart';
 import 'dependencies.dart';
 import '../design/yanji_theme.dart';
+import '../design/glass/liquid_navigation_dock.dart';
+import '../design/glass/yanji_glass_theme.dart';
+import '../core/storage/platform_key_storage.dart';
+import '../sync/pairing/device_pairing_coordinator.dart';
+import '../sync/files/automatic_sync_controller.dart';
+import '../features/profile_sync_status.dart';
 
 ThemeData get yanjiTheme => yanjiThemeFor(Brightness.light);
 
@@ -102,17 +121,115 @@ class _ConfiguredApp extends StatefulWidget {
 class _ConfiguredAppState extends State<_ConfiguredApp>
     with WidgetsBindingObserver {
   Timer? progressTicker;
+  DevicePairingCoordinator? pairingCoordinator;
+  Future<DevicePairingCoordinator>? pairingOpening;
+  AutomaticSyncController? automaticSync;
+  Future<AutomaticSyncController>? syncOpening;
+  final syncNavigatorKey = GlobalKey<NavigatorState>();
+  final profileSync = ProfileSyncController();
+
+  Future<AutomaticSyncController> openAutomaticSync() {
+    final existing = automaticSync;
+    if (existing != null) return Future.value(existing);
+    return syncOpening ??=
+        (() async {
+          final coordinator = await openPairingCoordinator();
+          final support = await getApplicationSupportDirectory();
+          final sync = AutomaticSyncController(
+            app: widget.app,
+            pairing: coordinator,
+            directory: Directory(
+              p.join(support.path, 'sync', widget.app.identity.deviceId),
+            ),
+          );
+          if (!mounted) {
+            await sync.close();
+            throw StateError('应用已经关闭');
+          }
+          automaticSync = sync;
+          profileSync.bind(sync);
+          sync.start();
+          setState(() {});
+          return sync;
+        })().catchError((Object error) {
+          syncOpening = null;
+          throw error;
+        });
+  }
+
   Future<void> updateProgress() async {
     try {
       await widget.app.tickTaskProgress();
+      final action = await widget.app.handlePendingLiveActivityAction();
+      if ((action == 'open' || action == 'finish') &&
+          mounted &&
+          router.state.uri.path != '/timer') {
+        // Keep the current app page underneath the timer. Replacing the route
+        // here made a Live Activity deep link open the timer as the root page,
+        // leaving users with no back button.
+        unawaited(router.push('/timer'));
+      }
     } catch (_) {
       /* Controller retains the save error for retry. */
     }
   }
 
+  Future<void> initializeLiveActivity() async {
+    await updateProgress();
+    await widget.app.syncLiveActivity();
+  }
+
+  Future<DevicePairingCoordinator> openPairingCoordinator() {
+    final current = pairingCoordinator;
+    if (current != null) return Future.value(current);
+    return pairingOpening ??=
+        DevicePairingCoordinator.open(
+          widget.app,
+          PlatformTlsIdentityStorage(),
+        ).then((value) {
+          pairingCoordinator = value;
+          return value;
+        });
+  }
+
+  Future<void> syncPairedDevices() async {
+    final sync = await openAutomaticSync();
+    await sync.syncNow();
+  }
+
+  Future<void> warmPairingCoordinator() async {
+    try {
+      await openPairingCoordinator();
+      await openAutomaticSync();
+    } catch (_) {
+      pairingOpening = null;
+      // DevicePage and the sync button can retry after permissions/network
+      // become available.
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) unawaited(updateProgress());
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      unawaited(widget.app.checkpointStudyProgress());
+    }
+    if (state == AppLifecycleState.resumed) {
+      unawaited(updateProgress());
+      final coordinator = pairingCoordinator;
+      if (coordinator != null) unawaited(coordinator.refreshDiscovery());
+      unawaited(warmPairingCoordinator());
+      final sync = automaticSync;
+      if (sync != null) unawaited(sync.foreground());
+    }
+    if (state == AppLifecycleState.paused) {
+      final sync = automaticSync;
+      if (sync != null) unawaited(sync.background());
+    }
+    if (state == AppLifecycleState.detached) {
+      unawaited(widget.app.finishStudyForProcessExit());
+    }
   }
 
   late final GoRouter router;
@@ -123,6 +240,8 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
       router.refresh();
     }
   }
+
+  final rootScrollBucket = PageStorageBucket();
 
   Widget listen(Widget Function() builder) => ListenableBuilder(
     listenable: widget.app,
@@ -140,11 +259,22 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
       (_) => unawaited(updateProgress()),
     );
     router = GoRouter(
+      navigatorKey: syncNavigatorKey,
       redirect: (context, state) {
+        final isActivityOpen =
+            state.uri.path == '/open' ||
+            state.uri.path == '/live-activity/open';
+        final deferredActivityOpen =
+            state.uri.queryParameters['ongoing'] == 'open';
         if (!app.isReady && state.uri.path != '/device-tree') {
+          if (isActivityOpen) return '/onboarding?ongoing=open';
+          if (deferredActivityOpen) return null;
           return '/onboarding';
         }
-        if (state.uri.path == '/onboarding') return '/';
+        if (state.uri.path == '/onboarding') {
+          return deferredActivityOpen ? '/timer' : '/';
+        }
+        if (isActivityOpen) return '/timer';
         return null;
       },
       routes: [
@@ -154,12 +284,21 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
         ),
         ShellRoute(
           builder: (context, state, child) => listen(
-            () => _AppShell(app: app, path: state.uri.path, child: child),
+            () => _AppShell(
+              app: app,
+              path: state.uri.path,
+              scrollBucket: rootScrollBucket,
+              child: child,
+            ),
           ),
           routes: [
             GoRoute(
               path: '/',
-              builder: (context, state) => listen(() => TodayPage(app)),
+              pageBuilder: (context, state) => _rootPage(
+                state.pageKey,
+                context,
+                child: listen(() => TodayPage(app)),
+              ),
             ),
             GoRoute(
               path: '/tasks',
@@ -167,21 +306,46 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
             ),
             GoRoute(
               path: '/statistics',
-              builder: (context, state) => listen(() => StatisticsPage(app)),
+              pageBuilder: (context, state) => _rootPage(
+                state.pageKey,
+                context,
+                child: listen(() => StatisticsPage(app)),
+              ),
             ),
             GoRoute(
               path: '/profile',
-              builder: (context, state) => listen(() => ProfilePage(app)),
+              pageBuilder: (context, state) => _rootPage(
+                state.pageKey,
+                context,
+                child: listen(
+                  () => ProfilePage(
+                    app,
+                    onSync: syncPairedDevices,
+                    sync: automaticSync,
+                    syncFeedback: profileSync,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
         GoRoute(
           path: '/device-tree',
-          builder: (context, state) => listen(() => DevicePage(app)),
+          builder: (context, state) => listen(
+            () => DevicePage(
+              app,
+              coordinatorFactory: openPairingCoordinator,
+              disposeCoordinator: false,
+            ),
+          ),
         ),
         GoRoute(
           path: '/subjects',
           builder: (context, state) => listen(() => SubjectsPage(app)),
+        ),
+        GoRoute(
+          path: '/goal',
+          builder: (context, state) => listen(() => TargetGoalPage(app)),
         ),
         GoRoute(
           path: '/task/new',
@@ -201,15 +365,34 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
           path: '/review',
           builder: (context, state) => listen(() => ReviewPage(app)),
         ),
+        if (kDebugMode)
+          GoRoute(
+            path: '/debug/oppo-fluid-cloud',
+            builder: (context, state) => const OppoFluidCloudDebugPage(),
+          ),
+        if (kDebugMode)
+          GoRoute(
+            path: '/debug/honor-magic-capsule',
+            builder: (context, state) => const HonorMagicCapsuleDebugPage(),
+          ),
       ],
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(initializeLiveActivity());
+      unawaited(warmPairingCoordinator());
+    });
   }
 
   @override
   void dispose() {
     progressTicker?.cancel();
+    profileSync.dispose();
+    final sync = automaticSync;
+    if (sync != null) unawaited(sync.close());
     WidgetsBinding.instance.removeObserver(this);
     widget.app.removeListener(readinessChanged);
+    final coordinator = pairingCoordinator;
+    if (coordinator != null) unawaited(coordinator.close());
     router.dispose();
     super.dispose();
   }
@@ -233,152 +416,135 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
   );
 }
 
-class _AppShell extends StatelessWidget {
-  const _AppShell({required this.app, required this.path, required this.child});
+CustomTransitionPage<void> _rootPage(
+  LocalKey key,
+  BuildContext context, {
+  required Widget child,
+}) => CustomTransitionPage<void>(
+  key: key,
+  transitionDuration: YanJiMotion.durationOf(context),
+  reverseTransitionDuration: YanJiMotion.durationOf(context),
+  transitionsBuilder: (context, animation, secondary, child) {
+    if (YanJiMotion.reduced(context)) return child;
+    final progress = animation.drive(CurveTween(curve: YanJiMotion.curve));
+    return FadeTransition(
+      opacity: progress,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, .015),
+          end: Offset.zero,
+        ).animate(progress),
+        child: child,
+      ),
+    );
+  },
+  child: child,
+);
+
+class _AppShell extends StatefulWidget {
+  const _AppShell({
+    required this.app,
+    required this.path,
+    required this.scrollBucket,
+    required this.child,
+  });
   final StudyAppController app;
   final String path;
   final Widget child;
+  final PageStorageBucket scrollBucket;
   static const paths = ['/', '/statistics', '/profile'];
-  static const labels = ['今天', '数据', '我的'];
-  static const icons = [
-    Icons.today_outlined,
-    Icons.bar_chart_rounded,
-    Icons.person_outline,
-  ];
+  @override
+  State<_AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<_AppShell> {
+  static const paths = _AppShell.paths;
+  bool _scrollHidden = false;
+  String get path => widget.path;
+  Widget get child => widget.child;
+  PageStorageBucket get scrollBucket => widget.scrollBucket;
+  @override
+  void didUpdateWidget(_AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.path != widget.path) _scrollHidden = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final index = paths.indexOf(path), selected = index < 0 ? 0 : index;
-    if (MediaQuery.sizeOf(context).width >= YanJiLayout.railBreakpoint &&
-        MediaQuery.sizeOf(context).height >= YanJiLayout.railMinHeight) {
-      return Scaffold(
-        body: Row(
-          children: [
-            NavigationRail(
-              selectedIndex: selected,
-              onDestinationSelected: (i) => context.go(paths[i]),
-              labelType: NavigationRailLabelType.all,
-              destinations: List.generate(
-                paths.length,
-                (i) => NavigationRailDestination(
-                  icon: Icon(icons[i]),
-                  label: Text(labels[i]),
-                ),
-              ),
-            ),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: Semantics(
-                container: true,
-                explicitChildNodes: true,
-                child: child,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    final colors = Theme.of(context).colorScheme;
+    final landscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final safe = MediaQuery.viewPaddingOf(context);
+    final bottom = (safe.bottom - 12).clamp(8.0, double.infinity);
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 100;
+    final hidden = keyboardVisible || _scrollHidden;
+    final dockTransition =
+        MediaQuery.disableAnimationsOf(context) ||
+            MediaQuery.accessibleNavigationOf(context)
+        ? Duration.zero
+        : Duration(milliseconds: hidden ? 175 : 225);
     return Scaffold(
-      extendBody: true,
-      body: child,
-      bottomNavigationBar: SafeArea(
-        top: false,
-        bottom: false,
-        minimum: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          (MediaQuery.viewPaddingOf(context).bottom - 12).clamp(
-            8.0,
-            double.infinity,
-          ),
-        ),
-        child: Align(
-          heightFactor: 1,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 260),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: .10),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          YanjiDockClearance(
+            bottom: landscape ? 0 : LiquidNavigationDock.height + bottom + 16,
+            left: landscape ? LiquidNavigationDock.verticalWidth + 24 : 0,
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.depth != 0 ||
+                    notification.direction == ScrollDirection.idle) {
+                  return false;
+                }
+                final hide = notification.direction == ScrollDirection.reverse;
+                if (_scrollHidden != hide) {
+                  setState(() => _scrollHidden = hide);
+                }
+                return false;
+              },
+              child: RootPageScrollMemory(
+                bucket: scrollBucket,
+                child: RepaintBoundary(child: child),
+              ),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: colors.surface.withValues(alpha: .65),
-                    borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: .65),
-                    ),
-                  ),
-                  child: Material(
-                    key: const Key('navigation-dock'),
-                    color: Colors.transparent,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        children: List.generate(paths.length, (i) {
-                          final active = selected == i;
-                          final duration =
-                              MediaQuery.disableAnimationsOf(context)
-                              ? Duration.zero
-                              : const Duration(milliseconds: 200);
-                          return Expanded(
-                            child: Semantics(
-                              label: labels[i],
-                              selected: active,
-                              button: true,
-                              child: Tooltip(
-                                message: labels[i],
-                                excludeFromSemantics: true,
-                                child: InkWell(
-                                  key: ValueKey('nav-${paths[i]}'),
-                                  borderRadius: BorderRadius.circular(28),
-                                  onTap: () => context.go(paths[i]),
-                                  child: SizedBox(
-                                    height: 52,
-                                    child: Center(
-                                      child: AnimatedScale(
-                                        scale: active ? 1.16 : 1,
-                                        duration: duration,
-                                        curve: Curves.easeOutCubic,
-                                        child: AnimatedContainer(
-                                          duration: duration,
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: active
-                                                ? colors.primaryContainer
-                                                      .withValues(alpha: .72)
-                                                : Colors.transparent,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            icons[i],
-                                            color: active
-                                                ? colors.primary
-                                                : colors.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
+          ),
+          Positioned(
+            left: landscape ? safe.left + 8 : 20,
+            right: landscape ? null : 20,
+            top: landscape ? safe.top + 8 : null,
+            bottom: landscape ? safe.bottom + 8 : bottom,
+            child: IgnorePointer(
+              ignoring: hidden,
+              child: TweenAnimationBuilder<double>(
+                duration: dockTransition,
+                curve: Curves.easeOutCubic,
+                tween: Tween<double>(end: hidden ? 0 : 1),
+                builder: (context, visibility, _) => Opacity(
+                  opacity: visibility,
+                  child: AnimatedSlide(
+                    duration: dockTransition,
+                    curve: Curves.easeOutCubic,
+                    offset: hidden
+                        ? (landscape
+                              ? const Offset(-.45, 0)
+                              : const Offset(0, .45))
+                        : Offset.zero,
+                    child: AnimatedScale(
+                      duration: dockTransition,
+                      curve: Curves.easeOutCubic,
+                      scale: hidden ? .92 : 1,
+                      child: Align(
+                        alignment: landscape
+                            ? Alignment.centerLeft
+                            : Alignment.bottomCenter,
+                        child: LiquidNavigationDock(
+                          selected: selected,
+                          vertical: landscape,
+                          // Opacity uses an offscreen layer while fading. Its
+                          // backdrop filters must not sample that layer itself.
+                          refractBackdrop: visibility == 1,
+                          onSelected: (i) => context.go(paths[i]),
+                        ),
                       ),
                     ),
                   ),
@@ -386,7 +552,7 @@ class _AppShell extends StatelessWidget {
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
