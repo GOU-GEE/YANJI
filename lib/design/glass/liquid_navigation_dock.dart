@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:flutter/physics.dart';
 
 import 'coolapk_navigation_style.dart';
@@ -251,7 +251,7 @@ class _DockState extends State<LiquidNavigationDock>
         widget.capability ??
         (widget.quality == YanjiGlassQuality.reduced ||
                 const bool.fromEnvironment('YANJI_GLASS_REDUCED') ||
-                !ui.ImageFilter.isShaderFilterSupported
+                !supportsGlassShaders
             ? NavigationGlassCapability.blur
             : NavigationGlassCapability.liquid);
     final vertical = widget.vertical;

@@ -1,5 +1,6 @@
 # 鸿蒙模拟器导航玻璃修复（2026-10-16）
 
+> 历史记录：下文描述早期兼容材质。后续完整折射／色散实现与最新结果见[完整玻璃验收](full-glass-validation.md)。
 ## 原因
 
 官方 Flutter OHOS 3.41.9 嵌入层 `FlutterLoader.ets` 在 `deviceInfo.productModel == "emulator"` 时使用 Skia，即使生成的 `enable_impeller` 为 true。设备实际记录 `YANJI_NAV_SHADER_FILTER_SUPPORTED=false`。原导航兼容路径只有一次背景模糊、填色和外阴影，没有玻璃边缘高光或按压透镜。

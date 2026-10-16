@@ -74,18 +74,11 @@ schema v5，180 秒有效学习，迁移及 integrity_check 通过）。
 Flutter 异常或凭据错误。截图见
 [screenshots/05-today-after-security-validation.jpeg](screenshots/05-today-after-security-validation.jpeg)。
 
-## 导航玻璃兼容修复
+## 玻璃渲染
 
-模拟器的 Skia 兼容路径已补齐边缘高光、实时背景模糊和按压透镜；浅色、深色、
-拖动及背景更新的设备像素验收通过。原因、效果边界和复现见
-[导航玻璃验收](navigation-glass-validation.md)。
+此前的导航兼容材质和 FakeGlass 修复已由完整的 OHOS 背景采样着色器后端接续。当前实现覆盖导航折射、色散、按压透镜栏体收缩和共用分段滑块；验收复用原版光学像素阈值，另查原生日志和多层玻璃合成。
 
-## 共用玻璃渲染排查
-
-已修正共用质量选择遗漏鸿蒙，以及 FakeGlass 高级混合在模拟器编译失败的问题。
-模拟器实际报告 shader 滤镜不支持，
-弹窗、下拉菜单与分段指示器仍走 FakeGlass，完整液态折射尚未恢复或验收；
-相关 29 项主机测试和浅/深色共用控件设备验收通过，见[全局排查记录](shared-glass-validation.md)。
+详见[完整玻璃验收](full-glass-validation.md)。早期记录：[导航兼容材质](navigation-glass-validation.md)、[共用材质排查](shared-glass-validation.md)。
 
 ## 重现
 

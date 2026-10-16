@@ -2,22 +2,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yanji/design/glass/liquid_glass_quality.dart';
 
 void main() {
-  test('HarmonyOS enables full glass only on a capable renderer', () {
-    expect(
-      YanjiGlassQuality.forRenderer(
-        platform: 'ohos',
-        shaderFiltersSupported: true,
-      ),
-      YanjiGlassQuality.high,
-    );
-    expect(
-      YanjiGlassQuality.forRenderer(
-        platform: 'ohos',
-        shaderFiltersSupported: false,
-      ),
-      YanjiGlassQuality.reduced,
-    );
-  });
+  test(
+    'HarmonyOS uses captured shaders when native filters are unavailable',
+    () {
+      expect(
+        YanjiGlassQuality.forRenderer(
+          platform: 'ohos',
+          shaderFiltersSupported: true,
+        ),
+        YanjiGlassQuality.high,
+      );
+      expect(
+        YanjiGlassQuality.forRenderer(
+          platform: 'ohos',
+          shaderFiltersSupported: false,
+        ),
+        YanjiGlassQuality.high,
+      );
+    },
+  );
 
   test('web and explicit reduced mode take priority over platform support', () {
     for (final platform in ['ohos', 'iOS', 'macOS', 'android']) {

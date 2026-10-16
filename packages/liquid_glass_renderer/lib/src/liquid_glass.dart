@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_setters_without_getters
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -168,7 +167,7 @@ class LiquidGlass extends StatelessWidget {
   Widget _buildContent(BuildContext context, [GlassGroupLink? blendGroupLink]) {
     final settings = LiquidGlassSettings.of(context);
 
-    if (!ImageFilter.isShaderFilterSupported) {
+    if (!supportsGlassShaders) {
       return FakeGlass.inLayer(
         shape: shape,
         child: child,

@@ -51,6 +51,7 @@ flutter:
   uses-material-design: true
   shaders:
     - assets/shaders/coolapk_navigation.frag
+    - assets/shaders/coolapk_navigation_captured.frag
     - assets/shaders/coolapk_content.frag
     - assets/shaders/coolapk_accent.frag
   assets:

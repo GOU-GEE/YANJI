@@ -23,6 +23,11 @@ vec2 lensShift(vec2 p, vec2 halfSize, float radius, float height, float amount) 
 vec4 rawSourceAt(vec2 coord) {
   // The local engine's backdrop input is already screen-oriented on GLES.
   // This is verified by the red-top/blue-bottom acceptance scene.
+  #ifdef CAPTURED_BACKDROP
+  if (uCaptureBounds.z > 0.0) {
+    return texture(uInput, clamp(coord - uCaptureBounds.xy, vec2(0.5), uCaptureBounds.zw - 0.5) / uCaptureBounds.zw);
+  }
+  #endif
   return texture(uInput, clamp(coord, vec2(0.5), uSize - 0.5) / uSize);
 }
 vec4 sourceAt(vec2 coord) {

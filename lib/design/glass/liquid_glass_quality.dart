@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-/// High requires shader backdrop filters (Impeller), and Android API 33+.
-/// HarmonyOS is eligible when its running engine supports those filters.
+/// High uses native shader filters or the OHOS captured-shader backend.
+/// Android keeps the existing Impeller and API 33+ requirements.
 /// YANJI_GLASS_REDUCED is a build-time escape hatch for slower devices.
 enum YanjiGlassQuality {
   high,
@@ -52,9 +52,11 @@ enum YanjiGlassQuality {
     bool forceReduced = false,
     int? androidSdk,
   }) {
-    if (web || forceReduced || !shaderFiltersSupported) return reduced;
+    if (web || forceReduced) return reduced;
+    if (platform == 'ohos') return high;
+    if (!shaderFiltersSupported) return reduced;
     return switch (platform) {
-      'ohos' || 'iOS' || 'macOS' => high,
+      'iOS' || 'macOS' => high,
       'android' when androidSdk != null && androidSdk >= 33 => high,
       _ => reduced,
     };

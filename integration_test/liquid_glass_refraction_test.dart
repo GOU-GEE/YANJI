@@ -20,7 +20,7 @@ void main() {
           ? 'independent indicator refracts the outer glass backdrop'
           : 'optical rim displaces backdrop pixels without blur or lighting',
       (tester) async {
-        expect(ui.ImageFilter.isShaderFilterSupported, isTrue);
+        expect(supportsGlassShaders, isTrue);
         await binding.convertFlutterSurfaceToImage();
         final index = ValueNotifier(1.0);
         final lensKey = GlobalKey();

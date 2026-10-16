@@ -3,6 +3,8 @@ library liquid_glass_renderer;
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 
+export 'src/captured_backdrop.dart'
+    show CapturedBackdropLayer, usesCapturedGlass, supportsGlassShaders;
 export 'src/fake_glass.dart' show FakeGlass;
 export 'src/glass_glow.dart' show GlassGlow, GlassGlowLayer;
 export 'src/liquid_glass.dart' show LiquidGlass;

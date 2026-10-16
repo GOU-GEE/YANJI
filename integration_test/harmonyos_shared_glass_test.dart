@@ -30,7 +30,9 @@ void main() {
       expect(defaultTargetPlatform.name, 'ohos');
       expect(
         quality,
-        supported ? YanjiGlassQuality.high : YanjiGlassQuality.reduced,
+        supportsGlassShaders
+            ? YanjiGlassQuality.high
+            : YanjiGlassQuality.reduced,
       );
       final output = Directory(
         '${(await getAppSupportDirectory()).path}/shared-glass-acceptance',
@@ -145,7 +147,7 @@ void main() {
         final sharedLayer = tester.widget<LiquidGlassLayer>(
           find.byType(LiquidGlassLayer).first,
         );
-        expect(sharedLayer.fake, !supported);
+        expect(sharedLayer.fake, !supportsGlassShaders);
         await tester.tap(find.byKey(const Key('shared-subject')));
         await shot('${brightness.name}-dropdown');
         await tester.tap(find.text('英语').last);
@@ -167,7 +169,9 @@ void main() {
         await tester.tap(find.text('确定'));
         await tester.pumpAndSettle();
         expect(confirmations, 1);
-      if (!page.mounted) fail('The acceptance page was unexpectedly unmounted');
+        if (!page.mounted) {
+          fail('The acceptance page was unexpectedly unmounted');
+        }
         GlassNotice.show(page, '共用浮层验收');
         await shot('${brightness.name}-notice');
         await tester.pump(const Duration(seconds: 4));
@@ -177,6 +181,7 @@ void main() {
         'platform': defaultTargetPlatform.name,
         'shaderFiltersSupported': supported,
         'quality': quality.name,
+        'capturedShaderBackend': usesCapturedGlass,
         'fullRefractionVerified': false,
         'compatibilityControlsPassed': true,
         'themes': ['dark', 'light'],

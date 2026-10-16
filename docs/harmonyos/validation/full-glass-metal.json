@@ -1,0 +1,33 @@
+{
+  "target": "runtime-stage-metal",
+  "shaders": [
+    {
+      "shader": "assets/shaders/coolapk_navigation.frag",
+      "success": true
+    },
+    {
+      "shader": "assets/shaders/coolapk_content.frag",
+      "success": true
+    },
+    {
+      "shader": "assets/shaders/coolapk_navigation_captured.frag",
+      "success": true
+    },
+    {
+      "shader": "packages/liquid_glass_renderer/lib/assets/shaders/liquid_glass_final_render.frag",
+      "success": true
+    },
+    {
+      "shader": "packages/liquid_glass_renderer/lib/assets/shaders/liquid_glass_geometry_blended.frag",
+      "success": true
+    },
+    {
+      "shader": "packages/liquid_glass_renderer/lib/assets/shaders/liquid_glass_final_captured.frag",
+      "success": true
+    },
+    {
+      "shader": "packages/liquid_glass_renderer/lib/assets/shaders/liquid_glass_geometry_captured.frag",
+      "success": true
+    }
+  ]
+}

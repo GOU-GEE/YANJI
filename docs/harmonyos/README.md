@@ -91,7 +91,6 @@ tool/flutter_ohos.sh test --no-pub
 
 ## 共用玻璃渲染
 
-已修正鸿蒙即使支持 shader 滤镜也被全局降为 reduced 的质量选择问题。
-共用 FakeGlass 在 Skia 下的染色/高光改用受支持的混合模式，修复模拟器底层着色器编译失败导致的绘制丢失。
-当前官方模拟器的 shader 滤镜能力仍为 false，只能显示兼容材质；全局完整折射尚未在鸿蒙设备验证。
-相关 29 项主机测试及模拟器共用控件交互通过，见[共用玻璃排查](shared-glass-validation.md)。
+API 26 模拟器的 Skia 不支持原生 `ImageFilter.shader`。现通过 OHOS 专用的当前帧背景采样后端运行原版光学着色器，覆盖导航栏、按压滑块与日／周／月等共用玻璃组件。保留原版折射、色散与栏体收缩参数，原生 Impeller 平台继续走原路径。
+
+原兼容材质记录保留为历史；当前实现、严格验收命令及像素指标见[完整玻璃验收](full-glass-validation.md)。

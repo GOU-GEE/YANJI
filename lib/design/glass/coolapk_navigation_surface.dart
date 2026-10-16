@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
 import 'coolapk_navigation_style.dart';
 import 'navigation_backdrop_layer.dart';
@@ -58,7 +58,7 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
   @override
   void initState() {
     super.initState();
-    if (ui.ImageFilter.isShaderFilterSupported && !kIsWeb) {
+    if (supportsGlassShaders) {
       (_programs ??= _load()).then(
         (programs) {
           if (!mounted) return;
@@ -89,7 +89,11 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
 
   static Future<(ui.FragmentProgram, ui.FragmentProgram)> _load() async {
     final programs = await Future.wait([
-      ui.FragmentProgram.fromAsset('assets/shaders/coolapk_navigation.frag'),
+      ui.FragmentProgram.fromAsset(
+        usesCapturedGlass
+            ? 'assets/shaders/coolapk_navigation_captured.frag'
+            : 'assets/shaders/coolapk_navigation.frag',
+      ),
       ui.FragmentProgram.fromAsset('assets/shaders/coolapk_content.frag'),
     ]);
     return (programs[0], programs[1]);
@@ -106,8 +110,7 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final capable =
-        !kIsWeb && ui.ImageFilter.isShaderFilterSupported && _failure == null;
+    final capable = supportsGlassShaders && _failure == null;
     final requested = widget.sampleBackdrop
         ? widget.capability
         : NavigationGlassCapability.translucent;
@@ -116,7 +119,9 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
         : requested;
     final backgroundReady =
         _background != null &&
-        effective != NavigationGlassCapability.translucent;
+        (effective == NavigationGlassCapability.liquid ||
+            (!usesCapturedGlass &&
+                effective == NavigationGlassCapability.blur));
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final press = widget.press.clamp(0.0, 1.0);
     return Semantics(
@@ -445,6 +450,7 @@ class _BackgroundRender extends RenderBox {
   _BackgroundRender(this.config);
   _OpticalBackground config;
   final _handle = LayerHandle<NavigationBackdropLayer>();
+  final _captureHandle = LayerHandle<CapturedBackdropLayer>();
   @override
   bool get alwaysNeedsCompositing => true;
   @override
@@ -514,6 +520,32 @@ class _BackgroundRender extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (usesCapturedGlass) {
+      final view = RendererBinding.instance.platformDispatcher.views.first;
+      final layer = CapturedBackdropLayer(
+        transform: () => getTransformTo(null),
+        bounds: () => (Offset.zero & size).expandToInclude(config.thumb),
+        viewport: () => view.physicalSize,
+        dpr: config.dpr,
+        shader: config.shader,
+        blur: config.thumbLayer
+            ? CoolapkNavigationStyle.blur * (1 - config.press)
+            : CoolapkNavigationStyle.blur,
+        bind: (image, crop) {
+          _bind();
+          config.shader.setFloat(0, view.physicalSize.width);
+          config.shader.setFloat(1, view.physicalSize.height);
+          final values = [crop.left, crop.top, crop.width, crop.height];
+          for (var i = 0; i < values.length; i++) {
+            config.shader.setFloat(29 + i, values[i]);
+          }
+          config.shader.setImageSampler(0, image);
+        },
+      )..paintOffset = offset;
+      _captureHandle.layer = layer;
+      context.pushLayer(layer, (context, offset) {}, offset);
+      return;
+    }
     final layer = (_handle.layer ??= NavigationBackdropLayer(
       _filter,
       config.backdropKey,
@@ -524,6 +556,7 @@ class _BackgroundRender extends RenderBox {
   @override
   void dispose() {
     _handle.layer = null;
+    _captureHandle.layer = null;
     super.dispose();
   }
 }
@@ -559,20 +592,19 @@ class _OpticalContent extends SingleChildRenderObjectWidget {
 }
 
 class _ContentRender extends RenderProxyBox {
+  ui.Image? _capturedGlyphs;
+  OffsetLayer? _glyphLayer;
   _ContentRender(this.config);
   _OpticalContent config;
   @override
   bool get alwaysNeedsCompositing => isRepaintBoundary;
   @override
-  bool get isRepaintBoundary => config.press > .0001;
+  bool get isRepaintBoundary => !usesCapturedGlass && config.press > .0001;
   @override
   Rect get paintBounds =>
       (Offset.zero & size).inflate(CoolapkNavigationStyle.captureBleed);
 
-  @override
-  OffsetLayer updateCompositedLayer({
-    required covariant ImageFilterLayer? oldLayer,
-  }) {
+  void _bindContent() {
     // A repaint boundary paints its children at local zero. Passing an absolute
     // paint offset into a nested ImageFilterLayer would shift the capture twice.
     final values = <double>[
@@ -591,12 +623,48 @@ class _ContentRender extends RenderProxyBox {
     for (var i = 0; i < values.length; i++) {
       config.shader.setFloat(i + 2, values[i]);
     }
+  }
+
+  @override
+  OffsetLayer updateCompositedLayer({
+    required covariant ImageFilterLayer? oldLayer,
+  }) {
+    _bindContent();
     return (oldLayer ?? ImageFilterLayer())
       ..imageFilter = ui.ImageFilter.shader(config.shader);
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (usesCapturedGlass && config.press > .0001) {
+      final layer = OffsetLayer();
+      final capture = _IsolatedPaintingContext(layer, paintBounds);
+      super.paint(capture, Offset.zero);
+      capture.finish();
+      final image = layer.toImageSync(paintBounds, pixelRatio: config.dpr);
+      _bindContent();
+      config.shader.setFloat(0, image.width.toDouble());
+      config.shader.setFloat(1, image.height.toDouble());
+      config.shader.setImageSampler(0, image);
+      context.canvas.save();
+      context.canvas.translate(
+        offset.dx + paintBounds.left,
+        offset.dy + paintBounds.top,
+      );
+      context.canvas.scale(1 / config.dpr);
+      context.canvas.drawRect(
+        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+        Paint()..shader = config.shader,
+      );
+      context.canvas.restore();
+      // A scene image is rasterized lazily. Retain its input layers until the
+      // next paint, so glyph textures survive the current GPU submission.
+      _capturedGlyphs?.dispose();
+      _glyphLayer?.dispose();
+      _capturedGlyphs = image;
+      _glyphLayer = layer;
+      return;
+    }
     if (isRepaintBoundary) {
       // The boundary isolates this src command from the backdrop. At rest,
       // paint glyphs normally without introducing an empty filter capture.
@@ -608,6 +676,13 @@ class _ContentRender extends RenderProxyBox {
       );
     }
     super.paint(context, offset);
+  }
+
+  @override
+  void dispose() {
+    _capturedGlyphs?.dispose();
+    _glyphLayer?.dispose();
+    super.dispose();
   }
 }
 
@@ -723,4 +798,9 @@ class _BackgroundClipper extends CustomClipper<Path> {
       thumb != old.thumb ||
       thumbLayer != old.thumbLayer ||
       barScale != old.barScale;
+}
+
+class _IsolatedPaintingContext extends PaintingContext {
+  _IsolatedPaintingContext(super.containerLayer, super.estimatedBounds);
+  void finish() => stopRecordingIfNeeded();
 }

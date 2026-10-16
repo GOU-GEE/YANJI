@@ -14,7 +14,7 @@ void main() {
   testWidgets('rim magnifies immediately and tapers to a clear center', (
     tester,
   ) async {
-    expect(ui.ImageFilter.isShaderFilterSupported, isTrue);
+    expect(supportsGlassShaders, isTrue);
     await binding.convertFlutterSurfaceToImage();
     final mode = ValueNotifier(0);
     const lensKey = Key('edge-optics-lens');
@@ -108,6 +108,12 @@ void main() {
     debugPrint(
       'EDGE_PROFILE oldEdge=$oldEdge newEdge=$newEdge inner=$inner center=$center DPR=$dpr',
     );
+    binding.reportData!['edge_profile'] = {
+      'old_edge': oldEdge,
+      'new_edge': newEdge,
+      'inner': inner,
+      'center': center,
+    };
     expect(newEdge, greaterThan(oldEdge + 3));
     expect(newEdge, greaterThan(inner + 2));
     expect(center.abs(), lessThan(2));

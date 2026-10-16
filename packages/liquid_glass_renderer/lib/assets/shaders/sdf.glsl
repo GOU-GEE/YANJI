@@ -1,6 +1,8 @@
 // Shape array uniforms - 6 floats per shape (type, centerX, centerY, sizeW, sizeH, cornerRadius)
 // Reduced from 64 to 16 shapes to fit Impeller's uniform buffer limit (16 * 6 = 96 floats vs 384)
-#define MAX_SHAPES 16
+// MAX_SHAPES and uShapeData are declared by the calling shader.
+// Read the uniform directly: passing arrays through functions makes the
+// SPIR-V -> SkSL compiler emit unsupported array-copy initializers.
 
 float sdfRRect( in vec2 p, in vec2 b, in float r ) {
     float shortest = min(b.x, b.y);
@@ -60,42 +62,47 @@ float getShapeSDF(float type, vec2 p, vec2 center, vec2 size, float r) {
     return 1e9; // none
 }
 
-float getShapeSDFFromArray(int index, vec2 p, float shapeData[MAX_SHAPES * 6]) {
+#ifdef YANJI_CAPTURED_BACKEND
+#include "sdf_captured_shapes.glsl"
+#else
+float getShapeSDFFromArray(int index, vec2 p) {
     int baseIndex = index * 6;
-    float type = shapeData[baseIndex];
-    vec2 center = vec2(shapeData[baseIndex + 1], shapeData[baseIndex + 2]);
-    vec2 size = vec2(shapeData[baseIndex + 3], shapeData[baseIndex + 4]);
-    float cornerRadius = shapeData[baseIndex + 5];
+    float type = uShapeData[baseIndex];
+    vec2 center = vec2(uShapeData[baseIndex + 1], uShapeData[baseIndex + 2]);
+    vec2 size = vec2(uShapeData[baseIndex + 3], uShapeData[baseIndex + 4]);
+    float cornerRadius = uShapeData[baseIndex + 5];
     
     return getShapeSDF(type, p, center, size, cornerRadius);
 }
+#endif
 
-float sceneSDF(vec2 p, int numShapes, float shapeData[MAX_SHAPES * 6], float blend) {
+float sceneSDF(vec2 p, int numShapes, float blend) {
     if (numShapes == 0) {
         return 1e9;
     }
     
-    float result = getShapeSDFFromArray(0, p, shapeData);
+    float result = getShapeSDFFromArray(0, p);
     
     // Optimized: unroll for common cases (1-4 shapes), use loop for 5+ shapes
     if (numShapes <= 4) {
         // Fully unrolled for 1-4 shapes (covers 90%+ of use cases)
         if (numShapes >= 2) {
-            float shapeSDF = getShapeSDFFromArray(1, p, shapeData);
+            float shapeSDF = getShapeSDFFromArray(1, p);
             result = smoothUnion(result, shapeSDF, blend);
         }
         if (numShapes >= 3) {
-            float shapeSDF = getShapeSDFFromArray(2, p, shapeData);
+            float shapeSDF = getShapeSDFFromArray(2, p);
             result = smoothUnion(result, shapeSDF, blend);
         }
         if (numShapes >= 4) {
-            float shapeSDF = getShapeSDFFromArray(3, p, shapeData);
+            float shapeSDF = getShapeSDFFromArray(3, p);
             result = smoothUnion(result, shapeSDF, blend);
         }
     } else {
         // Dynamic loop for 5+ shapes (uncommon cases)
-        for (int i = 1; i < min(numShapes, MAX_SHAPES); i++) {
-            float shapeSDF = getShapeSDFFromArray(i, p, shapeData);
+        for (int i = 1; i < MAX_SHAPES; i++) {
+            if (i >= numShapes) break;
+            float shapeSDF = getShapeSDFFromArray(i, p);
             result = smoothUnion(result, shapeSDF, blend);
         }
     }

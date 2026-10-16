@@ -1,5 +1,5 @@
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,7 @@ import 'package:integration_test/integration_test.dart';
 
 import 'support/navigation_capture.dart';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:yanji/core/platform/app_support_directory.dart';
 import 'package:yanji/app/dependencies.dart';
 import 'package:yanji/app/yanji_app.dart';
 import 'package:yanji/application/study_app_controller.dart';
@@ -56,7 +56,7 @@ void main() {
       await app.stopStudy();
     }
     final output = Directory(
-      '${(await getApplicationDocumentsDirectory()).path}/liquid-glass-preview',
+      '${(await getAppSupportDirectory()).path}/liquid-glass-preview',
     );
     await output.create(recursive: true);
     final brightness = ValueNotifier(Brightness.light);
@@ -94,7 +94,7 @@ void main() {
     try {
       await tester.pumpAndSettle();
       // The simulator must exercise the real optical path, not a mock renderer.
-      expect(ui.ImageFilter.isShaderFilterSupported, isTrue);
+      expect(supportsGlassShaders, isTrue);
       for (final mode in Brightness.values) {
         brightness.value = mode;
         await tester.pumpAndSettle();
