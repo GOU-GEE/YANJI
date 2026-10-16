@@ -33,6 +33,11 @@ dependencies:
   yanji_syncthing:
     path: packages/yanji_syncthing
 
+dependency_overrides:
+  # Upstream 3.5.2 bindings, with a narrowly scoped HarmonyOS build hook.
+  sqlite3:
+    path: packages/sqlite3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

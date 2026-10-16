@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import '../core/platform/app_support_directory.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -134,7 +134,7 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
     return syncOpening ??=
         (() async {
           final coordinator = await openPairingCoordinator();
-          final support = await getApplicationSupportDirectory();
+          final support = await getAppSupportDirectory();
           final sync = AutomaticSyncController(
             app: widget.app,
             pairing: coordinator,
