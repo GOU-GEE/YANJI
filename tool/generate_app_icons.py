@@ -92,7 +92,7 @@ for density, size in [('mdpi', 48), ('hdpi', 72), ('xhdpi', 96), ('xxhdpi', 144)
 # Android 26+ gets a vector foreground and a separate solid background.
 # 0.72 keeps the complete artwork inside the 66 dp safe circle on a 108 dp layer.
 paths = svg.findall(f'.//{{{SVG_NS}}}path')
-assert len(paths) == 2
+assert paths and not svg.findall(f'.//{{{SVG_NS}}}image')
 foreground_paths = '\n'.join(
     f'            <path android:fillColor="#FF{foreground_color[1:]}" android:pathData="{p.attrib["d"]}" />'
     for p in paths
