@@ -123,6 +123,8 @@ tool/build_harmonyos_unsigned.sh integration_test/harmonyos_dart_sync_test.dart
 
 ## 待验收
 
+2026-10-17 已补齐[时钟镂空启动动画验收](startup-reveal-validation.md)：7 项设备用例、正式入口冷启动及保留路由的前后台切换通过；完整预览入口已恢复，44 条会话与 44 条分段未改变。
+
 2026-10-17 已补齐[计时通知验收](study-notifications-and-liveview.md)：普通通知开始、暂停、恢复、点击返回和结束清除均在 API 26 模拟器通过，正式 App 入口已恢复。Live View Kit 实况胶囊仍需场景权益与真机验收，不能用普通通知成功替代。
 
 真机签名、最低支持系统 5.0.5(17)、系统后台与功耗策略、真机摄像头扫码、

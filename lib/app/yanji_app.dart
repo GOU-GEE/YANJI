@@ -26,6 +26,7 @@ import '../features/target_goal.dart';
 import '../features/oppo_fluid_cloud_debug_page.dart';
 import '../features/honor_magic_capsule_debug_page.dart';
 import 'dependencies.dart';
+import 'startup_reveal.dart';
 import '../design/yanji_theme.dart';
 import '../design/glass/liquid_navigation_dock.dart';
 import '../design/glass/yanji_glass_theme.dart';
@@ -39,9 +40,12 @@ ThemeData get yanjiTheme => yanjiThemeFor(Brightness.light);
 class YanJiApp extends ConsumerWidget {
   const YanJiApp({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ref
-      .watch(appControllerProvider)
-      .when(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrap = ref.watch(appControllerProvider);
+    return StartupReveal(
+      ready: bootstrap.hasValue && !bootstrap.hasError,
+      failed: bootstrap.hasError,
+      child: bootstrap.when(
         data: (app) => _ConfiguredApp(app),
         loading: () => MaterialApp(
           builder: yanjiSystemUiBuilder,
@@ -56,18 +60,7 @@ class YanJiApp extends ConsumerWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('研迹', style: YanJiTypography.textTheme.headlineMedium),
-                  SizedBox(height: YanJiSpacing.lg),
-                  const CircularProgressIndicator(),
-                ],
-              ),
-            ),
-          ),
+          home: const Scaffold(backgroundColor: Colors.white),
         ),
         error: (error, stack) => MaterialApp(
           builder: yanjiSystemUiBuilder,
@@ -112,7 +105,9 @@ class YanJiApp extends ConsumerWidget {
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _ConfiguredApp extends StatefulWidget {

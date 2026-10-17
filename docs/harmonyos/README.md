@@ -58,6 +58,8 @@ tool/flutter_ohos.sh test --no-pub
 
 ## 验收边界
 
+时钟启动图标现支持镂空放大揭幕，已补齐原生窗口到 Flutter 首帧的 SVG 衔接。API 26 模拟器冷启动、前后台切换及 7 项设备用例通过，主机回归 252 项通过；演示、复现与平台边界见[启动动画验收](startup-reveal-validation.md)。
+
 计时通知的实现、设备证据与“上岛”接入准备见[鸿蒙计时通知与实况胶囊](study-notifications-and-liveview.md)。普通通知已经可用，后台显示本段开始时间；系统持续跳秒的实况胶囊尚未接入或验收。
 
 主机上的 Flutter 测试用于检查版本调整有没有破坏现有 Dart/Widget 行为，不能证明 SQLite 动态库、HUKS、权限和后台行为在鸿蒙可用。后续先用无业务依赖的通用 Flutter 工程验证 HAP 构建，再进入 SQLite 和安全存储适配；完整 App 构建也可能触发 SQLite hook，不能用它替代独立的工具链验证。
