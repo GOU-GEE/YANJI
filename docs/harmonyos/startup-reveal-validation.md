@@ -58,4 +58,4 @@ hdc -t <device> shell aa start -a EntryAbility -b com.example.yanji
 
 ## 边界
 
-本次设备验收只覆盖鸿蒙 API 26 ARM64 模拟器。动画主体共用 Flutter 代码；iOS、Android 的原生启动页衔接本次没有重验，也未做鸿蒙真机或最低支持版本验收。截图表明采样点没有白屏，不构成每个显示帧均被捕获或无掉帧的结论。
+本页记录首轮鸿蒙 API 26 ARM64 模拟器验收；后续已补齐 [iOS／Android 重验](startup-reveal-cross-platform.md)，并新增实际栅格门控与空尺寸回归。未做鸿蒙真机或最低支持版本验收。截图表明采样点没有白屏，不构成每个显示帧均被捕获或无掉帧的结论。

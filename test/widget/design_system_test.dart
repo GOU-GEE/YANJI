@@ -184,8 +184,9 @@ void main() {
         await tester.ensureVisible(find.byKey(const Key('confirm-start')));
         expect(tester.takeException(), isNull);
         // Dismiss without starting a session; timer is seeded separately below.
-        Navigator.of(tester.element(find.byKey(const Key('confirm-start'))))
-            .pop();
+        Navigator.of(
+          tester.element(find.byKey(const Key('confirm-start'))),
+        ).pop();
         await tester.pumpAndSettle();
         await page(TasksPage(app));
         await reveal(find.byKey(ValueKey('complete-${app.tasks.single.id}')));
@@ -220,7 +221,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [appControllerProvider.overrideWith((ref) async => app)],
-            child: const YanJiApp(),
+            child: YanJiApp(startupRasterReady: () async {}),
           ),
         );
         await tester.pumpAndSettle();

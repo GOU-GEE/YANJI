@@ -48,7 +48,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [appControllerProvider.overrideWith((ref) async => app)],
-            child: const YanJiApp(),
+            child: YanJiApp(startupRasterReady: () async {}),
           ),
         );
         await settle();
@@ -214,7 +214,7 @@ void main() {
             (ref) async => throw StateError('test failure'),
           ),
         ],
-        child: const YanJiApp(),
+        child: YanJiApp(startupRasterReady: () async {}),
       ),
     );
     await tester.pumpAndSettle();

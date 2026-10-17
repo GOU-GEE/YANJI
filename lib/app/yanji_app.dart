@@ -38,11 +38,15 @@ import '../features/profile_sync_status.dart';
 ThemeData get yanjiTheme => yanjiThemeFor(Brightness.light);
 
 class YanJiApp extends ConsumerWidget {
-  const YanJiApp({super.key});
+  const YanJiApp({super.key, this.startupRasterReady});
+
+  @visibleForTesting
+  final Future<void> Function()? startupRasterReady;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bootstrap = ref.watch(appControllerProvider);
     return StartupReveal(
+      rasterReady: startupRasterReady,
       ready: bootstrap.hasValue && !bootstrap.hasError,
       failed: bootstrap.hasError,
       child: bootstrap.when(

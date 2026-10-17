@@ -72,6 +72,36 @@ launch_target = ROOT / 'ohos/entry/src/main/resources/base/media/launch_mark.svg
 launch_target.write_bytes(ET.tostring(launch, encoding='utf-8', xml_declaration=True))
 print(launch_target.relative_to(ROOT))
 
+# iOS launch storyboard and Flutter both use a 192 logical-pixel canvas.
+transparent_mark = ET.tostring(launch, encoding='utf-8')
+for scale in (1, 2, 3):
+    suffix = '' if scale == 1 else f'@{scale}x'
+    save(f'ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage{suffix}.png',
+         render(transparent_mark, 192 * scale))
+
+# Android 12 gives an unbacked splash icon a 288 dp canvas with a 192 dp safe
+# circle. Inset our 192 dp canvas by 48 dp so its Flutter handoff stays 1:1.
+for name, extent, inset in [('launch_mark', 192, 0), ('launch_mark_splash', 288, 256)]:
+    vector = ET.Element('vector', {
+        'xmlns:android': 'http://schemas.android.com/apk/res/android',
+        'android:width': f'{extent}dp', 'android:height': f'{extent}dp',
+        'android:viewportWidth': str(1024 + inset * 2),
+        'android:viewportHeight': str(1024 + inset * 2),
+    })
+    group = ET.SubElement(vector, 'group', {
+        'android:translateX': str(inset),
+        'android:translateY': str(1024 + inset), 'android:scaleY': '-1',
+    })
+    for path in svg.findall(f'.//{{{SVG_NS}}}path'):
+        ET.SubElement(group, 'path', {
+            'android:fillColor': foreground_color,
+            'android:pathData': path.attrib['d'],
+        })
+    target = ROOT / f'android/app/src/main/res/drawable/{name}.xml'
+    ET.indent(vector)
+    target.write_bytes(ET.tostring(vector, encoding='utf-8', xml_declaration=True))
+    print(target.relative_to(ROOT))
+
 # Apple catalog filenames and sizes stay defined by their existing manifests.
 desktop = ET.Element(f'{{{SVG_NS}}}svg', {
     'width': '1024', 'height': '1024', 'viewBox': '0 0 1024 1024',

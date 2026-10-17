@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -10,11 +11,13 @@ void main() {
     bool failed = false,
     bool reduced = false,
     VoidCallback? onTap,
+    Future<void> Function()? rasterReady,
   }) => MediaQuery(
     data: MediaQueryData(disableAnimations: reduced),
     child: StartupReveal(
       ready: ready,
       failed: failed,
+      rasterReady: rasterReady ?? () async {},
       child: MaterialApp(
         home: Scaffold(
           body: Center(
@@ -66,6 +69,27 @@ void main() {
     expect(find.byKey(StartupReveal.overlayKey), findsNothing);
   });
 
+  testWidgets('waits for the destination raster before starting the reveal', (
+    tester,
+  ) async {
+    final raster = Completer<void>();
+    await tester.pumpWidget(
+      host(ready: true, rasterReady: () => raster.future),
+    );
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.byKey(StartupReveal.overlayKey), findsOneWidget);
+    final painting = tester.widget<CustomPaint>(
+      find.descendant(
+        of: find.byKey(StartupReveal.overlayKey),
+        matching: find.byType(CustomPaint),
+      ),
+    );
+    expect((painting.painter! as StartupClockPainter).progress.value, 0);
+    raster.complete();
+    await tester.pumpAndSettle();
+    expect(find.byKey(StartupReveal.overlayKey), findsNothing);
+  });
+
   testWidgets('initialization failure exposes retry and retry can load again', (
     tester,
   ) async {
@@ -104,6 +128,20 @@ void main() {
     picture.dispose();
     return image;
   }
+
+  test('empty lifecycle surface does not create a non-finite transform', () {
+    for (final size in [Size.zero, const Size(390, 0), const Size(0, 844)]) {
+      for (final harmonyOS in [false, true]) {
+        final recorder = ui.PictureRecorder();
+        StartupClockPainter(
+          progress: const AlwaysStoppedAnimation(.5),
+          devicePixelRatio: 3,
+          harmonyOS: harmonyOS,
+        ).paint(Canvas(recorder), size);
+        recorder.endRecording().dispose();
+      }
+    }
+  });
 
   test(
     'aperture exposes actual content while the outside stays opaque',

@@ -29,3 +29,5 @@ iOS / iPadOS 按已有 AppIcon 目录清单生成不透明 PNG；Android 包含�
 生成工具同时更新 `lib/design/branding/yanji_mark_paths.dart`，供 Flutter 启动动画直接绘制同一组矢量轮廓。不要手改生成的 Dart 路径；调整源 SVG 后重新执行生成命令。时钟第一条路径需保留外轮廓和内轮廓，动画使用内轮廓作为显露真实页面的窗口。
 
 启动时先保留时钟，页面就绪后镂空表盘、放大窗口直至展示整页；鸿蒙系统窗口到 Flutter 首帧之间使用同一个透明 SVG 衔接。演示与验收见[时钟启动动画](../../docs/harmonyos/startup-reveal-validation.md)。
+
+iOS 的 `LaunchImage` 由同一透明标志生成 192 pt 的 1x／2x／3x PNG，并在启动 Storyboard 中居中；Android 使用独立的透明矢量 `launch_mark`，API 31+ 的 `launch_mark_splash` 为系统的 288 dp 画布保留安全边距，最终与 Flutter 的 192 dp 标志画布衔接。浅深色启动主题均使用白底透明标志，不复用桌面图标的有色底板。

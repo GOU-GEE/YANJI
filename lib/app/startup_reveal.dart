@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' show FramePhase, FrameTiming;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +15,17 @@ class StartupReveal extends StatefulWidget {
     required this.ready,
     required this.child,
     this.failed = false,
+    this.rasterReady,
   });
 
   final bool ready;
   final bool failed;
   final Widget child;
+
+  /// Automated widget tests do not receive engine timings. Device/app builds
+  /// leave this unset and wait for the destination's real raster timing.
+  @visibleForTesting
+  final Future<void> Function()? rasterReady;
 
   static const duration = Duration(milliseconds: 950);
   static const overlayKey = ValueKey('startup-clock-overlay');
@@ -32,6 +40,38 @@ class _StartupRevealState extends State<StartupReveal>
   bool _finished = false;
   bool _scheduled = false;
   bool _reduced = false;
+  void Function(List<FrameTiming>)? _rasterCallback;
+  Completer<void>? _rasterCompletion;
+  int _attempt = 0;
+
+  void _cancelRasterWait() {
+    final callback = _rasterCallback;
+    if (callback != null) {
+      WidgetsBinding.instance.removeTimingsCallback(callback);
+    }
+    _rasterCallback = null;
+    final completion = _rasterCompletion;
+    _rasterCompletion = null;
+    if (completion != null && !completion.isCompleted) completion.complete();
+  }
+
+  Future<void> _destinationRasterized() {
+    if (widget.rasterReady != null) return widget.rasterReady!();
+    final completion = Completer<void>();
+    _rasterCompletion = completion;
+    final targetVsync = WidgetsBinding.instance.currentSystemFrameTimeStamp;
+    _rasterCallback = (timings) {
+      if (timings.any(
+        (timing) =>
+            timing.timestampInMicroseconds(FramePhase.vsyncStart) >=
+            targetVsync.inMicroseconds,
+      )) {
+        _cancelRasterWait();
+      }
+    };
+    WidgetsBinding.instance.addTimingsCallback(_rasterCallback!);
+    return completion.future;
+  }
 
   @override
   void initState() {
@@ -54,6 +94,9 @@ class _StartupRevealState extends State<StartupReveal>
       _finished = false;
     }
     if (widget.failed) {
+      _attempt++;
+      _scheduled = false;
+      _cancelRasterWait();
       _animation.stop();
       _finished = true;
     }
@@ -62,13 +105,19 @@ class _StartupRevealState extends State<StartupReveal>
   void _startAfterDestinationFrame() {
     if (_finished || _scheduled || !widget.ready || widget.failed) return;
     _scheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final attempt = _attempt;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || !widget.ready || widget.failed || _finished) return;
+      // A post-frame callback only means Dart submitted the scene. Starting the
+      // clock here can consume the reveal while the cold destination rasterizes.
+      if (!_reduced) await _destinationRasterized();
+      if (attempt != _attempt) return;
       _scheduled = false;
       if (!mounted || !widget.ready || widget.failed || _finished) return;
       if (_reduced) {
         setState(() => _finished = true);
       } else if (!_animation.isAnimating && _animation.value == 0) {
-        _animation.forward();
+        unawaited(_animation.forward());
       }
     });
   }
@@ -121,6 +170,8 @@ class _StartupRevealState extends State<StartupReveal>
 
   @override
   void dispose() {
+    _attempt++;
+    _cancelRasterWait();
     _animation.dispose();
     super.dispose();
   }
@@ -147,6 +198,10 @@ class StartupClockPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Android may briefly report an empty surface during lifecycle changes.
+    // An empty extent would make the cover scale infinite (and 0 * infinity
+    // produces an invalid path transform). There is no visible area to paint.
+    if (size.isEmpty) return;
     final t = progress.value.clamp(0.0, 1.0);
     final opening = const Interval(
       0,

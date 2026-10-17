@@ -58,7 +58,7 @@ tool/flutter_ohos.sh test --no-pub
 
 ## 验收边界
 
-时钟启动图标现支持镂空放大揭幕，已补齐原生窗口到 Flutter 首帧的 SVG 衔接。API 26 模拟器冷启动、前后台切换及 7 项设备用例通过，主机回归 252 项通过；演示、复现与平台边界见[启动动画验收](startup-reveal-validation.md)。
+时钟启动图标支持镂空放大揭幕，三端原生启动资源与 Flutter 图案统一，并等待目标帧实际栅格化后开始。最新 iOS／Android 各 10 项设备用例、鸿蒙 9 项绘制用例及完整入口、主机 254 项通过；演示、复现与平台边界见 [iOS／Android 启动重验](startup-reveal-cross-platform.md)，首轮鸿蒙记录见[启动动画验收](startup-reveal-validation.md)。
 
 计时通知的实现、设备证据与“上岛”接入准备见[鸿蒙计时通知与实况胶囊](study-notifications-and-liveview.md)。普通通知已经可用，后台显示本段开始时间；系统持续跳秒的实况胶囊尚未接入或验收。
 
