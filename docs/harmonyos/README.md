@@ -12,6 +12,7 @@
 | 单机学习闭环 | API 26 ARM64 模拟器通过任务、计时、暂停、复盘、统计、迁移、重启及进程强制终止恢复；正式界面走完 Onboarding→今日页，强杀重启后直接进入今日页 | 真机和系统后台策略 |
 | Dart 跨端同步 | 已作为鸿蒙同步后端接入；API 26 模拟器与 macOS 主机完成认证配对、双向传输与回执确认 | 真机、多机型、长时间稳定性 |
 | 扫码与设备发现 | 设备内二维码解码用例通过；mDNS 鸿蒙实现已接入 | 真机摄像头与跨设备发现 |
+| 计时通知 | Notification Kit 已接入；API 26 模拟器完成开始、暂停、恢复、点击返回及结束清除验收；Live View Kit 接入已调研 | TIMER 场景权益、真机实况胶囊与后台策略 |
 | Syncthing 内嵌 | 独立验证：上游 Go 工具链无法编译 OHOS 目标；Linux shim 在设备上因 initial-exec TLS 重定位加载失败 | 需要 `ohos_golang_go` fork 的专项移植 |
 
 已接入用户提供的官方 Command Line Tools 26.0.0.851（macOS ARM64），内含 SDK 26.0.0.105 / API 26、ohpm 26.0.0.630、Hvigor 6.26.8、Node 24.14.1。无业务依赖的通用工程已产出 `entry-default-unsigned.hap`；Flutter 在产物生成后的签名检查退出，因为尚未配置调试签名。已安装并启动官方 API 26 ARM64 手机模拟器，完成原生存储和本机数据流程验收；详细结果见 `device-validation.md`。
@@ -56,6 +57,8 @@ tool/flutter_ohos.sh test --no-pub
 接入官方工具后，`flutter pub get --enforce-lockfile` 已完整通过。主机回归结果：`flutter analyze --no-pub` 无问题，`flutter test --no-pub` 237 项全部通过（含新增存储回归）。原始日志保存在忽略的 `work/harmonyos/` 目录。
 
 ## 验收边界
+
+计时通知的实现、设备证据与“上岛”接入准备见[鸿蒙计时通知与实况胶囊](study-notifications-and-liveview.md)。普通通知已经可用，后台显示本段开始时间；系统持续跳秒的实况胶囊尚未接入或验收。
 
 主机上的 Flutter 测试用于检查版本调整有没有破坏现有 Dart/Widget 行为，不能证明 SQLite 动态库、HUKS、权限和后台行为在鸿蒙可用。后续先用无业务依赖的通用 Flutter 工程验证 HAP 构建，再进入 SQLite 和安全存储适配；完整 App 构建也可能触发 SQLite hook，不能用它替代独立的工具链验证。
 

@@ -1,0 +1,29 @@
+{
+  "foregroundCounterAdvanced": true,
+  "pauseCounterFrozen": true,
+  "resumeCounterAdvanced": true,
+  "notificationTapReturnsOpen": true,
+  "completionRemovesNotification": true,
+  "staleSnapshotIgnored": true,
+  "nativeStatus": {
+    "enabled": true,
+    "notifications": [],
+    "liveViewSyscap": true
+  },
+  "executedAt": "2026-10-17T11:10:04+08:00",
+  "device": "127.0.0.1:5557",
+  "instance": "Yanji_API26_Validation",
+  "success": true,
+  "mainPreviewRestored": true,
+  "studyRecordsPreserved": {
+    "sessionCountBefore": 43,
+    "sessionCountAfter": 43,
+    "allSegmentsUnchanged": true,
+    "pausedSessionSettledAtCheckpoint": true,
+    "preservedDurationMilliseconds": 668903,
+    "integrityCheck": "ok"
+  },
+  "mainTimerRouteAndBackVerified": true,
+  "hostTestsPassed": 10,
+  "analyzeIssues": 0
+}
