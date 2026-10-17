@@ -59,6 +59,18 @@ def opaque(size):
 
 save('assets/branding/yanji-app-icon-1024.png', opaque(1024))
 
+# The launch window needs the transparent vector mark, not the opaque tile
+# used by launchers. Derive it from the same paths so future artwork stays in sync.
+launch = ET.Element(f'{{{SVG_NS}}}svg', {
+    # Match the old 512 px resource's intrinsic size. HarmonyOS uses it when
+    # sizing this launch icon; a 1024 px SVG would double the visible mark.
+    'width': '512', 'height': '512', 'viewBox': '0 0 1024 1024',
+})
+launch.append(deepcopy(svg.find(f'{{{SVG_NS}}}g')))
+launch_target = ROOT / 'ohos/entry/src/main/resources/base/media/launch_mark.svg'
+launch_target.write_bytes(ET.tostring(launch, encoding='utf-8', xml_declaration=True))
+print(launch_target.relative_to(ROOT))
+
 # Apple catalog filenames and sizes stay defined by their existing manifests.
 desktop = ET.Element(f'{{{SVG_NS}}}svg', {
     'width': '1024', 'height': '1024', 'viewBox': '0 0 1024 1024',

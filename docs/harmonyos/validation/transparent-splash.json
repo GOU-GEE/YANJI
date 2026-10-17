@@ -1,0 +1,61 @@
+{
+  "device": "Yanji_API26_Validation",
+  "api": 26,
+  "startWindowResource": "$media:launch_mark",
+  "format": "SVG",
+  "paths": 6,
+  "embeddedRasterImages": 0,
+  "backgroundRectangles": 0,
+  "intrinsicSize": [
+    512,
+    512
+  ],
+  "viewBox": [
+    0,
+    0,
+    1024,
+    1024
+  ],
+  "sessionCount": 44,
+  "segmentCount": 44,
+  "studyDataUnchanged": true,
+  "integrityCheck": "ok",
+  "before": {
+    "iconBounds": [
+      483,
+      938,
+      838,
+      1291
+    ],
+    "oldMatteAreaRGB": [
+      250.0,
+      250.0,
+      252.0
+    ],
+    "windowBackgroundRGB": [
+      255.0,
+      255.0,
+      255.0
+    ]
+  },
+  "final": {
+    "iconBounds": [
+      483,
+      938,
+      838,
+      1291
+    ],
+    "oldMatteAreaRGB": [
+      255.0,
+      255.0,
+      255.0
+    ],
+    "windowBackgroundRGB": [
+      255.0,
+      255.0,
+      255.0
+    ]
+  },
+  "visibleIconSizeUnchanged": true,
+  "matteRemoved": true
+}
