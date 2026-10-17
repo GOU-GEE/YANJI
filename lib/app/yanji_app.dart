@@ -1,5 +1,3 @@
-import 'package:flutter/rendering.dart' show ScrollDirection;
-
 import 'dart:async';
 import 'dart:io';
 
@@ -452,7 +450,7 @@ CustomTransitionPage<void> _rootPage(
   child: child,
 );
 
-class _AppShell extends StatefulWidget {
+class _AppShell extends StatelessWidget {
   const _AppShell({
     required this.app,
     required this.path,
@@ -465,22 +463,6 @@ class _AppShell extends StatefulWidget {
   final PageStorageBucket scrollBucket;
   static const paths = ['/', '/statistics', '/profile'];
   @override
-  State<_AppShell> createState() => _AppShellState();
-}
-
-class _AppShellState extends State<_AppShell> {
-  static const paths = _AppShell.paths;
-  bool _scrollHidden = false;
-  String get path => widget.path;
-  Widget get child => widget.child;
-  PageStorageBucket get scrollBucket => widget.scrollBucket;
-  @override
-  void didUpdateWidget(_AppShell oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.path != widget.path) _scrollHidden = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final index = paths.indexOf(path), selected = index < 0 ? 0 : index;
     final landscape =
@@ -488,7 +470,7 @@ class _AppShellState extends State<_AppShell> {
     final safe = MediaQuery.viewPaddingOf(context);
     final bottom = (safe.bottom - 12).clamp(8.0, double.infinity);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 100;
-    final hidden = keyboardVisible || _scrollHidden;
+    final hidden = keyboardVisible;
     final dockTransition =
         MediaQuery.disableAnimationsOf(context) ||
             MediaQuery.accessibleNavigationOf(context)
@@ -501,22 +483,9 @@ class _AppShellState extends State<_AppShell> {
           YanjiDockClearance(
             bottom: landscape ? 0 : LiquidNavigationDock.height + bottom + 16,
             left: landscape ? LiquidNavigationDock.verticalWidth + 24 : 0,
-            child: NotificationListener<UserScrollNotification>(
-              onNotification: (notification) {
-                if (notification.depth != 0 ||
-                    notification.direction == ScrollDirection.idle) {
-                  return false;
-                }
-                final hide = notification.direction == ScrollDirection.reverse;
-                if (_scrollHidden != hide) {
-                  setState(() => _scrollHidden = hide);
-                }
-                return false;
-              },
-              child: RootPageScrollMemory(
-                bucket: scrollBucket,
-                child: RepaintBoundary(child: child),
-              ),
+            child: RootPageScrollMemory(
+              bucket: scrollBucket,
+              child: RepaintBoundary(child: child),
             ),
           ),
           Positioned(

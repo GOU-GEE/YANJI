@@ -77,11 +77,11 @@ void main() {
     final scroll = find.byType(Scrollable).first;
     await tester.drag(scroll, const Offset(0, -160));
     await tester.pumpAndSettle();
-    await snap('app-scroll-hidden');
-    expect(dockIgnores(), isTrue);
+    await snap('app-scroll-up-dock-visible');
+    expect(dockIgnores(), isFalse);
     await tester.drag(scroll, const Offset(0, 100));
     await tester.pumpAndSettle();
-    await snap('app-scroll-shown');
+    await snap('app-scroll-down-dock-visible');
     expect(dockIgnores(), isFalse);
     // Recover a partially scrolled position, then leave and return. The shell
     // retains its original PageStorageBucket rather than replacing page state.
