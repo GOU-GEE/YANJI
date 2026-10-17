@@ -23,9 +23,7 @@ dependencies:
     sdk: flutter
   qr_flutter: ^4.1.0
   mobile_scanner:
-    git:
-      url: https://gitcode.com/CPF-Flutter/fluttertpc_mobile_scanner.git
-      ref: f5a4ff52f003e1645db1d4de743a2db0313665a8
+    path: packages/mobile_scanner
   http: ^1.2.2
   liquid_glass_renderer:
     path: packages/liquid_glass_renderer
@@ -48,6 +46,9 @@ dev_dependencies:
     sdk: flutter
 
 flutter:
+  config:
+    # The embedded Syncthing plugin is distributed through CocoaPods.
+    enable-swift-package-manager: false
   uses-material-design: true
   shaders:
     - assets/shaders/coolapk_navigation.frag

@@ -52,7 +52,7 @@ Android 使用 API 36 ARM64、Flutter 3.47.2 / Impeller OpenGLES，运行同一�
 
 鸿蒙额外验证中，中性背景关闭光学后的色散像素为 0，开启后为 1895；仅更新独立背景重绘边界后，12692 个采样像素发生变化。通用边缘折射的边缘／内侧／中心响应分别为 5.000 / 1.375 / 0.000，保持边缘强、中心清晰。
 
-主机全量 **240 项通过**。iOS Metal 目标的 7 个相关着色器编译均成功；本机 `xcrun` 与 Xcode 库的架构不匹配，因此本轮没有重新构建、安装并完成 iPhone 界面回归。Metal 编译检查不作为 iPhone 像素验收通过的替代。
+主机全量 **240 项通过**。本记录最初仅完成 iOS Metal 目标的 7 个着色器编译，iPhone 界面因本机 `xcrun` 与 Xcode 库架构不匹配尚未回归。随后通过本地兼容工具入口完成实际构建、安装与运行；鸿蒙／iPhone／Android 均通过同一套 7 个场景，详见[三端界面重新验收](ui-reacceptance.md)。Metal 编译检查本身仍不作为界面验收通过的替代。
 
 结构化记录：[鸿蒙完整验收](validation/full-glass.json)、[Android 对照](validation/full-glass-android.json)、[Metal 编译](validation/full-glass-metal.json)。
 

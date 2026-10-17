@@ -80,6 +80,8 @@ Flutter 异常或凭据错误。截图见
 
 详见[完整玻璃验收](full-glass-validation.md)。早期记录：[导航兼容材质](navigation-glass-validation.md)、[共用材质排查](shared-glass-validation.md)。
 
+2026-10-17 补齐[三端界面重新验收](ui-reacceptance.md)：鸿蒙、iPhone、Android 各 7 个设备场景通过，各 67 张原生窗口截图。包含浅深色真实 App 导航拖动、松手恢复及统计日／周／月切换；原光学阈值保持。240 项主机回归全部通过。
+
 ## 重现
 
 先在一次性模拟器中解锁屏幕。模拟器实例使用 6 GB 存储、4 GB 内存，

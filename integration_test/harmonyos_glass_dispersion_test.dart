@@ -17,6 +17,7 @@ void main() {
   testWidgets(
     'navigation disperses neutral ink and captures fresh backgrounds',
     (tester) async {
+      await binding.convertFlutterSurfaceToImage();
       const probe = Key('dispersion-probe');
       final phase = ValueNotifier(0.0);
       Future<void> show(bool optics) async {
@@ -133,6 +134,7 @@ void main() {
   testWidgets('day week month indicator uses full glass in both themes', (
     tester,
   ) async {
+    await binding.convertFlutterSurfaceToImage();
     for (final brightness in Brightness.values) {
       var selected = 0;
       await tester.pumpWidget(

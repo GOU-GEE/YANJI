@@ -1,20 +1,47 @@
 PODS:
+  - bonsoir_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - Flutter (1.0.0)
+  - flutter_secure_storage_darwin (10.0.0):
+    - Flutter
+    - FlutterMacOS
+  - integration_test (0.0.1):
+    - Flutter
+  - mobile_scanner (7.0.0):
+    - Flutter
+    - FlutterMacOS
   - yanji_syncthing (0.1.0):
     - Flutter
 
 DEPENDENCIES:
+  - bonsoir_darwin (from `.symlinks/plugins/bonsoir_darwin/darwin`)
   - Flutter (from `Flutter`)
+  - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - yanji_syncthing (from `.symlinks/plugins/yanji_syncthing/ios`)
 
 EXTERNAL SOURCES:
+  bonsoir_darwin:
+    :path: ".symlinks/plugins/bonsoir_darwin/darwin"
   Flutter:
     :path: Flutter
+  flutter_secure_storage_darwin:
+    :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  mobile_scanner:
+    :path: ".symlinks/plugins/mobile_scanner/darwin"
   yanji_syncthing:
     :path: ".symlinks/plugins/yanji_syncthing/ios"
 
 SPEC CHECKSUMS:
+  bonsoir_darwin: 14bd7429acb51db6a8e51f6574ac3b1ea0037a87
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   yanji_syncthing: cd3e955dddf6a9372a620d612adac74af2ead64d
 
 PODFILE CHECKSUM: c09f1c39ba7bd25e25f9ff7dc9511121372650a0

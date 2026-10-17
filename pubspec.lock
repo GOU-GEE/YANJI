@@ -590,11 +590,9 @@ packages:
   mobile_scanner:
     dependency: "direct main"
     description:
-      path: "."
-      ref: f5a4ff52f003e1645db1d4de743a2db0313665a8
-      resolved-ref: f5a4ff52f003e1645db1d4de743a2db0313665a8
-      url: "https://gitcode.com/CPF-Flutter/fluttertpc_mobile_scanner.git"
-    source: git
+      path: "packages/mobile_scanner"
+      relative: true
+    source: path
     version: "7.1.4"
   motor:
     dependency: transitive

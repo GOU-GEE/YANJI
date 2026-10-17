@@ -24,10 +24,11 @@ void main() {
   testWidgets(
     'shared material follows the renderer across all glass controls',
     (tester) async {
+      await binding.convertFlutterSurfaceToImage();
       final quality = await YanjiGlassQuality.resolve();
       final supported = ui.ImageFilter.isShaderFilterSupported;
-      expect(isHarmonyOS, isTrue);
-      expect(defaultTargetPlatform.name, 'ohos');
+      expect(defaultTargetPlatform.name, isIn(['ohos', 'android', 'iOS']));
+      expect(isHarmonyOS, defaultTargetPlatform.name == 'ohos');
       expect(
         quality,
         supportsGlassShaders

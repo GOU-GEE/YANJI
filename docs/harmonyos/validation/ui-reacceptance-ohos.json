@@ -1,0 +1,83 @@
+{
+  "geometry": [
+    {
+      "slot_center_dp": 48.0,
+      "rendered_height_px": 216,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 136.0,
+      "rendered_height_px": 216,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 224.0,
+      "rendered_height_px": 216,
+      "logical_height_dp": 72.0
+    }
+  ],
+  "dpr": 3.0,
+  "capture_ink_width_ratio": 1.2083333333333333,
+  "edge_displacement_dp": 1.0336241366775691,
+  "bar_reduction": [
+    {
+      "slot_center_dp": 48.0,
+      "top_inset_dp": 3.0,
+      "bottom_inset_dp": 3.0,
+      "bar_height_ratio": 0.8928571428571429,
+      "endpoint_inset_dp": 3.6666666666666665
+    },
+    {
+      "slot_center_dp": 136.0,
+      "top_inset_dp": 3.0,
+      "bottom_inset_dp": 3.0,
+      "bar_height_ratio": 0.8928571428571429
+    },
+    {
+      "slot_center_dp": 224.0,
+      "top_inset_dp": 3.0,
+      "bottom_inset_dp": 3.0,
+      "bar_height_ratio": 0.8928571428571429,
+      "endpoint_inset_dp": 3.6666666666666665
+    }
+  ],
+  "edge_profile": {
+    "old_edge": 0.5,
+    "new_edge": 5.0,
+    "inner": 1.375,
+    "center": 0.0
+  },
+  "backdrop_alignment": {
+    "red": 36,
+    "blue": 212
+  },
+  "dispersion_baseline_pixels": 0,
+  "dispersion_pixels": 1895,
+  "live_backdrop_changed_pixels": 12692,
+  "segmented_themes": [
+    "dark",
+    "light"
+  ],
+  "preview_ui_themes": [
+    "dark",
+    "light"
+  ],
+  "preview_ui_ranges": [
+    "day",
+    "week",
+    "month"
+  ],
+  "preview_ui_navigation_release_verified": true,
+  "platform": "ohos",
+  "nativeShaderFilters": false,
+  "capturedShaderBackend": true,
+  "executedAt": "2026-10-16T23:48:19+08:00",
+  "shaderCompilationErrors": 0,
+  "skSlErrors": 0,
+  "success": true,
+  "fullRefractionVerified": true,
+  "testScenarios": 7,
+  "screenshotCount": 67,
+  "runtime": "HarmonyOS API 26 / ARM64 / Skia explicit backdrop sampling",
+  "flutterVersion": "3.41.9+ohos-1.0.2"
+}

@@ -83,7 +83,7 @@ tool/flutter_ohos.sh test --no-pub
 
 ## 扫码与设备发现
 
-`mobile_scanner` 改用 CPF-Flutter 的鸿蒙适配源（`fluttertpc_mobile_scanner`，固定提交 `f5a4ff5`），鸿蒙侧由华为 ScanKit 实现，替代上游 ML Kit；`module.json5` 声明 `ohos.permission.CAMERA` 及使用场景说明。`bonsoir` 的鸿蒙实现（`oh-flutter/bonsoir` 的 `BonsoirPlugin.ets`）已接入插件注册，使用 `@kit.NetworkKit` 的 mDNS。
+`mobile_scanner` 使用 CPF-Flutter 的鸿蒙适配源（`fluttertpc_mobile_scanner`，固定提交 `f5a4ff5`），保存在 `packages/mobile_scanner`。三个平台判断改用平台名称，使同一源码可在标准 Flutter 的 iOS／Android 和 OHOS SDK 编译；详见包内 `YANJI_PATCHES.md`。鸿蒙侧由华为 ScanKit 实现；`module.json5` 声明 `ohos.permission.CAMERA` 及使用场景说明。`bonsoir` 的鸿蒙实现（`oh-flutter/bonsoir` 的 `BonsoirPlugin.ets`）已接入插件注册，使用 `@kit.NetworkKit` 的 mDNS。
 
 ## Syncthing 内嵌验证
 
@@ -94,3 +94,5 @@ tool/flutter_ohos.sh test --no-pub
 API 26 模拟器的 Skia 不支持原生 `ImageFilter.shader`。现通过 OHOS 专用的当前帧背景采样后端运行原版光学着色器，覆盖导航栏、按压滑块与日／周／月等共用玻璃组件。保留原版折射、色散与栏体收缩参数，原生 Impeller 平台继续走原路径。
 
 原兼容材质记录保留为历史；当前实现、严格验收命令及像素指标见[完整玻璃验收](full-glass-validation.md)。
+
+三端最新结果见[界面重新验收](ui-reacceptance.md)：补齐 iPhone 实际运行，鸿蒙／iPhone／Android 各 7 个场景通过，各保存 67 张截图；主机 240 项通过。
