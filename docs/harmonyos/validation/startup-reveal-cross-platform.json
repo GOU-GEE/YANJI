@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-17",
+  "feature": "clock-aperture-startup-reveal",
+  "host_tests_passed": 254,
+  "pinned_ohos_analyze": "passed",
+  "reveal_duration_ms": 950,
+  "raster_gated": true,
+  "ohos_regression": {
+    "api": 26,
+    "arch": "arm64",
+    "substantive_device_tests_passed": 9,
+    "production_main_reaches_today": true
+  },
+  "platforms": {
+    "ios": {
+      "system": "26.5",
+      "emulator": true,
+      "arch": "arm64",
+      "flutter": "3.47.2",
+      "renderer": "Impeller Metal",
+      "substantive_device_tests_passed": 10,
+      "native_resume_same_process": true,
+      "route_preserved": true,
+      "reveal_replayed": false,
+      "main_entry_restored": true,
+      "study_records_unchanged": true,
+      "session_count": 84,
+      "segment_count": 84,
+      "sqlite_integrity": "ok",
+      "flutter_exceptions": 0,
+      "native_video_sha256": "6052275e81267260bbda52f2e4abcd4559beeaf138ca939d1ca8170dc524f452",
+      "gif_clip_seconds": [
+        4.15,
+        6.0
+      ],
+      "evidence": "../screenshots/startup-reveal/ios.gif"
+    },
+    "android": {
+      "system": "36",
+      "emulator": true,
+      "arch": "arm64",
+      "flutter": "3.47.2",
+      "renderer": "Impeller OpenGLES / host Apple M1 Pro",
+      "substantive_device_tests_passed": 10,
+      "native_resume_same_process": true,
+      "route_preserved": true,
+      "reveal_replayed": false,
+      "main_entry_restored": true,
+      "study_records_unchanged": true,
+      "session_count": 42,
+      "segment_count": 42,
+      "sqlite_integrity": "ok",
+      "flutter_exceptions": 0,
+      "native_video_sha256": "04de76d8592192ba68f660727b6c51ad71e36f88364dc054539e0712e51dd6da",
+      "gif_clip_seconds": [
+        4.6,
+        6.5
+      ],
+      "evidence": "../screenshots/startup-reveal/android.gif"
+    }
+  },
+  "limits": [
+    "Simulator Debug builds only",
+    "Not a real-device frame-rate or power benchmark",
+    "Optical glass suite not rerun in this task"
+  ]
+}

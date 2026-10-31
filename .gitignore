@@ -1,4 +1,4 @@
-.tooling/
+.tooling
 work/
 .dart_tool/
 .packages
@@ -17,3 +17,6 @@ coverage/
 *.sqlite-shm
 *.sqlite-wal
 .env
+
+.hvigor/
+flutter_*.log

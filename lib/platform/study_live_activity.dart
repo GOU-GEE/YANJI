@@ -13,7 +13,8 @@ class StudyLiveActivity {
   static bool get _isSupportedPlatform =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.android);
+          defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform.name == 'ohos');
 
   static Future<void> sync({
     required String? sessionId,

@@ -1,0 +1,6 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    # Upstream tests use dev dependencies outside the application package.
+    - test/**

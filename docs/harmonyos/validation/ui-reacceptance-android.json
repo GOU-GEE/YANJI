@@ -1,0 +1,85 @@
+{
+  "geometry": [
+    {
+      "slot_center_dp": 48.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 136.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    },
+    {
+      "slot_center_dp": 224.0,
+      "rendered_height_px": 189,
+      "logical_height_dp": 72.0
+    }
+  ],
+  "dpr": 2.625,
+  "capture_ink_width_ratio": 1.1904761904761905,
+  "edge_displacement_dp": 0.9523809523809523,
+  "bar_reduction": [
+    {
+      "slot_center_dp": 48.0,
+      "top_inset_dp": 3.0476190476190474,
+      "bottom_inset_dp": 3.0476190476190474,
+      "bar_height_ratio": 0.8904109589041096,
+      "endpoint_inset_dp": 3.4285714285714284
+    },
+    {
+      "slot_center_dp": 136.0,
+      "top_inset_dp": 3.0476190476190474,
+      "bottom_inset_dp": 3.0476190476190474,
+      "bar_height_ratio": 0.8904109589041096
+    },
+    {
+      "slot_center_dp": 224.0,
+      "top_inset_dp": 3.0476190476190474,
+      "bottom_inset_dp": 3.0476190476190474,
+      "bar_height_ratio": 0.8904109589041096,
+      "endpoint_inset_dp": 3.4285714285714284
+    }
+  ],
+  "edge_profile": {
+    "old_edge": 0.0,
+    "new_edge": 5.0,
+    "inner": 1.0,
+    "center": 0.0
+  },
+  "backdrop_alignment": {
+    "red": 36,
+    "blue": 212
+  },
+  "dispersion_baseline_pixels": 0,
+  "dispersion_pixels": 2226,
+  "live_backdrop_changed_pixels": 10481,
+  "segmented_themes": [
+    "dark",
+    "light"
+  ],
+  "preview_ui_themes": [
+    "dark",
+    "light"
+  ],
+  "preview_ui_ranges": [
+    "day",
+    "week",
+    "month"
+  ],
+  "preview_ui_navigation_release_verified": true,
+  "platform": "android",
+  "nativeShaderFilters": true,
+  "capturedShaderBackend": false,
+  "success": true,
+  "fullRefractionVerified": true,
+  "testScenarios": 7,
+  "screenshotCount": 67,
+  "shaderCompilationErrors": 0,
+  "skSlErrors": 0,
+  "flutterExceptions": 0,
+  "evidenceCollectedAt": "2026-10-17T10:22:30+08:00",
+  "runtime": "Android API 36 / ARM64 / Impeller OpenGLES",
+  "flutterVersion": "3.47.2",
+  "executedAt": "2026-10-16T23:48:33+08:00"
+}

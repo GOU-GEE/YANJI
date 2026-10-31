@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-17",
+  "feature": "clock-aperture-startup-reveal",
+  "device": { "platform": "HarmonyOS", "api": 26, "arch": "arm64", "emulator": true },
+  "reveal_duration_ms": 950,
+  "analyze": "passed",
+  "host_tests_passed": 252,
+  "device_substantive_tests_passed": 7,
+  "main_hap_build": "passed",
+  "native_cold_start_frames": 50,
+  "matching_hold_frames": 14,
+  "native_mark_bounds_px": [483, 938, 838, 1291],
+  "screen_px": [1320, 2232],
+  "blank_sampled_handoff_frame": false,
+  "warm_resume": { "same_process": true, "route_preserved": true, "reveal_replayed": false },
+  "preview_database": { "sessions_before": 44, "sessions_after": 44, "segments_before": 44, "segments_after": 44, "records_unchanged": true, "integrity_check": "ok" },
+  "evidence": [
+    "../screenshots/12-startup-clock-hold.jpeg",
+    "../screenshots/13-startup-clock-window.jpeg",
+    "../screenshots/14-startup-clock-expanding.jpeg",
+    "../screenshots/15-startup-clock-complete.jpeg",
+    "../screenshots/startup-clock-reveal.gif"
+  ],
+  "limits": ["No physical device validation", "iOS and Android native startup handoffs not revalidated", "Native screenshots are sampled evidence, not a frame-rate benchmark"]
+}

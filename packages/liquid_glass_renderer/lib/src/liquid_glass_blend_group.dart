@@ -87,7 +87,9 @@ class _LiquidGlassBlendGroupState extends State<LiquidGlassBlendGroup> {
           settings: LiquidGlassRenderScope.of(context).settings,
           child: child,
         ),
-        assetKey: ShaderKeys.blendedGeometry,
+        assetKey: usesCapturedGlass
+            ? ShaderKeys.capturedGeometry
+            : ShaderKeys.blendedGeometry,
         child: widget.child,
       ),
     );

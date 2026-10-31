@@ -15,7 +15,7 @@ void main() {
   testWidgets('glass at screen bottom samples the backdrop at screen bottom', (
     tester,
   ) async {
-    expect(ui.ImageFilter.isShaderFilterSupported, isTrue);
+    expect(supportsGlassShaders, isTrue);
     final lensKey = GlobalKey();
     await tester.pumpWidget(
       MaterialApp(
@@ -83,6 +83,7 @@ void main() {
     final red = bytes[p];
     final blue = bytes[p + 2];
     debugPrint('BACKDROP_ALIGNMENT center=($x,$y) red=$red blue=$blue');
+    binding.reportData!['backdrop_alignment'] = {'red': red, 'blue': blue};
     expect(blue, greaterThan(red + 80));
     frame.image.dispose();
     codec.dispose();

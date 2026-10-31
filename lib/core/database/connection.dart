@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import '../platform/app_support_directory.dart';
 
 /// A single background database owner keeps SQLite work off the UI isolate.
 /// Opening is lazy so startup and pure widget tests need no platform channel.
 QueryExecutor openAppDatabase() => LazyDatabase(() async {
-  final directory = await getApplicationSupportDirectory();
+  final directory = await getAppSupportDirectory();
   await directory.create(recursive: true);
   return openDatabaseFile(File(p.join(directory.path, 'yanji.sqlite')));
 });

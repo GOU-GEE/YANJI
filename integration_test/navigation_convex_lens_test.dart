@@ -22,9 +22,9 @@ void main() {
       final bytes = await captureNavigationFrame(binding, tester, name);
       final codec = await ui.instantiateImageCodec(Uint8List.fromList(bytes));
       final image = (await codec.getNextFrame()).image;
-      final rgba = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!
-          .buffer
-          .asUint8List();
+      final rgba = (await image.toByteData(
+        format: ui.ImageByteFormat.rawRgba,
+      ))!.buffer.asUint8List();
       final width = image.width;
       image.dispose();
       codec.dispose();
@@ -226,7 +226,21 @@ void main() {
           if (data.$2[(py * data.$1 + px) * 4] > 130) hits.add(pos);
         }
         expect(hits, isNotEmpty);
-        return [hits.first, hits.last];
+        // Measure continuous bar material, excluding isolated dispersed rim ink.
+        // GLES can produce a one-pixel red rim separated from the bar by 21px;
+        // counting its extrema falsely reports asymmetric bar contraction.
+        final runs = <List<int>>[];
+        var start = hits.first, end = start;
+        for (final hit in hits.skip(1)) {
+          if (hit != end + 1) {
+            runs.add([start, end]);
+            start = hit;
+          }
+          end = hit;
+        }
+        runs.add([start, end]);
+        runs.sort((a, b) => (b.last - b.first).compareTo(a.last - a.first));
+        return runs.first;
       }
 
       final a = span(plain), b = span(reduced);

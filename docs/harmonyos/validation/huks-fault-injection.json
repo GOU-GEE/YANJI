@@ -1,0 +1,74 @@
+{
+  "suite": "YanjiHuksSecretStore",
+  "executedAt": "2026-10-16T16:10:18+08:00",
+  "tests": 8,
+  "passed": 8,
+  "failures": 0,
+  "errors": 0,
+  "ignored": 0,
+  "cases": [
+    "roundTripUtf8TlsSizedValueAndFreshNonce",
+    "invalidJsonRefusesReadAndReplacement",
+    "unsupportedVersionPreservesRecord",
+    "ciphertextBitFlipFailsAuthenticationAndCanRecoverOriginal",
+    "invalidNonceAndTruncatedTagPreserveCiphertext",
+    "swappingIdentityAndTlsRecordsFailsAadAuthentication",
+    "lostWrappingKeyNeverRekeysOrOverwritesExistingSecrets",
+    "unsupportedNamesCannotReadOrWritePreferences"
+  ],
+  "success": true,
+  "environment": {
+    "runtime": "HarmonyOS 7.0.0.107 ARM64 emulator",
+    "api": 26,
+    "commandLineTools": "26.0.0.851",
+    "flutter": "3.41.9+ohos-1.0.2",
+    "instance": "Yanji_API26_Validation"
+  },
+  "isolation": {
+    "bundleName": "com.example.yanji.securitytests",
+    "productionSource": "ohos/entry/src/main/ets/platform/HuksSecretStore.ets",
+    "sha256": "e03267038875fd86d788cfe0da204f0fec5529f04e9149fd4a96717860af1ca0"
+  },
+  "priorInstance": {
+    "name": "Yanji_API26_6G",
+    "localSmokePassedBeforeCleanup": true,
+    "runsBeforeCleanup": 4,
+    "cleanupCommand": "bm uninstall -n com.example.yanji -m entry_test -k",
+    "wrappingKeyUnavailableAfterCleanup": true,
+    "oldIdentityRecovered": false,
+    "preservedAndStopped": true,
+    "productionKeyLossStartupPass": true,
+    "expectedErrorCode": "CREDENTIAL_KEY_MISSING",
+    "databaseFileDigestsUnchangedAcrossRejectedStartup": true
+  },
+  "freshInstanceStartup": {
+    "deviceId": "01a143c2-f577-79ce-9282-125f6168126b",
+    "publicKey": "DRidAgZkgnYSe7UHbqIyGWn7azvF+CdLHVoeHTUVeMA=",
+    "tlsFingerprint": "8lVitdAorXuBVNC0O+SHjgv7xPzfqwzUGKY5mlpU/jE=",
+    "workspaceId": "01a143c2-f6ea-7973-a18f-85a9692cfe35",
+    "runs": 2,
+    "independentTestAppInstalledRanAndUninstalled": true,
+    "productionIdentityTlsAndWorkspaceUnchanged": true
+  },
+  "freshInstancePostFaultLocalSmoke": {
+    "deviceId": "01a143c2-f577-79ce-9282-125f6168126b",
+    "publicKey": "DRidAgZkgnYSe7UHbqIyGWn7azvF+CdLHVoeHTUVeMA=",
+    "tlsFingerprint": "8lVitdAorXuBVNC0O+SHjgv7xPzfqwzUGKY5mlpU/jE=",
+    "taskId": "01a143c4-9562-7d67-a69e-6999f87e5d70",
+    "runs": 2,
+    "schema": 5,
+    "durationMs": 180000
+  },
+  "hostValidation": {
+    "tests": 237,
+    "passed": 237,
+    "analysisIssues": 0,
+    "startupErrorWidgetTests": 2
+  },
+  "freshInstanceMainApplication": {
+    "unsignedHapBuilt": true,
+    "todayScreenAfterForceStopRestart": true,
+    "runtimeExceptionOrCredentialErrorMarkers": false,
+    "screenshot": "screenshots/05-today-after-security-validation.jpeg"
+  }
+}

@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 
 import 'coolapk_navigation_style.dart';
 import 'navigation_backdrop_layer.dart';
@@ -58,7 +58,7 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
   @override
   void initState() {
     super.initState();
-    if (ui.ImageFilter.isShaderFilterSupported && !kIsWeb) {
+    if (supportsGlassShaders) {
       (_programs ??= _load()).then(
         (programs) {
           if (!mounted) return;
@@ -89,7 +89,11 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
 
   static Future<(ui.FragmentProgram, ui.FragmentProgram)> _load() async {
     final programs = await Future.wait([
-      ui.FragmentProgram.fromAsset('assets/shaders/coolapk_navigation.frag'),
+      ui.FragmentProgram.fromAsset(
+        usesCapturedGlass
+            ? 'assets/shaders/coolapk_navigation_captured.frag'
+            : 'assets/shaders/coolapk_navigation.frag',
+      ),
       ui.FragmentProgram.fromAsset('assets/shaders/coolapk_content.frag'),
     ]);
     return (programs[0], programs[1]);
@@ -106,8 +110,7 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final capable =
-        !kIsWeb && ui.ImageFilter.isShaderFilterSupported && _failure == null;
+    final capable = supportsGlassShaders && _failure == null;
     final requested = widget.sampleBackdrop
         ? widget.capability
         : NavigationGlassCapability.translucent;
@@ -116,7 +119,9 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
         : requested;
     final backgroundReady =
         _background != null &&
-        effective != NavigationGlassCapability.translucent;
+        (effective == NavigationGlassCapability.liquid ||
+            (!usesCapturedGlass &&
+                effective == NavigationGlassCapability.blur));
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final press = widget.press.clamp(0.0, 1.0);
     return Semantics(
@@ -170,6 +175,8 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
                   press: press,
                   barScale: widget.barScale,
                   blur: effective != NavigationGlassCapability.translucent,
+                  decorations: widget.decorations,
+                  optics: widget.optics,
                 ),
               ),
             ),
@@ -230,14 +237,19 @@ class _FallbackBackground extends StatelessWidget {
     required this.press,
     required this.barScale,
     required this.blur,
+    required this.decorations,
+    required this.optics,
   });
   final Rect thumb;
-  final bool dark, blur;
+  final bool dark, blur, decorations, optics;
   final double press;
   final double barScale;
   @override
   Widget build(BuildContext context) {
-    final material = Stack(
+    // Skia cannot use ImageFilter.shader. Keep two ordered backdrop samples:
+    // the bar blurs the page, and the pressed lens magnifies the bar beneath it.
+    // Both captures precede shadows and glyphs, just like the shader path.
+    return Stack(
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(
@@ -245,24 +257,46 @@ class _FallbackBackground extends StatelessWidget {
             scale: barScale,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(1000),
-              child: ColoredBox(
-                color: CoolapkNavigationStyle.container(dark, fallback: !blur),
+              child: BackdropFilter(
+                enabled: blur,
+                filter: ui.ImageFilter.blur(
+                  sigmaX: CoolapkNavigationStyle.blur,
+                  sigmaY: CoolapkNavigationStyle.blur,
+                ),
+                child: CustomPaint(
+                  foregroundPainter: decorations
+                      ? _CompatibilityGlassRim(dark: dark, activity: .45)
+                      : null,
+                  child: ColoredBox(
+                    color: CoolapkNavigationStyle.container(
+                      dark,
+                      fallback: !blur,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
         Positioned.fromRect(
           rect: thumb,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(1000),
-              color: Color.alphaBlend(
-                CoolapkNavigationStyle.selection(dark)
-                    .withValues(alpha: .1 * (1 - press)),
-                CoolapkNavigationStyle.thumbContainer(
-                  dark,
-                  press,
-                  fallback: !blur,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(1000),
+            child: _CompatibilityLens(
+              magnification: blur && optics ? 1 + .12 * press : 1,
+              blur: blur ? CoolapkNavigationStyle.blur * (1 - press) : 0,
+              sampleBackdrop: blur,
+              child: CustomPaint(
+                foregroundPainter: decorations
+                    ? _CompatibilityGlassRim(dark: dark, activity: press)
+                    : null,
+                child: ColoredBox(
+                  color: Color.alphaBlend(
+                    CoolapkNavigationStyle.selection(
+                      dark,
+                    ).withValues(alpha: .1 * (1 - press)),
+                    Colors.white.withValues(alpha: (dark ? .04 : .10) * press),
+                  ),
                 ),
               ),
             ),
@@ -270,13 +304,108 @@ class _FallbackBackground extends StatelessWidget {
         ),
       ],
     );
-    return blur
-        ? BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: material,
-          )
-        : material;
   }
+}
+
+/// A live affine lens for engines without shader backdrop filters. This uses
+/// the current canvas coordinates, so it also follows dock translations/scales
+/// without capturing stale page images or applying the screen DPR twice.
+class _CompatibilityLens extends SingleChildRenderObjectWidget {
+  const _CompatibilityLens({
+    required this.magnification,
+    required this.blur,
+    required this.sampleBackdrop,
+    required super.child,
+  });
+  final double magnification, blur;
+  final bool sampleBackdrop;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _CompatibilityLensRender(this);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _CompatibilityLensRender render,
+  ) {
+    render.config = this;
+    render.markNeedsPaint();
+  }
+}
+
+class _CompatibilityLensRender extends RenderProxyBox {
+  _CompatibilityLensRender(this.config);
+  _CompatibilityLens config;
+  final _handle = LayerHandle<BackdropFilterLayer>();
+  @override
+  bool get alwaysNeedsCompositing => true;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (!config.sampleBackdrop) {
+      super.paint(context, offset);
+      return;
+    }
+    final center = offset + size.center(Offset.zero);
+    final transform = Matrix4.identity()
+      ..translateByDouble(center.dx, center.dy, 0, 1)
+      ..scaleByDouble(config.magnification, config.magnification, 1, 1)
+      ..translateByDouble(-center.dx, -center.dy, 0, 1);
+    final lens = ui.ImageFilter.matrix(
+      transform.storage,
+      filterQuality: FilterQuality.medium,
+    );
+    final layer = (_handle.layer ??= BackdropFilterLayer())
+      ..filter = config.blur < .001
+          ? lens
+          : ui.ImageFilter.compose(
+              outer: lens,
+              inner: ui.ImageFilter.blur(
+                sigmaX: config.blur,
+                sigmaY: config.blur,
+              ),
+            );
+    context.pushLayer(layer, super.paint, offset);
+  }
+
+  @override
+  void dispose() {
+    _handle.layer = null;
+    super.dispose();
+  }
+}
+
+class _CompatibilityGlassRim extends CustomPainter {
+  const _CompatibilityGlassRim({required this.dark, required this.activity});
+  final bool dark;
+  final double activity;
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (activity <= .0001) return;
+    final rect = (Offset.zero & size).deflate(.5);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, Radius.circular(rect.shortestSide / 2)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: (dark ? .45 : .85) * activity),
+            Colors.white.withValues(alpha: .08 * activity),
+            Colors.black.withValues(alpha: (dark ? .20 : .12) * activity),
+            Colors.white.withValues(alpha: .48 * activity),
+          ],
+          stops: const [0, .42, .7, 1],
+        ).createShader(rect),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CompatibilityGlassRim old) =>
+      old.dark != dark || old.activity != activity;
 }
 
 class _OpticalBackground extends LeafRenderObjectWidget {
@@ -321,6 +450,7 @@ class _BackgroundRender extends RenderBox {
   _BackgroundRender(this.config);
   _OpticalBackground config;
   final _handle = LayerHandle<NavigationBackdropLayer>();
+  final _captureHandle = LayerHandle<CapturedBackdropLayer>();
   @override
   bool get alwaysNeedsCompositing => true;
   @override
@@ -390,6 +520,32 @@ class _BackgroundRender extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (usesCapturedGlass) {
+      final view = RendererBinding.instance.platformDispatcher.views.first;
+      final layer = CapturedBackdropLayer(
+        transform: () => getTransformTo(null),
+        bounds: () => (Offset.zero & size).expandToInclude(config.thumb),
+        viewport: () => view.physicalSize,
+        dpr: config.dpr,
+        shader: config.shader,
+        blur: config.thumbLayer
+            ? CoolapkNavigationStyle.blur * (1 - config.press)
+            : CoolapkNavigationStyle.blur,
+        bind: (image, crop) {
+          _bind();
+          config.shader.setFloat(0, view.physicalSize.width);
+          config.shader.setFloat(1, view.physicalSize.height);
+          final values = [crop.left, crop.top, crop.width, crop.height];
+          for (var i = 0; i < values.length; i++) {
+            config.shader.setFloat(29 + i, values[i]);
+          }
+          config.shader.setImageSampler(0, image);
+        },
+      )..paintOffset = offset;
+      _captureHandle.layer = layer;
+      context.pushLayer(layer, (context, offset) {}, offset);
+      return;
+    }
     final layer = (_handle.layer ??= NavigationBackdropLayer(
       _filter,
       config.backdropKey,
@@ -400,6 +556,7 @@ class _BackgroundRender extends RenderBox {
   @override
   void dispose() {
     _handle.layer = null;
+    _captureHandle.layer = null;
     super.dispose();
   }
 }
@@ -435,20 +592,19 @@ class _OpticalContent extends SingleChildRenderObjectWidget {
 }
 
 class _ContentRender extends RenderProxyBox {
+  ui.Image? _capturedGlyphs;
+  OffsetLayer? _glyphLayer;
   _ContentRender(this.config);
   _OpticalContent config;
   @override
   bool get alwaysNeedsCompositing => isRepaintBoundary;
   @override
-  bool get isRepaintBoundary => config.press > .0001;
+  bool get isRepaintBoundary => !usesCapturedGlass && config.press > .0001;
   @override
   Rect get paintBounds =>
       (Offset.zero & size).inflate(CoolapkNavigationStyle.captureBleed);
 
-  @override
-  OffsetLayer updateCompositedLayer({
-    required covariant ImageFilterLayer? oldLayer,
-  }) {
+  void _bindContent() {
     // A repaint boundary paints its children at local zero. Passing an absolute
     // paint offset into a nested ImageFilterLayer would shift the capture twice.
     final values = <double>[
@@ -467,12 +623,48 @@ class _ContentRender extends RenderProxyBox {
     for (var i = 0; i < values.length; i++) {
       config.shader.setFloat(i + 2, values[i]);
     }
+  }
+
+  @override
+  OffsetLayer updateCompositedLayer({
+    required covariant ImageFilterLayer? oldLayer,
+  }) {
+    _bindContent();
     return (oldLayer ?? ImageFilterLayer())
       ..imageFilter = ui.ImageFilter.shader(config.shader);
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (usesCapturedGlass && config.press > .0001) {
+      final layer = OffsetLayer();
+      final capture = _IsolatedPaintingContext(layer, paintBounds);
+      super.paint(capture, Offset.zero);
+      capture.finish();
+      final image = layer.toImageSync(paintBounds, pixelRatio: config.dpr);
+      _bindContent();
+      config.shader.setFloat(0, image.width.toDouble());
+      config.shader.setFloat(1, image.height.toDouble());
+      config.shader.setImageSampler(0, image);
+      context.canvas.save();
+      context.canvas.translate(
+        offset.dx + paintBounds.left,
+        offset.dy + paintBounds.top,
+      );
+      context.canvas.scale(1 / config.dpr);
+      context.canvas.drawRect(
+        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+        Paint()..shader = config.shader,
+      );
+      context.canvas.restore();
+      // A scene image is rasterized lazily. Retain its input layers until the
+      // next paint, so glyph textures survive the current GPU submission.
+      _capturedGlyphs?.dispose();
+      _glyphLayer?.dispose();
+      _capturedGlyphs = image;
+      _glyphLayer = layer;
+      return;
+    }
     if (isRepaintBoundary) {
       // The boundary isolates this src command from the backdrop. At rest,
       // paint glyphs normally without introducing an empty filter capture.
@@ -484,6 +676,13 @@ class _ContentRender extends RenderProxyBox {
       );
     }
     super.paint(context, offset);
+  }
+
+  @override
+  void dispose() {
+    _capturedGlyphs?.dispose();
+    _glyphLayer?.dispose();
+    super.dispose();
   }
 }
 
@@ -599,4 +798,9 @@ class _BackgroundClipper extends CustomClipper<Path> {
       thumb != old.thumb ||
       thumbLayer != old.thumbLayer ||
       barScale != old.barScale;
+}
+
+class _IsolatedPaintingContext extends PaintingContext {
+  _IsolatedPaintingContext(super.containerLayer, super.estimatedBounds);
+  void finish() => stopRecordingIfNeeded();
 }

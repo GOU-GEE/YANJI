@@ -1,0 +1,24 @@
+{
+  "runtime": "HarmonyOS 7.0.0.107 ARM64 emulator / API 26",
+  "shaderFilterSupported": false,
+  "deviceAcceptancePassed": true,
+  "pressedLensDisplacementDp": {
+    "light": 2.4046624913013375,
+    "dark": 2.387469586374692
+  },
+  "checks": [
+    "light and dark themes",
+    "rim visible against the same undecorated scene",
+    "live backdrop updates without rebuilding the lens",
+    "hold, drag, release and route selection"
+  ],
+  "focusedWidgetTestsPassed": 10,
+  "staticAnalysisIssues": 0,
+  "compatibilityLens": "live affine magnification; not nonlinear shader refraction",
+  "mainApp": {
+    "unsignedHapBuiltAndInstalled": true,
+    "statisticsPageTapAndLongPressVerified": true,
+    "runtimeExceptionOrCredentialErrorMarkers": false,
+    "heldScreenshot": "screenshots/navigation-glass/app-statistics-held.jpeg"
+  }
+}

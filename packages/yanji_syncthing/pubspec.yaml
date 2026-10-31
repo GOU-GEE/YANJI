@@ -3,7 +3,7 @@ description: Embedded Syncthing transport for YanJi immutable operation files.
 version: 0.1.0
 publish_to: none
 environment:
-  sdk: ^3.13.2
+  sdk: '>=3.11.5 <4.0.0'
   flutter: '>=3.38.0'
 dependencies:
   flutter:

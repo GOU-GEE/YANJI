@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+import '../core/platform/app_support_directory.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../design/yanji_motion.dart';
 
@@ -92,7 +93,12 @@ class YanJiApp extends ConsumerWidget {
                       style: YanJiTypography.textTheme.headlineMedium,
                     ),
                     const SizedBox(height: YanJiSpacing.md),
-                    const Text('请确认设备已解锁后重试。已有学习记录不会被清除。'),
+                    Text(
+                      error is PlatformException &&
+                              error.code == 'CREDENTIAL_KEY_MISSING'
+                          ? '设备的安全身份已不可用。已有学习记录仍保留，请不要清除应用数据。'
+                          : '请确认设备已解锁后重试。已有学习记录不会被清除。',
+                    ),
                     const SizedBox(height: YanJiSpacing.lg),
                     FilledButton(
                       onPressed: () => ref.invalidate(appControllerProvider),
@@ -132,9 +138,14 @@ class _ConfiguredAppState extends State<_ConfiguredApp>
     return syncOpening ??=
         (() async {
           final coordinator = await openPairingCoordinator();
-          final support = await getApplicationSupportDirectory();
+          final support = await getAppSupportDirectory();
           final sync = AutomaticSyncController(
             app: widget.app,
+            backend:
+                isHarmonyOS ||
+                    const String.fromEnvironment('YANJI_SYNC_BACKEND') == 'dart'
+                ? AutomaticSyncBackend.dartTls
+                : AutomaticSyncBackend.embeddedSyncthing,
             pairing: coordinator,
             directory: Directory(
               p.join(support.path, 'sync', widget.app.identity.deviceId),

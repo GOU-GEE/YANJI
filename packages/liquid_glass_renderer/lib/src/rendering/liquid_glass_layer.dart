@@ -121,8 +121,8 @@ class _LiquidGlassLayerState extends State<LiquidGlassLayer>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.fake || !ImageFilter.isShaderFilterSupported) {
-      if (!ImageFilter.isShaderFilterSupported) {
+    if (widget.fake || !supportsGlassShaders) {
+      if (!supportsGlassShaders) {
         logger.warning(
             'LiquidGlassLayer is only supported when using Impeller at the '
             'moment. Falling back to FakeGlass for LiquidGlassLayer. '
@@ -147,7 +147,9 @@ class _LiquidGlassLayerState extends State<LiquidGlassLayer>
         child: InheritedGeometryRenderLink(
           link: _link,
           child: ShaderBuilder(
-            assetKey: ShaderKeys.liquidGlassRender,
+            assetKey: usesCapturedGlass
+                ? ShaderKeys.capturedRender
+                : ShaderKeys.liquidGlassRender,
             (context, shader, child) => _RawShapes(
               renderShader: shader,
               backdropKey: widget.useBackdropGroup
@@ -215,6 +217,7 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
   });
 
   final _shaderHandle = LayerHandle<BackdropFilterLayer>();
+  final _captureHandle = LayerHandle<CapturedBackdropLayer>();
   final _blurLayerHandle = LayerHandle<BackdropFilterLayer>();
   final _clipPathLayerHandle = LayerHandle<ClipPathLayer>();
   final _clipRectLayerHandle = LayerHandle<ClipRectLayer>();
@@ -250,9 +253,6 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
         sigmaX: settings.effectiveBlur,
         sigmaY: settings.effectiveBlur,
       );
-
-    final shaderLayer = (_shaderHandle.layer ??= BackdropFilterLayer())
-      ..filter = ImageFilter.shader(renderShader);
 
     final clipPath = Path();
     for (final geometry in shapes) {
@@ -293,6 +293,30 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
       offset,
       boundingBox,
       (context, offset) {
+        final ContainerLayer shaderLayer;
+        if (usesCapturedGlass) {
+          final view = RendererBinding.instance.platformDispatcher.views.first;
+          shaderLayer = CapturedBackdropLayer(
+            transform: () => getTransformTo(null),
+            bounds: () => boundingBox,
+            viewport: () => view.physicalSize,
+            dpr: devicePixelRatio,
+            shader: renderShader,
+            bind: (image, crop) {
+              renderShader.setFloat(0, view.physicalSize.width);
+              renderShader.setFloat(1, view.physicalSize.height);
+              final values = [crop.left, crop.top, crop.width, crop.height];
+              for (var i = 0; i < values.length; i++) {
+                renderShader.setFloat(20 + i, values[i]);
+              }
+              renderShader.setImageSampler(0, image);
+            },
+          )..paintOffset = offset;
+          _captureHandle.layer = shaderLayer as CapturedBackdropLayer;
+        } else {
+          shaderLayer = (_shaderHandle.layer ??= BackdropFilterLayer())
+            ..filter = ImageFilter.shader(renderShader);
+        }
         context.pushLayer(
           shaderLayer,
           (context, offset) {
@@ -314,6 +338,7 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
   void dispose() {
     _blurLayerHandle.layer = null;
     _shaderHandle.layer = null;
+    _captureHandle.layer = null;
     _clipPathLayerHandle.layer = null;
     _clipRectLayerHandle.layer = null;
     super.dispose();

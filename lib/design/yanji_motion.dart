@@ -171,7 +171,7 @@ class _MotionListState extends State<MotionList> {
     final curved = animation.drive(CurveTween(curve: YanJiMotion.curve));
     return SizeTransition(
       sizeFactor: curved,
-      alignment: Alignment.topCenter,
+      axisAlignment: -1,
       child: FadeTransition(opacity: curved, child: child),
     );
   }

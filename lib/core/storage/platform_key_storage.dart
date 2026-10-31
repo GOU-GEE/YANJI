@@ -3,14 +3,17 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../crypto/device_identity.dart';
+import 'secret_value_storage.dart';
 import '../../sync/transport/tls_identity.dart';
 
 /// One composition-root instance owns initialization. Secrets are stored as one
 /// platform-protected value, never in SQLite, logs or a plaintext fallback.
 final class PlatformKeyStorage implements SecureKeyStorage {
-  PlatformKeyStorage({FlutterSecureStorage? storage})
-    : storage = storage ?? const FlutterSecureStorage();
-  final FlutterSecureStorage storage;
+  PlatformKeyStorage({
+    FlutterSecureStorage? storage,
+    SecretValueStorage? values,
+  }) : storage = values ?? platformSecretStorage(storage);
+  final SecretValueStorage storage;
   static const key = 'yanji.identity.v1';
   static Future<void> _pending = Future.value();
   @override
@@ -53,9 +56,11 @@ final class PlatformKeyStorage implements SecureKeyStorage {
 
 final class PlatformTlsIdentityStorage
     implements SecureTlsIdentityStorage, PersistentSyncEndpointStorage {
-  PlatformTlsIdentityStorage({FlutterSecureStorage? storage})
-    : storage = storage ?? const FlutterSecureStorage();
-  final FlutterSecureStorage storage;
+  PlatformTlsIdentityStorage({
+    FlutterSecureStorage? storage,
+    SecretValueStorage? values,
+  }) : storage = values ?? platformSecretStorage(storage);
+  final SecretValueStorage storage;
   static const key = 'yanji.tls.identity.v1';
   static const syncEndpointsKey = 'yanji.sync.endpoints.v1';
   static Future<void> _pending = Future.value();

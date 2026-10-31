@@ -211,7 +211,12 @@ class _RenderFakeGlass extends RenderProxyBox {
     final color = settings.effectiveGlassColor;
     final luminance = settings.effectiveGlassColor.computeLuminance();
 
-    final blendMode = luminance < 0.5 ? BlendMode.multiply : BlendMode.screen;
+    // Some Skia GLES drivers advertise advanced blending but cannot compile
+    // GL_KHR_blend_equation_advanced shaders. Keep the fallback entirely on
+    // fixed-function source-over so its tint and highlights are not dropped.
+    final blendMode = ui.ImageFilter.isShaderFilterSupported
+        ? (luminance < 0.5 ? BlendMode.multiply : BlendMode.screen)
+        : BlendMode.srcOver;
 
     final paint = Paint()
       ..color = color
@@ -290,7 +295,9 @@ class _RenderFakeGlass extends RenderProxyBox {
       ..style = PaintingStyle.stroke
       ..strokeWidth = ui.lerpDouble(1, 2, lightIntensity)!
       ..color = color.withValues(alpha: color.a * 0.3)
-      ..blendMode = BlendMode.hardLight;
+      ..blendMode = ui.ImageFilter.isShaderFilterSupported
+          ? BlendMode.hardLight
+          : BlendMode.srcOver;
     canvas.drawPath(path, paint);
 
     final overlay = Paint()
@@ -300,7 +307,9 @@ class _RenderFakeGlass extends RenderProxyBox {
       ..maskFilter =
           MaskFilter.blur(BlurStyle.normal, (settings.effectiveThickness / 40))
       ..strokeWidth = (settings.effectiveThickness / 10)
-      ..blendMode = BlendMode.overlay;
+      ..blendMode = ui.ImageFilter.isShaderFilterSupported
+          ? BlendMode.overlay
+          : BlendMode.srcOver;
     canvas.drawPath(path, overlay);
   }
 }
