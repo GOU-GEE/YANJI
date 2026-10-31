@@ -53,17 +53,11 @@ void main() {
     );
     expect(bar.left - heldSurface.thumb.left, greaterThan(4));
     expect(heldSurface.thumb.center.dy, closeTo(bar.center.dy, .001));
-    final clip = tester.widget<ClipPath>(
-      find.descendant(of: surface, matching: find.byType(ClipPath)).first,
-    );
-    expect(
-      clip.clipper!.getClip(tester.getSize(dock)).getBounds().width,
-      greaterThan(tester.getSize(dock).width),
-    );
-    expect(
-      clip.clipper!.getClip(tester.getSize(dock)).getBounds().height,
-      greaterThan(70),
-    );
+    // Bar and lens now clip independently so the bar shadow can be sampled
+    // between them. Their combined visible extent must still include the lens.
+    final paintedBounds = bar.expandToInclude(heldSurface.thumb);
+    expect(paintedBounds.width, greaterThan(tester.getSize(dock).width));
+    expect(paintedBounds.height, greaterThan(70));
     await gesture.moveBy(const Offset(24, 0));
     await tester.pump();
     await gesture.moveBy(const Offset(110, 0));

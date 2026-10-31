@@ -7,8 +7,9 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'coolapk_navigation_style.dart';
 import 'navigation_backdrop_layer.dart';
 
-/// The bar samples the page. The Thumb then samples that navigation material;
-/// only protruding parts see the page. Glyphs and shadows are drawn afterwards.
+/// The bar samples the page. The Thumb then samples that navigation material,
+/// including its shadow; protruding parts see the page. Glyphs and the lens's
+/// own shadow are drawn afterwards so the lens never samples itself.
 class CoolapkNavigationSurface extends StatefulWidget {
   const CoolapkNavigationSurface({
     super.key,
@@ -27,6 +28,7 @@ class CoolapkNavigationSurface extends StatefulWidget {
     this.legacyCompression = false,
     this.onCapability,
     this.outsideShadow,
+    this.barShadow,
   });
   final Rect thumb;
   final double press;
@@ -44,7 +46,12 @@ class CoolapkNavigationSurface extends StatefulWidget {
   // Diagnostic switches are local to navigation, never shared glass settings.
   final bool decorations, optics, legacyCompression;
   final ValueChanged<NavigationGlassCapability>? onCapability;
+
+  /// The lens's own outside shadow, excluded from backdrop sampling.
   final CustomPainter? outsideShadow;
+
+  /// The bar's outside shadow, included only in the lens backdrop.
+  final CustomPainter? barShadow;
   @override
   State<CoolapkNavigationSurface> createState() => _SurfaceState();
 }
@@ -139,7 +146,16 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
           if (backgroundReady) ...[
             // Paint the bar first. The Thumb's distinct backdrop key reads
             // navigation material inside it and the page outside its edges.
-            for (final thumbLayer in [false, true])
+            for (final thumbLayer in [false, true]) ...[
+              // The bar has already sampled the clean page. Add its shadow
+              // before the independent lens samples the navigation material.
+              if (thumbLayer && widget.barShadow != null && widget.decorations)
+                Positioned.fill(
+                  child: CustomPaint(
+                    key: const Key('navigation-bar-shadow'),
+                    painter: widget.barShadow,
+                  ),
+                ),
               Positioned.fill(
                 child: ClipPath(
                   clipper: _BackgroundClipper(
@@ -165,23 +181,21 @@ class _SurfaceState extends State<CoolapkNavigationSurface> {
                   ),
                 ),
               ),
+            ],
           ] else
             Positioned.fill(
-              child: ClipPath(
-                clipper: _OpticalClipper(widget.thumb, widget.barScale),
-                child: _FallbackBackground(
-                  thumb: widget.thumb,
-                  dark: dark,
-                  press: press,
-                  barScale: widget.barScale,
-                  blur: effective != NavigationGlassCapability.translucent,
-                  decorations: widget.decorations,
-                  optics: widget.optics,
-                ),
+              child: _FallbackBackground(
+                thumb: widget.thumb,
+                dark: dark,
+                press: press,
+                barScale: widget.barScale,
+                blur: effective != NavigationGlassCapability.translucent,
+                decorations: widget.decorations,
+                optics: widget.optics,
+                barShadow: widget.barShadow,
               ),
             ),
-          // Paint shadow after background sampling: it cannot enter the
-          // backdrop input, including when the pressed Thumb protrudes.
+          // The lens's own shadow stays outside its capture, avoiding feedback.
           if (widget.outsideShadow != null && widget.decorations)
             Positioned.fill(
               child: CustomPaint(
@@ -239,16 +253,18 @@ class _FallbackBackground extends StatelessWidget {
     required this.blur,
     required this.decorations,
     required this.optics,
+    required this.barShadow,
   });
   final Rect thumb;
   final bool dark, blur, decorations, optics;
   final double press;
   final double barScale;
+  final CustomPainter? barShadow;
   @override
   Widget build(BuildContext context) {
     // Skia cannot use ImageFilter.shader. Keep two ordered backdrop samples:
     // the bar blurs the page, and the pressed lens magnifies the bar beneath it.
-    // Both captures precede shadows and glyphs, just like the shader path.
+    // As on the shader path, only the bar shadow enters the lens capture.
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -278,6 +294,8 @@ class _FallbackBackground extends StatelessWidget {
             ),
           ),
         ),
+        if (barShadow != null && decorations)
+          Positioned.fill(child: CustomPaint(painter: barShadow)),
         Positioned.fromRect(
           rect: thumb,
           child: ClipRRect(
@@ -747,28 +765,6 @@ class _GlyphClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(_GlyphClipper old) =>
       thumb != old.thumb || outside != old.outside;
-}
-
-class _OpticalClipper extends CustomClipper<Path> {
-  const _OpticalClipper(this.thumb, this.barScale);
-  final Rect thumb;
-  final double barScale;
-  @override
-  Path getClip(Size size) => Path.combine(
-    PathOperation.union,
-    Path()..addRRect(
-      RRect.fromRectAndRadius(
-        CoolapkNavigationStyle.containerBounds(size, barScale),
-        Radius.circular(size.shortestSide * barScale / 2),
-      ),
-    ),
-    Path()..addRRect(
-      RRect.fromRectAndRadius(thumb, Radius.circular(thumb.shortestSide / 2)),
-    ),
-  );
-  @override
-  bool shouldReclip(_OpticalClipper old) =>
-      thumb != old.thumb || barScale != old.barScale;
 }
 
 class _BackgroundClipper extends CustomClipper<Path> {

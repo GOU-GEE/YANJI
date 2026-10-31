@@ -499,13 +499,15 @@ class _DockState extends State<LiquidNavigationDock>
                                 refractContent: true,
                                 contentAccent: colors.primary,
                                 accentChild: capture,
-                                outsideShadow: _OutsideDockShadow(
+                                barShadow: NavigationBarShadow(
                                   Theme.of(context).brightness ==
                                           Brightness.dark
                                       ? const Color(0x29000000)
                                       : const Color(0x18000000),
-                                  thumb,
                                   barScale,
+                                ),
+                                outsideShadow: NavigationLensShadow(
+                                  thumb,
                                   pressure,
                                 ),
                                 child: controls,
@@ -545,11 +547,11 @@ class _DockState extends State<LiquidNavigationDock>
   }
 }
 
-class _OutsideDockShadow extends CustomPainter {
-  const _OutsideDockShadow(this.color, this.thumb, this.barScale, this.press);
+/// Painted between the clean bar backdrop and the lens backdrop.
+class NavigationBarShadow extends CustomPainter {
+  const NavigationBarShadow(this.color, this.barScale);
   final Color color;
-  final Rect thumb;
-  final double barScale, press;
+  final double barScale;
   @override
   void paint(Canvas canvas, Size size) {
     final rect = CoolapkNavigationStyle.containerBounds(size, barScale);
@@ -563,16 +565,7 @@ class _OutsideDockShadow extends CustomPainter {
     final outside = Path.combine(
       PathOperation.difference,
       Path()..addRect(rect.inflate(40)),
-      Path.combine(
-        PathOperation.union,
-        shape,
-        Path()..addRRect(
-          RRect.fromRectAndRadius(
-            thumb,
-            Radius.circular(thumb.shortestSide / 2),
-          ),
-        ),
-      ),
+      shape,
     );
     canvas.save();
     canvas.clipPath(outside);
@@ -583,6 +576,21 @@ class _OutsideDockShadow extends CustomPainter {
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
     canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(NavigationBarShadow oldDelegate) =>
+      color != oldDelegate.color || barScale != oldDelegate.barScale;
+}
+
+/// The lens casts its own shadow after sampling, never into its own image.
+class NavigationLensShadow extends CustomPainter {
+  const NavigationLensShadow(this.thumb, this.press);
+  final Rect thumb;
+  final double press;
+
+  @override
+  void paint(Canvas canvas, Size size) {
     if (press > 0) {
       final lens = Path()
         ..addRRect(
@@ -593,7 +601,7 @@ class _OutsideDockShadow extends CustomPainter {
         );
       canvas.save();
       // Shadow falls on the bar as well as the page, but never inside the lens.
-      // This painter runs after both captures, so shadows cannot be refracted.
+      // Only this lens shadow is excluded from the optical input.
       canvas.clipPath(
         Path.combine(
           PathOperation.difference,
@@ -615,9 +623,6 @@ class _OutsideDockShadow extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_OutsideDockShadow oldDelegate) =>
-      color != oldDelegate.color ||
-      thumb != oldDelegate.thumb ||
-      barScale != oldDelegate.barScale ||
-      press != oldDelegate.press;
+  bool shouldRepaint(NavigationLensShadow oldDelegate) =>
+      thumb != oldDelegate.thumb || press != oldDelegate.press;
 }
