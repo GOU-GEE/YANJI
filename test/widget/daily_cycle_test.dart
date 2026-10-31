@@ -48,7 +48,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [appControllerProvider.overrideWith((ref) async => app)],
-            child: const YanJiApp(),
+            child: YanJiApp(startupRasterReady: () async {}),
           ),
         );
         await settle();
@@ -79,6 +79,16 @@ void main() {
         await tap(find.byKey(const Key('exam-year')));
         await tap(find.text('2028 考研').last);
         expect(find.text('预计初试：2027-12-25'), findsOneWidget);
+        expect(find.textContaining('考研对应'), findsNothing);
+        final yearField = tester.getRect(find.byKey(const Key('exam-year')));
+        final examDate = tester.getRect(
+          find.byKey(const Key('exam-date-summary')),
+        );
+        final editDate = tester.getRect(
+          find.byKey(const Key('edit-exam-date')),
+        );
+        expect(examDate.top - yearField.bottom, closeTo(16, .01));
+        expect(editDate.top - examDate.bottom, closeTo(16, .01));
         await tap(find.byKey(const Key('save-exam-year')));
         expect(app.examYear, 2028);
         expect(app.exam?.examDate, '2027-12-25');
@@ -214,7 +224,7 @@ void main() {
             (ref) async => throw StateError('test failure'),
           ),
         ],
-        child: const YanJiApp(),
+        child: YanJiApp(startupRasterReady: () async {}),
       ),
     );
     await tester.pumpAndSettle();

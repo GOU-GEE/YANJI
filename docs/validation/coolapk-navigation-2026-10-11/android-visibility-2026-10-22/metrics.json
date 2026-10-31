@@ -1,0 +1,52 @@
+{
+  "visibilityFrames": [
+    {
+      "frame": "light-bottom-35",
+      "backdropPixelDifference": 8.121399176954732
+    },
+    {
+      "frame": "light-bottom-70",
+      "backdropPixelDifference": 10.97868317001891
+    },
+    {
+      "frame": "light-bottom-100",
+      "backdropPixelDifference": 8.397660818713451
+    },
+    {
+      "frame": "light-side-35",
+      "backdropPixelDifference": 25.68944099378882
+    },
+    {
+      "frame": "light-side-70",
+      "backdropPixelDifference": 24.554277643260694
+    },
+    {
+      "frame": "light-side-100",
+      "backdropPixelDifference": 6.313149127963943
+    },
+    {
+      "frame": "dark-bottom-35",
+      "backdropPixelDifference": 7.93559670781893
+    },
+    {
+      "frame": "dark-bottom-70",
+      "backdropPixelDifference": 10.834622657727351
+    },
+    {
+      "frame": "dark-bottom-100",
+      "backdropPixelDifference": 7.995488721804511
+    },
+    {
+      "frame": "dark-side-35",
+      "backdropPixelDifference": 21.82049689440994
+    },
+    {
+      "frame": "dark-side-70",
+      "backdropPixelDifference": 21.270177562550444
+    },
+    {
+      "frame": "dark-side-100",
+      "backdropPixelDifference": 7.622770919067215
+    }
+  ]
+}

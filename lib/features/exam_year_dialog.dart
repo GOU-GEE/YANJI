@@ -46,16 +46,13 @@ Future<void> chooseExamYear(
                       }),
               ),
               const SizedBox(height: YanJiSpacing.md),
-              YanJiCaption('$year 考研对应 ${year - 1} 年底初试。'),
-              const SizedBox(height: YanJiSpacing.sm),
               Text(
                 '${ExamSchedule.isEstimate(year, date) ? '预计初试' : '初试日期'}：${calendarDate(date)}',
+                key: const Key('exam-date-summary'),
               ),
-              if (ExamSchedule.isEstimate(year, date)) ...[
-                const SizedBox(height: YanJiSpacing.xs),
-                const YanJiCaption('具体日期以教育部公告为准，公布后可在此修改。'),
-              ],
+              const SizedBox(height: YanJiSpacing.md),
               GlassTextButton(
+                key: const Key('edit-exam-date'),
                 onPressed: saving
                     ? null
                     : () async {
@@ -71,6 +68,10 @@ Future<void> chooseExamYear(
                       },
                 child: const Text('修改考试日期'),
               ),
+              if (ExamSchedule.isEstimate(year, date)) ...[
+                const SizedBox(height: YanJiSpacing.xs),
+                const YanJiCaption('具体日期以教育部公告为准，公布后可在此修改。'),
+              ],
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 package com.example.yanji
 
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
@@ -12,6 +13,15 @@ import io.flutter.embedding.engine.FlutterEngine
 import com.example.yanji.ongoing.xiaomi.XiaomiSuperIslandManager
 
 class MainActivity : FlutterActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Flutter delays the first Android draw until its first frame. Drop
+            // the matching system mark then, without a second exit animation.
+            splashScreen.setOnExitAnimationListener { it.remove() }
+        }
+    }
+
     private val refreshHandler = Handler(Looper.getMainLooper())
     private val releaseRefreshRate = Runnable { setInteractiveRefreshRate(false) }
     private var highRefreshRateRequested = false

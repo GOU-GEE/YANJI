@@ -89,10 +89,6 @@ class StudyAppController extends ChangeNotifier {
     await controller.refresh(completeTasks: false);
     await controller._recoverInterruptedStudy();
     await controller.refresh();
-    // Seed a small set of child-subject records for the in-development stats
-    // screen. This runs once per workspace, only when child subjects exist and
-    // none has a recorded segment yet.
-    await controller._seedMockChildSessions();
     final localPeer = controller.trustedPeers
         .where((peer) => peer.deviceId == identity.deviceId && peer.active)
         .firstOrNull;
@@ -172,45 +168,6 @@ class StudyAppController extends ChangeNotifier {
 
   Subject? subject(String? id) => subjects.where((s) => s.id == id).firstOrNull;
   Task? task(String? id) => tasks.where((t) => t.id == id).firstOrNull;
-
-  Future<void> _seedMockChildSessions() async {
-    if (workspace == null) return;
-    final children = subjects
-        .where((s) => isSubjectVisible(s) && s.parentSubjectId != null)
-        .toList();
-    if (children.isEmpty ||
-        segments.any(
-          (s) => children.any(
-            (c) =>
-                c.id ==
-                sessions
-                    .where((x) => x.id == s.sessionId)
-                    .firstOrNull
-                    ?.subjectId,
-          ),
-        )) {
-      return;
-    }
-    final base = now().millisecondsSinceEpoch;
-    for (var i = 0; i < children.length; i++) {
-      final duration = (i + 1) * 20 * 60000;
-      final sessionId = ids.next();
-      final segmentId = ids.next();
-      final start = base - duration - i * 86400000;
-      await _write('study_session', sessionId, 'session.start', {
-        'owner_device_id': identity.deviceId,
-        'subject_id': children[i].id,
-        'started_at_ms': start,
-        'segment_id': segmentId,
-        'mode': 'stopwatch',
-      });
-      await _write('study_session', sessionId, 'session.stop', {
-        'segment_id': segmentId,
-        'ended_at_ms': start + duration,
-      });
-    }
-    await refresh();
-  }
 
   DailyReview? review(String date) =>
       reviews.where((r) => r.reviewDate == date).firstOrNull;

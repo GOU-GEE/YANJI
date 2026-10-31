@@ -27,8 +27,10 @@ import '../features/target_goal.dart';
 import '../features/oppo_fluid_cloud_debug_page.dart';
 import '../features/honor_magic_capsule_debug_page.dart';
 import 'dependencies.dart';
+import 'startup_reveal.dart';
 import '../design/yanji_theme.dart';
 import '../design/glass/liquid_navigation_dock.dart';
+import '../design/glass/navigation_dock_transition.dart';
 import '../design/glass/yanji_glass_theme.dart';
 import '../core/storage/platform_key_storage.dart';
 import '../sync/pairing/device_pairing_coordinator.dart';
@@ -38,11 +40,18 @@ import '../features/profile_sync_status.dart';
 ThemeData get yanjiTheme => yanjiThemeFor(Brightness.light);
 
 class YanJiApp extends ConsumerWidget {
-  const YanJiApp({super.key});
+  const YanJiApp({super.key, this.startupRasterReady});
+
+  @visibleForTesting
+  final Future<void> Function()? startupRasterReady;
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ref
-      .watch(appControllerProvider)
-      .when(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrap = ref.watch(appControllerProvider);
+    return StartupReveal(
+      rasterReady: startupRasterReady,
+      ready: bootstrap.hasValue && !bootstrap.hasError,
+      failed: bootstrap.hasError,
+      child: bootstrap.when(
         data: (app) => _ConfiguredApp(app),
         loading: () => MaterialApp(
           builder: yanjiSystemUiBuilder,
@@ -57,18 +66,7 @@ class YanJiApp extends ConsumerWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('研迹', style: YanJiTypography.textTheme.headlineMedium),
-                  SizedBox(height: YanJiSpacing.lg),
-                  const CircularProgressIndicator(),
-                ],
-              ),
-            ),
-          ),
+          home: const Scaffold(backgroundColor: Colors.white),
         ),
         error: (error, stack) => MaterialApp(
           builder: yanjiSystemUiBuilder,
@@ -108,7 +106,9 @@ class YanJiApp extends ConsumerWidget {
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _ConfiguredApp extends StatefulWidget {
@@ -478,11 +478,6 @@ class _AppShellState extends State<_AppShell> {
     final bottom = (safe.bottom - 12).clamp(8.0, double.infinity);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 100;
     final hidden = keyboardVisible || _scrollHidden;
-    final dockTransition =
-        MediaQuery.disableAnimationsOf(context) ||
-            MediaQuery.accessibleNavigationOf(context)
-        ? Duration.zero
-        : Duration(milliseconds: hidden ? 175 : 225);
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -513,41 +508,18 @@ class _AppShellState extends State<_AppShell> {
             right: landscape ? null : 20,
             top: landscape ? safe.top + 8 : null,
             bottom: landscape ? safe.bottom + 8 : bottom,
-            child: IgnorePointer(
-              ignoring: hidden,
-              child: TweenAnimationBuilder<double>(
-                duration: dockTransition,
-                curve: Curves.easeOutCubic,
-                tween: Tween<double>(end: hidden ? 0 : 1),
-                builder: (context, visibility, _) => Opacity(
-                  opacity: visibility,
-                  child: AnimatedSlide(
-                    duration: dockTransition,
-                    curve: Curves.easeOutCubic,
-                    offset: hidden
-                        ? (landscape
-                              ? const Offset(-.45, 0)
-                              : const Offset(0, .45))
-                        : Offset.zero,
-                    child: AnimatedScale(
-                      duration: dockTransition,
-                      curve: Curves.easeOutCubic,
-                      scale: hidden ? .92 : 1,
-                      child: Align(
-                        alignment: landscape
-                            ? Alignment.centerLeft
-                            : Alignment.bottomCenter,
-                        child: LiquidNavigationDock(
-                          selected: selected,
-                          vertical: landscape,
-                          // Opacity uses an offscreen layer while fading. Its
-                          // backdrop filters must not sample that layer itself.
-                          refractBackdrop: visibility == 1,
-                          onSelected: (i) => context.go(paths[i]),
-                        ),
-                      ),
-                    ),
-                  ),
+            child: Align(
+              alignment: landscape
+                  ? Alignment.centerLeft
+                  : Alignment.bottomCenter,
+              child: NavigationDockTransition(
+                hidden: hidden,
+                vertical: landscape,
+                edgeInset: landscape ? safe.left + 8 : bottom,
+                child: LiquidNavigationDock(
+                  selected: selected,
+                  vertical: landscape,
+                  onSelected: (i) => context.go(paths[i]),
                 ),
               ),
             ),

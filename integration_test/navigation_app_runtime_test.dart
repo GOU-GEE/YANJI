@@ -6,6 +6,7 @@ import 'support/navigation_capture.dart';
 
 import 'package:yanji/main.dart' as app;
 import 'package:yanji/design/glass/liquid_navigation_dock.dart';
+import 'package:yanji/design/glass/navigation_dock_transition.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ void main() {
     await tester.pumpAndSettle();
     // Real window IME insets. Scaffold clears the body child's MediaQuery inset
     // after resizing, while _AppShell reads the inset above that Scaffold.
-    final dock = find.byType(LiquidNavigationDock);
+    final dock = find.byType(LiquidNavigationDock, skipOffstage: false);
     expect(
       tester.view.viewInsets.bottom / tester.view.devicePixelRatio,
       greaterThan(100),
@@ -68,21 +69,37 @@ void main() {
     await tester.tap(today);
     await tester.pumpAndSettle();
     bool dockIgnores() => find
-        .ancestor(
-          of: find.byType(LiquidNavigationDock),
-          matching: find.byType(IgnorePointer),
-        )
+        .ancestor(of: dock, matching: find.byType(IgnorePointer))
         .evaluate()
         .any((e) => (e.widget as IgnorePointer).ignoring);
     final scroll = find.byType(Scrollable).first;
     await tester.drag(scroll, const Offset(0, -160));
+    await tester.pump(const Duration(milliseconds: 35));
+    expect(tester.widget<LiquidNavigationDock>(dock).refractBackdrop, isTrue);
+    expect(
+      find.ancestor(of: dock, matching: find.byType(Opacity)),
+      findsNothing,
+    );
+    final hiding = tester.widget<NavigationDockFrame>(
+      find.byType(NavigationDockFrame),
+    );
+    await binding.takeScreenshot('app-scroll-hiding');
     await tester.pumpAndSettle();
     await snap('app-scroll-hidden');
     expect(dockIgnores(), isTrue);
     await tester.drag(scroll, const Offset(0, 100));
+    await tester.pump(const Duration(milliseconds: 35));
+    expect(tester.widget<LiquidNavigationDock>(dock).refractBackdrop, isTrue);
+    final showing = tester.widget<NavigationDockFrame>(
+      find.byType(NavigationDockFrame),
+    );
+    await binding.takeScreenshot('app-scroll-showing');
     await tester.pumpAndSettle();
     await snap('app-scroll-shown');
     expect(dockIgnores(), isFalse);
+    binding.reportData ??= {};
+    binding.reportData!['hidingVisibility'] = hiding.visibility;
+    binding.reportData!['showingVisibility'] = showing.visibility;
     // Recover a partially scrolled position, then leave and return. The shell
     // retains its original PageStorageBucket rather than replacing page state.
     final state = tester.state<ScrollableState>(scroll);

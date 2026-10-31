@@ -63,18 +63,66 @@ class ProfileSyncController extends ChangeNotifier {
   }
 }
 
-class ProfileSyncStatus extends StatefulWidget {
-  const ProfileSyncStatus({
+/// Matches the adjacent add-device action in the device section header.
+class ProfileSyncButton extends StatelessWidget {
+  const ProfileSyncButton({
     super.key,
     required this.controller,
-    required this.hasPeers,
     required this.busy,
     required this.onSync,
   });
 
   final ProfileSyncController controller;
-  final bool hasPeers, busy;
+  final bool busy;
   final Future<void> Function() onSync;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: controller,
+    builder: (context, _) => SizedBox(
+      width: 40,
+      height: 40,
+      child: YanjiGlassControl(
+        radius: 20,
+        elastic: true,
+        child: IconButton(
+          key: const Key('profile-sync'),
+          tooltip: controller.waiting ? '同步中' : '同步',
+          padding: EdgeInsets.zero,
+          style: IconButton.styleFrom(
+            fixedSize: const Size(40, 40),
+            visualDensity: VisualDensity.standard,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onPressed: busy || controller.waiting
+              ? null
+              : () => controller.run(onSync),
+          icon: controller.waiting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    semanticsLabel: '同步中',
+                  ),
+                )
+              : const Icon(Icons.sync),
+        ),
+      ),
+    ),
+  );
+}
+
+/// A quiet footer beneath the device list, without a separate card or action row.
+class ProfileSyncStatus extends StatefulWidget {
+  const ProfileSyncStatus({
+    super.key,
+    required this.controller,
+    required this.hasPeers,
+  });
+
+  final ProfileSyncController controller;
+  final bool hasPeers;
 
   @override
   State<ProfileSyncStatus> createState() => _ProfileSyncStatusState();
@@ -88,108 +136,69 @@ class _ProfileSyncStatusState extends State<ProfileSyncStatus> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.controller,
     builder: (context, _) {
-      final controller = widget.controller;
-      final message = controller.message(widget.hasPeers);
+      final message = widget.controller.message(widget.hasPeers);
       if (previousMessage != message) {
         previousMessage = message;
         expanded = false;
       }
-      final style = Theme.of(context).textTheme.bodyMedium!;
-      final actionStyle = TextButton.styleFrom(
-        minimumSize: const Size(0, 44),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-      );
-      return YanjiGlassControl(
+      final style = Theme.of(context).textTheme.bodySmall!
+          .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
+      return Padding(
         key: const Key('profile-sync-status'),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: YanJiSpacing.md),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final painter = TextPainter(
-                      text: TextSpan(text: message, style: style),
-                      textDirection: Directionality.of(context),
-                      textScaler: MediaQuery.textScalerOf(context),
-                      locale: Localizations.maybeLocaleOf(context),
-                      maxLines: 1,
-                    )..layout(maxWidth: constraints.maxWidth);
-                    final overflows = painter.didExceedMaxLines;
-                    painter.dispose();
-                    final isExpanded = expanded && overflows;
-                    return Semantics(
-                      button: overflows,
-                      expanded: overflows ? isExpanded : null,
-                      child: InkWell(
-                        key: const Key('profile-sync-message'),
-                        borderRadius: BorderRadius.circular(12),
-                        splashFactory: NoSplash.splashFactory,
-                        highlightColor: Colors.transparent,
-                        onTap: overflows
-                            ? () => setState(() => expanded = !isExpanded)
-                            : null,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 40),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: YanJiSpacing.sm,
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    message,
-                                    style: style,
-                                    maxLines: isExpanded ? null : 1,
-                                    overflow: isExpanded
-                                        ? TextOverflow.visible
-                                        : TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (overflows)
-                                  Icon(
-                                    isExpanded
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    key: const Key('profile-sync-expand'),
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                              ],
-                            ),
-                          ),
+        padding: const EdgeInsets.only(top: YanJiSpacing.xxs),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final painter = TextPainter(
+              text: TextSpan(text: message, style: style),
+              textDirection: Directionality.of(context),
+              textScaler: MediaQuery.textScalerOf(context),
+              locale: Localizations.maybeLocaleOf(context),
+              maxLines: 1,
+            )..layout(maxWidth: constraints.maxWidth);
+            final overflows = painter.didExceedMaxLines;
+            painter.dispose();
+            final isExpanded = expanded && overflows;
+            return Semantics(
+              button: overflows,
+              expanded: overflows ? isExpanded : null,
+              child: InkWell(
+                key: const Key('profile-sync-message'),
+                borderRadius: BorderRadius.circular(8),
+                splashFactory: NoSplash.splashFactory,
+                highlightColor: Colors.transparent,
+                onTap: overflows
+                    ? () => setState(() => expanded = !isExpanded)
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: YanJiSpacing.xxs,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          message,
+                          style: style,
+                          textAlign: TextAlign.start,
+                          maxLines: isExpanded ? null : 1,
+                          overflow: isExpanded
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
                         ),
                       ),
-                    );
-                  },
+                      if (overflows)
+                        Icon(
+                          isExpanded ? Icons.expand_less : Icons.expand_more,
+                          key: const Key('profile-sync-expand'),
+                          size: 16,
+                          color: style.color,
+                        ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: YanJiSpacing.sm),
-              TextButton(
-                key: const Key('profile-sync'),
-                style: actionStyle,
-                onPressed: widget.busy || controller.waiting
-                    ? null
-                    : () => controller.run(widget.onSync),
-                child: controller.waiting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          semanticsLabel: '同步中',
-                        ),
-                      )
-                    : const Text('同步'),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       );
     },

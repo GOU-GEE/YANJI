@@ -462,6 +462,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   ?.copyWith(fontSize: 18),
             ),
           ),
+          ListenableBuilder(
+            listenable: app,
+            builder: (context, _) => ProfileSyncButton(
+              controller: feedback,
+              busy: app.busy,
+              onSync: widget.onSync,
+            ),
+          ),
+          const SizedBox(width: YanJiSpacing.xs),
           SizedBox(
             width: 40,
             height: 40,
@@ -559,8 +568,6 @@ class _ProfilePageState extends State<ProfilePage> {
           hasPeers: app.trustedPeers.any(
             (peer) => peer.active && peer.deviceId != app.identity.deviceId,
           ),
-          busy: app.busy,
-          onSync: widget.onSync,
         ),
       ),
     ],
