@@ -20,6 +20,8 @@ UI/UX 唯一规范为 [DESIGN.md](DESIGN.md)。第一套设计样板覆盖 Onboa
 
 ## 开发环境
 
+Android、iOS 与鸿蒙现使用同一份主分支源码；平台差异仅保留在原生接入和能力选择中。三端 SDK 切换、Android 手机覆盖更新及产物来源记录见[三端共用源码与构建](docs/cross-platform-source.md)。
+
 本次使用 Flutter **3.47.2**（stable，revision d3b14c8769）、Dart **3.13.2**。SDK 安装于本项目 `.tooling/flutter`，已从 Git 排除；没有修改用户全局 PATH。
 
 现有项目目录执行：

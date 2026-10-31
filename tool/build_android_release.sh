@@ -12,8 +12,9 @@ cd "$project_root"
 printf 'Checkout: %s\nRevision: %s\nBuild: %s\n' \
   "$project_root" "$(git rev-parse --short HEAD)" "$build_number"
 git diff --quiet && git diff --cached --quiet || echo 'Includes local source changes.'
-"$flutter_sdk/bin/flutter" pub get
-"$flutter_sdk/bin/flutter" build apk --release --no-pub \
+# Let the release command regenerate native registrants in release mode. A
+# separate pub get followed by --no-pub can leave debug-only test plugins there.
+"$flutter_sdk/bin/flutter" build apk --release \
   --target=lib/main.dart --target-platform=android-arm64 \
   --build-number="$build_number" \
   --dart-define=YANJI_PREVIEW=false --dart-define=YANJI_GLASS_REDUCED=false

@@ -36,3 +36,5 @@ tool/build_harmonyos_unsigned.sh
 ```
 
 在 SDK 切换产生新的基础包锁定后，再次用 `--enforce-lockfile` 验证相应 SDK。不要把 SDK 的依赖锁差异误认为平台源码需要分叉。验收包、mock 数据和日志留在忽略目录 `work/`，不提交真机内容。
+
+同一工作目录的原生构建也需串行：iOS Debug 配置与 Android Release 配置都会生成插件注册文件。Android 发布脚本让 Release 命令自行更新依赖与原生注册，避免 `pub get` 的调试注册文件残留 `integration_test`，然后 `--no-pub` 跳过重新生成。主机测试结束后再切换 SDK。
