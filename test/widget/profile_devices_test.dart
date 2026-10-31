@@ -53,13 +53,17 @@ void main() {
         expect(find.text('等待同步'), findsOneWidget);
         final add = tester.getRect(find.byKey(const Key('add-device')));
         final sync = tester.getRect(find.byKey(const Key('profile-sync')));
-        expect(sync.top, greaterThan(add.bottom));
-        expect(
-          sync.left,
-          greaterThan(
-            tester.getRect(find.byKey(const Key('profile-sync-message'))).right,
-          ),
+        expect(sync.right, lessThan(add.left));
+        expect(sync.center.dy, closeTo(add.center.dy, .01));
+        expect(sync.size, add.size);
+        final notice = tester.getRect(
+          find.byKey(const Key('profile-sync-message')),
         );
+        final device = tester.getRect(
+          find.byKey(const ValueKey('device-row-$peerId')),
+        );
+        expect(notice.top, greaterThan(device.bottom));
+        expect(notice.left, closeTo(device.left, .01));
         expect(add.height, 40);
         expect(find.text('❌'), findsNothing);
         expect(find.text('重命名'), findsNothing);

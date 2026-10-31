@@ -27,7 +27,7 @@ class StartupReveal extends StatefulWidget {
   @visibleForTesting
   final Future<void> Function()? rasterReady;
 
-  static const duration = Duration(milliseconds: 950);
+  static const duration = Duration(milliseconds: 300);
   static const overlayKey = ValueKey('startup-clock-overlay');
 
   @override
@@ -205,14 +205,12 @@ class StartupClockPainter extends CustomPainter {
     final t = progress.value.clamp(0.0, 1.0);
     final opening = const Interval(
       0,
-      .22,
-      curve: Curves.easeOutCubic,
+      .25,
+      curve: Curves.easeInOutCubic,
     ).transform(t);
-    final expansion = const Interval(
-      .18,
-      1,
-      curve: Curves.easeInCubic,
-    ).transform(t);
+    // Grow from the first frame while the interior clears over the first 75 ms.
+    // Only the inner window fades; the outside remains an opaque white cover.
+    final expansion = Curves.easeInQuad.transform(t);
     final ink =
         1 - const Interval(.32, .88, curve: Curves.easeInCubic).transform(t);
     final extent = math.min(

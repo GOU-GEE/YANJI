@@ -32,37 +32,18 @@ void main() {
           home: MediaQuery(
             data: MediaQueryData(textScaler: TextScaler.linear(scale)),
             child: Scaffold(
-              body: ProfileSyncStatus(
-                controller: controller,
-                hasPeers: true,
-                busy: false,
-                onSync: () async {},
-              ),
+              body: ProfileSyncStatus(controller: controller, hasPeers: true),
             ),
           ),
         ),
       );
       final text = find.byKey(const Key('profile-sync-message'));
       final collapsed = tester.getSize(text).height;
-      void expectCenteredActions() {
-        final arrow = tester.getCenter(
-          find.byKey(const Key('profile-sync-expand')),
-        );
-        final sync = tester.getCenter(find.byKey(const Key('profile-sync')));
-        final row = tester.getCenter(
-          find.byKey(const Key('profile-sync-status')),
-        );
-        expect(arrow.dy, closeTo(sync.dy, .01));
-        expect(arrow.dy, closeTo(row.dy, .01));
-      }
-
       expect(find.text('稍后'), findsNothing);
-      expectCenteredActions();
       expect(find.byKey(const Key('profile-sync-expand')), findsOneWidget);
       await tester.tap(text);
       await tester.pumpAndSettle();
       expect(tester.getSize(text).height, greaterThan(collapsed));
-      expectCenteredActions();
       expect(
         tester
             .widget<Text>(
@@ -74,7 +55,6 @@ void main() {
       await tester.tap(text);
       await tester.pumpAndSettle();
       expect(tester.getSize(text).height, collapsed);
-      expectCenteredActions();
       expect(find.text('稍后'), findsNothing);
       expect(
         tester
@@ -98,14 +78,22 @@ void main() {
     var calls = 0;
     Widget page() => MaterialApp(
       home: Scaffold(
-        body: ProfileSyncStatus(
-          controller: controller,
-          hasPeers: true,
-          busy: false,
-          onSync: () {
-            calls++;
-            return completed.future;
-          },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: ProfileSyncButton(
+                controller: controller,
+                busy: false,
+                onSync: () {
+                  calls++;
+                  return completed.future;
+                },
+              ),
+            ),
+            ProfileSyncStatus(controller: controller, hasPeers: true),
+          ],
         ),
       ),
     );

@@ -41,7 +41,7 @@ void main() {
       await tester.tap(find.text('首页操作'), warnIfMissed: false);
       expect(taps, 0);
       await tester.pumpWidget(host(ready: true, onTap: () => taps++));
-      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(StartupReveal.duration ~/ 3);
       expect(find.byKey(StartupReveal.overlayKey), findsOneWidget);
       await tester.tap(find.text('首页操作'), warnIfMissed: false);
       expect(taps, 0);
@@ -147,7 +147,8 @@ void main() {
     'aperture exposes actual content while the outside stays opaque',
     () async {
       const size = Size(390, 844);
-      for (final progress in [0.0, .22, .65]) {
+      var previousRed = 256;
+      for (final progress in [0.0, .08, .16, .25, .65]) {
         final image = await frame(size, progress);
         final bytes = (await image.toByteData(
           format: ui.ImageByteFormat.rawRgba,
@@ -158,11 +159,22 @@ void main() {
         }
 
         expect(pixel(2, 2), [255, 255, 255]);
-        expect(
-          pixel(195, 395),
-          progress == 0 ? [255, 255, 255] : [34, 102, 153],
-        );
-        if (progress == .22) expect(pixel(295, 422), [255, 255, 255]);
+        final interior = pixel(195, 395);
+        if (progress == 0) {
+          expect(interior, [255, 255, 255]);
+          expect(pixel(242, 372), [255, 255, 255]);
+        } else if (progress < .25) {
+          expect(interior[0], greaterThan(34));
+          expect(interior[0], lessThan(previousRed));
+          if (progress == .16) {
+            // This point starts outside the clock and is already inside the
+            // growing window while its content is still fading in.
+            expect(pixel(242, 372), interior);
+          }
+        } else {
+          expect(interior, [34, 102, 153]);
+        }
+        previousRed = interior[0];
         if (progress == .65) expect(pixel(295, 422), [34, 102, 153]);
         image.dispose();
       }
