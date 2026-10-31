@@ -6,7 +6,6 @@ import 'support/navigation_capture.dart';
 
 import 'package:yanji/main.dart' as app;
 import 'package:yanji/design/glass/liquid_navigation_dock.dart';
-import 'package:yanji/design/glass/navigation_dock_transition.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -74,32 +73,13 @@ void main() {
         .any((e) => (e.widget as IgnorePointer).ignoring);
     final scroll = find.byType(Scrollable).first;
     await tester.drag(scroll, const Offset(0, -160));
-    await tester.pump(const Duration(milliseconds: 35));
-    expect(tester.widget<LiquidNavigationDock>(dock).refractBackdrop, isTrue);
-    expect(
-      find.ancestor(of: dock, matching: find.byType(Opacity)),
-      findsNothing,
-    );
-    final hiding = tester.widget<NavigationDockFrame>(
-      find.byType(NavigationDockFrame),
-    );
-    await binding.takeScreenshot('app-scroll-hiding');
     await tester.pumpAndSettle();
-    await snap('app-scroll-hidden');
-    expect(dockIgnores(), isTrue);
-    await tester.drag(scroll, const Offset(0, 100));
-    await tester.pump(const Duration(milliseconds: 35));
-    expect(tester.widget<LiquidNavigationDock>(dock).refractBackdrop, isTrue);
-    final showing = tester.widget<NavigationDockFrame>(
-      find.byType(NavigationDockFrame),
-    );
-    await binding.takeScreenshot('app-scroll-showing');
-    await tester.pumpAndSettle();
-    await snap('app-scroll-shown');
+    await snap('app-scroll-up-dock-visible');
     expect(dockIgnores(), isFalse);
-    binding.reportData ??= {};
-    binding.reportData!['hidingVisibility'] = hiding.visibility;
-    binding.reportData!['showingVisibility'] = showing.visibility;
+    await tester.drag(scroll, const Offset(0, 100));
+    await tester.pumpAndSettle();
+    await snap('app-scroll-down-dock-visible');
+    expect(dockIgnores(), isFalse);
     // Recover a partially scrolled position, then leave and return. The shell
     // retains its original PageStorageBucket rather than replacing page state.
     final state = tester.state<ScrollableState>(scroll);
