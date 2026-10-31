@@ -325,13 +325,19 @@ class _DockState extends State<LiquidNavigationDock>
                       animation: _animations,
                       builder: (context, _) {
                         final pressure = _press.value.clamp(0.0, 1.0);
+                        final alongExtent = vertical
+                            ? constraints.maxHeight
+                            : constraints.maxWidth;
+                        final crossExtent = vertical
+                            ? constraints.maxWidth
+                            : constraints.maxHeight;
                         // m32560 affects only the captured bar material.
                         final barScale = _reduceMotion
                             ? 1.0
                             : 1 +
                                   4 *
                                       CoolapkNavigationStyle.padding /
-                                      constraints.maxWidth *
+                                      alongExtent *
                                       pressure;
                         final velocity = _reduceMotion ? 0.0 : _velocity.value;
                         final sx =
@@ -343,13 +349,13 @@ class _DockState extends State<LiquidNavigationDock>
                         final slot = !vertical && _sign < 0
                             ? 2 - _position.value
                             : _position.value;
-                        final cross = CoolapkNavigationStyle.selectionHeight;
-                        final crossInset =
-                            ((vertical
-                                    ? constraints.maxWidth
-                                    : constraints.maxHeight) -
-                                cross) /
-                            2;
+                        // Preserve the same lens/bar proportion on either axis.
+                        // The side dock is thicker than the bottom dock.
+                        final cross =
+                            (crossExtent - CoolapkNavigationStyle.padding * 2) *
+                            (CoolapkNavigationStyle.selectionHeight /
+                                CoolapkNavigationStyle.contentHeight);
+                        final crossInset = (crossExtent - cross) / 2;
                         final base = Rect.fromLTWH(
                           vertical ? crossInset : 4 + cell * slot,
                           vertical ? 4 + cell * slot : crossInset,

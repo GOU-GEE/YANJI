@@ -469,6 +469,8 @@ class _AppShell extends StatelessWidget {
     final landscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
     final safe = MediaQuery.viewPaddingOf(context);
+    // Leave room for the side lens to protrude, including drag deformation.
+    final sideInset = safe.left + 20;
     final bottom = (safe.bottom - 12).clamp(8.0, double.infinity);
     final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 100;
     final hidden = keyboardVisible;
@@ -478,14 +480,14 @@ class _AppShell extends StatelessWidget {
         children: [
           YanjiDockClearance(
             bottom: landscape ? 0 : LiquidNavigationDock.height + bottom + 16,
-            left: landscape ? LiquidNavigationDock.verticalWidth + 24 : 0,
+            left: landscape ? LiquidNavigationDock.verticalWidth + 36 : 0,
             child: RootPageScrollMemory(
               bucket: scrollBucket,
               child: RepaintBoundary(child: child),
             ),
           ),
           Positioned(
-            left: landscape ? safe.left + 8 : 20,
+            left: landscape ? sideInset : 20,
             right: landscape ? null : 20,
             top: landscape ? safe.top + 8 : null,
             bottom: landscape ? safe.bottom + 8 : bottom,
@@ -496,7 +498,7 @@ class _AppShell extends StatelessWidget {
               child: NavigationDockTransition(
                 hidden: hidden,
                 vertical: landscape,
-                edgeInset: landscape ? safe.left + 8 : bottom,
+                edgeInset: landscape ? sideInset : bottom,
                 child: LiquidNavigationDock(
                   selected: selected,
                   vertical: landscape,

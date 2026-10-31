@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-31",
+  "device_model": "OPD2401",
+  "android_api": 36,
+  "build_number": 33,
+  "geometry_logical_dp": {
+    "side": {
+      "bar_scale_before": 1.25,
+      "bar_scale_after": 1.0689655172413792,
+      "pressed_bar_cross": 68.41379310344827,
+      "pressed_lens_cross": 84.240003456,
+      "ratio": 1.2313306956774195,
+      "edge_inset": 20
+    },
+    "bottom": {
+      "bar_scale": 1.0588235294117647,
+      "pressed_bar_cross": 59.294117647058826,
+      "pressed_lens_cross": 72.205717248,
+      "unchanged": true
+    }
+  },
+  "host_tests_passed": 16,
+  "native_held_screenshots_verified": true,
+  "replacement_install": true
+}

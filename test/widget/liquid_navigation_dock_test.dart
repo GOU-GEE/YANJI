@@ -133,6 +133,16 @@ void main() {
             tester.getSize(find.byKey(const Key('navigation-dock'))),
             surface().barScale,
           );
+          final barCross = vertical ? bar.width : bar.height;
+          final thumbCross = vertical
+              ? surface().thumb.width
+              : surface().thumb.height;
+          expect(surface().barScale, inExclusiveRange(1.0, 1.08));
+          expect(thumbCross / barCross, inExclusiveRange(1.18, 1.28));
+          if (vertical) {
+            expect(bar.left - surface().thumb.left, greaterThan(5));
+            expect(surface().thumb.right - bar.right, greaterThan(5));
+          }
           if (!vertical) {
             expect(
               rtl
